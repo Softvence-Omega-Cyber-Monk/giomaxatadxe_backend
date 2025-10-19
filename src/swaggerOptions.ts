@@ -2,6 +2,7 @@ import path from "path";
 import { configs } from "./app/configs";
 import { authSwaggerDocs } from "./app/modules/auth/auth.swagger";
 import { userSwaggerDocs } from "./app/modules/user/user.swagger";
+import { notificationSwaggerDocs } from "./app/modules/notification/notification.swagger";
 
 
 export const swaggerOptions = {
@@ -15,7 +16,8 @@ export const swaggerOptions = {
         paths: {
             ...authSwaggerDocs,
             ...userSwaggerDocs,
-        },
+        
+            ...notificationSwaggerDocs,},
         servers: configs.env === "production" ? [
             { url: "https://live-url.com" },
             { url: "http://localhost:5000" },
