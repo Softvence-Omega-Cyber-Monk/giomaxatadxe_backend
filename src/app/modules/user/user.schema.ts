@@ -1,22 +1,26 @@
 import { model, Schema } from "mongoose";
 import { TUser } from "./user.interface";
 
-const user_schema = new Schema<TUser>({
-    name: { type: String, required: true },
-    photo: { type: String, required: false },
-    accountId: { type: String, required: false, ref: "account" },
-    address: {
-        location: { type: String },
-        city: { type: String },
-        state: { type: String },
-        postCode: { type: String },
-        country: { type: String },
-        timeZone: { type: String }
-    }
-}, {
+const user_schema = new Schema<TUser>(
+  {
+    fullName: { type: String, required: true },
+    email: { type: String, required: true },
+    password: { type: String, required: true },
+    role: {
+      type: String,
+      enum: ["patient", "solo_nurse", "clinic", "admin"],
+      required: true,
+    },
+    comfirmPassword: { type: String, required: true },
+    nationality: { type: String, required: false },
+    NationalIdNumber: { type: String, required: false },
+    certificate: { type: String, required: false },
+    isVerified: { type: Boolean, default: false },
+  },
+  {
     versionKey: false,
-    timestamps: true
-})
+    timestamps: true,
+  }
+);
 
-
-export const User_Model = model("user", user_schema)
+export const User_Model = model("user", user_schema);

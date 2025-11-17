@@ -1,18 +1,26 @@
 import { z } from "zod";
 
-const update_user = z.object({
-    name: z.string().optional(),
-    photo: z.string().optional(),
-    address: z.object({
-        location: z.string().optional(),
-        city: z.string().optional(),
-        state: z.string().optional(),
-        postCode: z.string().optional(),
-        country: z.string().optional(),
-        timeZone: z.string().optional(),
-    }).optional()
-})
+const create_user = z
+  .object({
+    fullName: z.string({ message: "Full name is required" }),
+    email: z.string({ message: "Email is required" }),
+    password: z.string({ message: "Password is required" }),
+    comfirmPassword: z.string({ message: "Comfirm Password is required" }),
+    role: z.enum(["patient", "solo_nurse", "clinic", "admin"], {
+      message:
+        "Role must be one of 'patient', 'solo_nurse', 'clinic', or 'admin'",
+    }),
+
+    nationality: z.string().optional(),
+    NationalIdNumber: z.string().optional(),
+    certificate: z.string().optional(),
+    isVerified: z.boolean().default(false),
+  })
+  .refine((data) => data.password === data.comfirmPassword, {
+    message: "Password and Confirm Password must match",
+    path: ["comfirmPassword"],
+  });
 
 export const user_validations = {
-    update_user
-}
+  create_user,
+};

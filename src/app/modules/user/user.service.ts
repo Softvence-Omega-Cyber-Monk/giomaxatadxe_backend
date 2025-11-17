@@ -1,22 +1,68 @@
-import { Request } from "express"
-import uploadCloud from "../../utils/cloudinary";
+import { TUser } from "./user.interface";
 import { User_Model } from "./user.schema";
-import { Account_Model } from "../auth/auth.schema";
+import bcrypt from "bcrypt";
 
-const update_profile_into_db = async (req: Request) => {
-    // upload file and get link
-    if (req.file) {
-        const uploadedImage = await uploadCloud(req.file);
-        req.body.photo = uploadedImage?.secure_url;
-    };
+const createUser = async (payload: TUser) => {
+  // Check if email already exists
+  const existingEmailUser = await User_Model.findOne({ email: payload.email });
+  if (existingEmailUser) {
+    throw new Error("A user with this email address already exists.");
+  }
 
-    const isExistUser = await Account_Model.findOne({ email: req?.user?.email }).lean()
-    const result = await User_Model.findOneAndUpdate({ accountId: isExistUser!._id }, req?.body)
-    return result
-}
+  // Check if verified National ID already exists
+  const existingNationalId = await User_Model.findOne({
+    NationalIdNumber: payload.NationalIdNumber,
+  });
+  if (payload.NationalIdNumber && existingNationalId) {
+    throw new Error(
+      "The provided National ID number is already registered and verified."
+    );
+  }
 
+  // 3. Check if password matches confirm password
+  if (payload.password !== payload.comfirmPassword) {
+    throw new Error("Password and confirm password do not match.");
+  }
 
+  const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
 
-export const user_services = {
-    update_profile_into_db
-}
+  if (isNaN(saltRounds)) {
+    throw new Error("Invalid bcrypt salt round value in environment variable.");
+  }
+
+  const hashedPassword = await bcrypt.hash(payload.password, saltRounds);
+
+  // Replace original password with hashed one
+  payload.password = hashedPassword;
+
+  // Create new user
+  const newUser = await User_Model.create(payload);
+  return newUser;
+};
+
+const updateUser = async (id: string, payload: Partial<TUser>) => {
+  // Create a copy without email
+  const { email, password, comfirmPassword, ...updateData } = payload;
+
+  return User_Model.findByIdAndUpdate(id, updateData, { new: true });
+};
+
+const getAllUsers = async () => {
+  return User_Model.find();
+};
+
+const getUserById = async (id: string) => {
+  return User_Model.findById(id);
+};
+
+const deleteUser = async (id: string) => {
+  return User_Model.findByIdAndDelete(id);
+};
+
+export const UserService = {
+  createUser,
+  updateUser,
+  getAllUsers,
+  getUserById,
+  deleteUser,
+};

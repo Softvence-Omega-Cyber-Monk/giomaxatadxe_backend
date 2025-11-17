@@ -6,12 +6,10 @@ import swaggerUi from "swagger-ui-express";
 import globalErrorHandler from './app/middlewares/global_error_handler';
 import notFound from './app/middlewares/not_found_api';
 import appRouter from './routes';
-import { swaggerOptions } from './swaggerOptions';
+
 
 // define app
 const app = express()
-const swaggerSpec = swaggerJSDoc(swaggerOptions);
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // middleware
 app.use(cors({
@@ -23,7 +21,7 @@ app.use(express.json({ limit: "100mb" }))
 app.use(express.raw())
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));
-app.use("/api", appRouter)
+app.use("/api/v1", appRouter)
 
 // stating point
 app.get('/', (req: Request, res: Response) => {
