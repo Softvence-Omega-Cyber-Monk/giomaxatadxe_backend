@@ -4,7 +4,7 @@ import { TUser } from "./user.interface";
 const user_schema = new Schema<TUser>(
   {
     fullName: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: true , unique: true},
     password: { type: String, required: true },
     comfirmPassword: { type: String, required: true },
     role: {

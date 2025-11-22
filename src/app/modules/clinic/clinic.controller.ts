@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { ClinicService } from "./clinic.service";
 
-
 const getAllClinics = async (_req: Request, res: Response) => {
   try {
     const result = await ClinicService.getAllClinics();
@@ -20,7 +19,7 @@ const getAllClinics = async (_req: Request, res: Response) => {
 
 const getClinicById = async (req: Request, res: Response) => {
   try {
-    const result = await ClinicService.getClinicById(req.params.id);
+    const result = await ClinicService.getClinicById(req.params.userId);
 
     if (!result) {
       return res.status(404).json({
@@ -41,16 +40,79 @@ const getClinicById = async (req: Request, res: Response) => {
   }
 };
 
-const updateClinic = async (req: Request, res: Response) => {
+const updateClinicBasic = async (req: Request, res: Response) => {
   try {
-    const result = await ClinicService.updateClinic(
-      req.params.id,
+    const result = await ClinicService.updateClinicBasic(
+      req.params.userId,
       req.body
     );
 
     res.json({
       success: true,
-      message: "Clinic updated successfully",
+      message: "Clinic information updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const uploadCertificate = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+
+    const certificateUrl = req.file ? (req.file as any).path : null;
+    console.log("certificateUrl", certificateUrl);
+
+    const result = await ClinicService.uploadCertificate(userId, {
+      data,
+      certificateUrl,
+    });
+
+    res.json({
+      success: true,
+      message: "Certificate uploaded successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const availabilitySettings = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+
+    const result = await ClinicService.availabilitySettings(userId, data);
+
+    res.json({
+      success: true,
+      message: "availability settings updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const addNewPaymentMethod = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+
+    const result = await ClinicService.addNewPaymentMethod(userId, data);
+
+    res.json({
+      success: true,
+      message: "New Payment Method added successfully",
       data: result,
     });
   } catch (error: any) {
@@ -79,9 +141,11 @@ const deleteClinic = async (req: Request, res: Response) => {
 };
 
 export const ClinicController = {
-  
   getAllClinics,
   getClinicById,
-  updateClinic,
+  updateClinicBasic,
+  uploadCertificate,
+  availabilitySettings,
+  addNewPaymentMethod,
   deleteClinic,
 };

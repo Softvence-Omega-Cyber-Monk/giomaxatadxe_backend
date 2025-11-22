@@ -145,8 +145,7 @@ const createClinic = async (req: Request, res: Response) => {
       certificateName,
     };
 
-    const servicesOfferedData = servicesOffered
-      .split(",")
+    const servicesOfferedData = servicesOffered?.split(",")
       .map((service: string) => service.trim());
 
     console.log(servicesOfferedData);

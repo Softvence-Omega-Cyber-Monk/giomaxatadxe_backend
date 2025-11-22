@@ -1,23 +1,157 @@
 import { Clinic_Model } from "./clinic.model";
 import { TClinic } from "./clinic.interface";
-
-
+import mongoose from "mongoose";
+import { User_Model } from "../user/user.schema";
 
 const getAllClinics = async () => {
-  const result = await Clinic_Model.find();
+  const result = await Clinic_Model.find().populate("userId");
   return result;
 };
 
-const getClinicById = async (id: string) => {
-  const result = await Clinic_Model.findById(id);
+const getClinicById = async (userId: string) => {
+  const result = await Clinic_Model.findOne({ userId }).populate("userId");
   return result;
 };
 
-const updateClinic = async (id: string, payload: Partial<TClinic>) => {
-  const result = await Clinic_Model.findByIdAndUpdate(id, payload, {
-    new: true,
-  });
-  return result;
+const updateClinicBasic = async (userId: string, payload: any) => {
+  const { fullName, email, phoneNumber, servicesOffered, clinicDescription } =
+    payload;
+
+  const servicesOfferedData = servicesOffered
+    ?.split(",")
+    .map((service: string) => service.trim());
+
+  console.log("user id form service ", userId);
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // step-1: Update user model
+    const updatedUser = await User_Model.findByIdAndUpdate(
+      userId,
+      { fullName },
+      { new: true, session }
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found!");
+    }
+
+    // step-2: Update clinic model
+    const updatedClinic = await Clinic_Model.findOneAndUpdate(
+      { userId },
+      {
+        phoneNumber,
+        servicesOffered: servicesOfferedData,
+        clinicDescription,
+      },
+      { new: true, session }
+    ).populate("userId");
+
+    if (!updatedClinic) {
+      throw new Error("Clinic profile not found!");
+    }
+
+    // commit both updates
+    await session.commitTransaction();
+    session.endSession();
+
+    return updatedClinic;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    console.log(error);
+  }
+};
+const uploadCertificate = async (userId: string, payload: any) => {
+  console.log("payload from service ", payload);
+
+  const clinic = await Clinic_Model.findOne({ userId });
+
+  if (!clinic) {
+    throw new Error("Clinic not found for this user");
+  }
+
+  // 2️⃣ Check for duplicate certificate name
+  const certificates = clinic.clinicCertificates ?? [];
+  const alreadyExists = certificates.some(
+    (cert: any) => cert.certificateName === payload.data?.certificateName
+  );
+
+  if (alreadyExists) {
+    throw new Error("Certificate name already exists. Use a unique name.");
+  }
+
+  const newCertificate = {
+    uploadCertificates: payload.certificateUrl, // correct field name
+    certificateType: payload.data?.certificateType,
+    certificateName: payload.data?.certificateName,
+  };
+
+  console.log("service ", newCertificate);
+
+  const updatedCertificates = await Clinic_Model.findOneAndUpdate(
+    { userId },
+    {
+      $push: { clinicCertificates: newCertificate },
+      medicalLicenseNumber: payload.data?.medicalLicenseNumber, // optional
+    },
+    { new: true }
+  );
+  return updatedCertificates;
+};
+const availabilitySettings = async (userId: string, payload: any) => {
+  console.log("payload from service ", payload);
+
+  const availability = {
+    startTime: payload?.startTime,
+    endTime: payload?.endTime,
+    workingDays: payload?.workingDays,
+    appointmentType: payload?.appointmentType,
+  };
+
+  const clinic = await Clinic_Model.findOne({ userId });
+
+  if (!clinic) {
+    throw new Error("Clinic not found for this user");
+  }
+
+  const updatedCertificates = await Clinic_Model.findOneAndUpdate(
+    { userId },
+    {
+      $set: { availability },
+    },
+    { new: true }
+  );
+  return updatedCertificates;
+};
+const addNewPaymentMethod = async (userId: string, payload: any) => {
+  console.log("payload from service ", payload);
+
+  const clinic = await Clinic_Model.findOne({ userId });
+
+  if (!clinic) {
+    throw new Error("Clinic not found for this user");
+  }
+
+  const newMethod = {
+    cardHolderName: payload.cardHolderName,
+    cardNumber: payload.cardNumber,
+    cvv: payload.cvv,
+    expiryDate: payload.expiryDate,
+  };
+
+  // push into nested array
+  const updatedClinic = await Clinic_Model.findOneAndUpdate(
+    { userId },
+    {
+      $push: { "paymentAndEarnings.withdrawalMethods": newMethod },
+    },
+    { new: true }
+  );
+
+  return updatedClinic;
 };
 
 const deleteClinic = async (id: string) => {
@@ -26,9 +160,11 @@ const deleteClinic = async (id: string) => {
 };
 
 export const ClinicService = {
-  
   getAllClinics,
   getClinicById,
-  updateClinic,
+  updateClinicBasic,
+  uploadCertificate,
+  availabilitySettings,
+  addNewPaymentMethod,
   deleteClinic,
 };

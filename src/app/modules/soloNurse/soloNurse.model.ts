@@ -4,7 +4,14 @@ import { TSoloNurse } from "./soloNurse.interface";
 const soloNurseSchema = new Schema<TSoloNurse>(
   {
     userId: { type: Schema.Types.ObjectId, required: true, ref: "user" },
-
+    nationality: {
+      type: String,
+      required: true,
+    },
+    nationalIdNumber: {
+      type: String,
+      required: true,
+    },
     phoneNumber: { type: String, required: false },
 
     gender: {
@@ -33,9 +40,9 @@ const soloNurseSchema = new Schema<TSoloNurse>(
     },
     certificates: [
       {
-        uploadCertificates: { type: String, required: false },
+        uploadCertificates: { type: String, required: true },
         certificateType: { type: String, required: false },
-        certificateName: { type: String, required: false },
+        certificateName: { type: String, required: false , unique: true},
       },
     ],
     availability: {
@@ -52,10 +59,11 @@ const soloNurseSchema = new Schema<TSoloNurse>(
       },
       withdrawalMethods: [
         {
-          cardHolderName: { type: String, required: true },
-          cardNumber: { type: String, required: true },
-          cvv: { type: String, required: true },
-          expiryDate: { type: String, required: true },
+          _id: false,
+          cardHolderName: { type: String },
+          cardNumber: { type: String },
+          cvv: { type: String },
+          expiryDate: { type: String },
         },
       ],
     },

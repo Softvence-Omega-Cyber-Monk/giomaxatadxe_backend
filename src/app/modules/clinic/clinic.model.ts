@@ -6,7 +6,7 @@ const clinicSchema = new Schema<TClinic>(
     userId: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: "user",
     },
     phoneNumber: {
       type: String,
@@ -23,24 +23,25 @@ const clinicSchema = new Schema<TClinic>(
       {
         uploadCertificates: { type: String },
         certificateType: { type: String },
-        certificateName: { type: String },
+        certificateName: { type: String, unique: true },
       },
     ],
     medicalLicenseNumber: {
       type: String,
-      required: true,
+      required: false,
     },
     servicesOffered: {
       type: [String],
-      required: true,
+      required: false,
     },
     clinicDescription: {
       type: String,
-      required: true,
+      required: false,
     },
     availability: {
       startTime: { type: String },
       endTime: { type: String },
+      workingDays: { type: [String] },
       appointmentType: {
         type: String,
         enum: ["inClinic", "online", "both"],

@@ -2,8 +2,7 @@ import { Router } from "express";
 
 import { createUploader } from "../../utils/cloudinary";
 import { user_controllers } from "./user.controller";
-import RequestValidator from "../../middlewares/request_validator";
-import { user_validations } from "./user.validation";
+
 
 const uploadCertificate = createUploader("userCertificates");
 

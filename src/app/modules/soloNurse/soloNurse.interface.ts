@@ -2,7 +2,10 @@ import { Types } from "mongoose";
 
 export type TSoloNurse = {
   userId: Types.ObjectId;
+  nationality: string;
+  nationalIdNumber: string;
   phoneNumber?: string;
+
   gender?: "male" | "female";
   dateOfBirth?: string;
   professionalInformation?: {

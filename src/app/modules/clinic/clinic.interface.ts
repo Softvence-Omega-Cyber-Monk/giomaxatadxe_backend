@@ -7,15 +7,16 @@ export type TClinic = {
   nationalIdNumber: string;
   clinicCertificates?: {
     uploadCertificates: string;
-    certificateType: string;
-    certificateName: string;
+    certificateType?: string;
+    certificateName?: string;
   }[];
-  medicalLicenseNumber : string,
-  servicesOffered: string[];
-  clinicDescription: string;
+  medicalLicenseNumber?: string;
+  servicesOffered?: string[];
+  clinicDescription?: string;
   availability?: {
     startTime: string;
     endTime: string;
+    workingDays: string[];
     appointmentType: "inClinic" | "online" | "both";
   };
   paymentAndEarnings?: {
@@ -30,6 +31,5 @@ export type TClinic = {
       cvv: string;
       expiryDate: string;
     }[];
-    
   };
 };
