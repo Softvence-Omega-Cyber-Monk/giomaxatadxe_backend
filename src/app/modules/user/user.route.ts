@@ -7,30 +7,26 @@ import { user_validations } from "./user.validation";
 
 const uploadCertificate = createUploader("userCertificates");
 
+const clinicCertificate = createUploader("clinicCertificates");
+
 const router = Router();
 
-// CREATE
+// CREATE paitent
 router.post(
-  "/create-user",
-  uploadCertificate.single("cretificate"),
-  RequestValidator(user_validations.create_user),
-  user_controllers.createUser
+  "/create-paient",
+  user_controllers.createPatient
+);
+router.post(
+  "/create-solo-nurse",
+  uploadCertificate.single("uploadCertificates"),
+  user_controllers.createSoloNurse
+);
+router.post(
+  "/create-clinic",
+  clinicCertificate.single("uploadCertificates"),
+  user_controllers.createClinic
 );
 
-// UPDATE
-router.put(
-  "/update-user/:id",
-  uploadCertificate.single("cretificate"),
-  user_controllers.updateUser
-);
 
-// GET ALL
-router.get("/getAll", user_controllers.getAllUsers);
-
-// GET SINGLE
-router.get("/getSingle/:id", user_controllers.getUserById);
-
-// DELETE
-router.delete("/delete-user/:id", user_controllers.deleteUser);
 
 export const user_routes = router;

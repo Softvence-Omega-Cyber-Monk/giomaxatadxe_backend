@@ -6,8 +6,4 @@ export type TUser = {
   password: string;
   comfirmPassword: string;
   role: "patient" | "solo_nurse" | " clinic" | "admin";
-  nationality?: string;
-  NationalIdNumber?: string;
-  certificate?: string;
-  isVerified?: boolean
 };

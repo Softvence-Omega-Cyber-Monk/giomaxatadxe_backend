@@ -10,11 +10,6 @@ const create_user = z
       message:
         "Role must be one of 'patient', 'solo_nurse', 'clinic', or 'admin'",
     }),
-
-    nationality: z.string().optional(),
-    NationalIdNumber: z.string().optional(),
-    certificate: z.string().optional(),
-    isVerified: z.boolean().default(false),
   })
   .refine((data) => data.password === data.comfirmPassword, {
     message: "Password and Confirm Password must match",

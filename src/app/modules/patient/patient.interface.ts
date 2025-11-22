@@ -1,0 +1,37 @@
+import { Types } from "mongoose";
+
+export type TPatient = {
+  userId: Types.ObjectId;
+  phoneNumber?: string;
+  gender?: "male" | "female";
+  bloodGroup?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
+  dateOfBirth?: string;
+  address?: {
+    addressLabel: string;
+    streetNumber: string;
+    apartmentNumber: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+  medicalHistory?: {
+    conditions: {
+      name: string;
+      diagnosedDate: string;
+      status: string;
+      notes?: string;
+    }[];
+    Medications: {
+      name: string;
+      dosage: string;
+      frequency: string;
+      startDate: string;
+    }[];
+    Allergies: {
+      allergyOn: string;
+      severity: string;
+      reaction: string;
+    }[];
+  };
+
+};

@@ -14,7 +14,7 @@ export const createUploader = (folder: string) => {
     cloudinary,
     params: async () => ({
       folder: folder,
-      allowed_formats: ["jpg", "jpeg", "png", "webp"],
+      allowed_formats: ["jpg", "jpeg", "png", "webp", "pdf"],
     }),
   });
 
