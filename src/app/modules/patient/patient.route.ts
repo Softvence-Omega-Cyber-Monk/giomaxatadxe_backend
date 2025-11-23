@@ -6,7 +6,7 @@ const router = Router();
 router.get("/getAll", patientController.getAllPatients);
 router.get("/getSinglePatient/:userId", patientController.getPatientById);
 router.put("/update-basic/:userId", patientController.updatePatientBasic);
-router.put("/createOrUpdateAddress/:userId", patientController.createOrUpdateAddress);
+router.patch("/createOrUpdateAddress/:userId", patientController.createOrUpdateAddress);
 
 router.delete("/deletePatient/:id", patientController.deletePatient);
 

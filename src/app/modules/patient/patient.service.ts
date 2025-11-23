@@ -60,12 +60,15 @@ export const patientService = {
   },
   createOrUpdateAddress: async (
     userId: string,
-    addressId: string ,
+    addressId: string,
     payload: any
   ) => {
     try {
       // If addressId is provided → update existing address
+
       if (addressId) {
+        console.log("address id ", addressId);
+        console.log("payload ", payload);
         const updatedPatient = await Patient_Model.findOneAndUpdate(
           {
             userId,

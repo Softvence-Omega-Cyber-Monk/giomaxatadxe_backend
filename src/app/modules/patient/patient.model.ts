@@ -24,6 +24,8 @@ const patientSchema = new Schema<TPatient>(
         city: { type: String },
         state: { type: String },
         zipCode: { type: String },
+
+  
       },
     ],
     medicalHistory: {

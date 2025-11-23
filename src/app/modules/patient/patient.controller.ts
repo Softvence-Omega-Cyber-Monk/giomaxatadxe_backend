@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { patientService } from "./patient.service";
 
 export const patientController = {
-
   getAllPatients: async (_req: Request, res: Response) => {
     try {
       const patients = await patientService.getAllPatients();
@@ -29,13 +28,13 @@ export const patientController = {
     }
   },
 
-  updatePatientBasic : async (req: Request, res: Response) => {
+  updatePatientBasic: async (req: Request, res: Response) => {
     try {
       const result = await patientService.updatePatientBasic(
         req.params.userId,
         req.body
       );
-  
+
       res.json({
         success: true,
         message: "Patient updated successfully",
@@ -48,17 +47,16 @@ export const patientController = {
       });
     }
   },
-  createOrUpdateAddress : async (req: Request, res: Response) => {
+  createOrUpdateAddress: async (req: Request, res: Response) => {
     try {
+      const addressId = req.query?.addressId as string;
 
-      const addressId = req.query?.addressId;
-      
       const result = await patientService.createOrUpdateAddress(
         req.params.userId,
-        addressId ,
+        addressId,
         req.body
       );
-  
+
       res.json({
         success: true,
         message: "Patient updated successfully",
