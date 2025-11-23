@@ -65,7 +65,7 @@ const updateClinicBasic = async (userId: string, payload: any) => {
   }
 };
 const uploadCertificate = async (userId: string, payload: any) => {
-  console.log("payload from service ", payload);
+  // console.log("payload from service ", payload);
 
   const clinic = await Clinic_Model.findOne({ userId });
 
@@ -73,15 +73,7 @@ const uploadCertificate = async (userId: string, payload: any) => {
     throw new Error("Clinic not found for this user");
   }
 
-  // 2️⃣ Check for duplicate certificate name
-  const certificates = clinic.clinicCertificates ?? [];
-  const alreadyExists = certificates.some(
-    (cert: any) => cert.certificateName === payload.data?.certificateName
-  );
 
-  if (alreadyExists) {
-    throw new Error("Certificate name already exists. Use a unique name.");
-  }
 
   const newCertificate = {
     uploadCertificates: payload.certificateUrl, // correct field name
@@ -89,7 +81,7 @@ const uploadCertificate = async (userId: string, payload: any) => {
     certificateName: payload.data?.certificateName,
   };
 
-  console.log("service ", newCertificate);
+  // console.log("service ", newCertificate);
 
   const updatedCertificates = await Clinic_Model.findOneAndUpdate(
     { userId },

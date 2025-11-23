@@ -4,7 +4,7 @@ import { createUploader } from "../../utils/cloudinary";
 import { user_controllers } from "./user.controller";
 
 
-const uploadCertificate = createUploader("userCertificates");
+const nurseCertificate = createUploader("nurseCertificates");
 
 const clinicCertificate = createUploader("clinicCertificates");
 
@@ -17,7 +17,7 @@ router.post(
 );
 router.post(
   "/create-solo-nurse",
-  uploadCertificate.single("uploadCertificates"),
+  nurseCertificate.single("uploadCertificates"),
   user_controllers.createSoloNurse
 );
 router.post(

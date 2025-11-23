@@ -23,7 +23,7 @@ const clinicSchema = new Schema<TClinic>(
       {
         uploadCertificates: { type: String },
         certificateType: { type: String },
-        certificateName: { type: String, unique: true },
+        certificateName: { type: String,  },
       },
     ],
     medicalLicenseNumber: {
