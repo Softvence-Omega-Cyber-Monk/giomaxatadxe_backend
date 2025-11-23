@@ -73,8 +73,6 @@ const uploadCertificate = async (userId: string, payload: any) => {
     throw new Error("Clinic not found for this user");
   }
 
-
-
   const newCertificate = {
     uploadCertificates: payload.certificateUrl, // correct field name
     certificateType: payload.data?.certificateType,
@@ -93,6 +91,29 @@ const uploadCertificate = async (userId: string, payload: any) => {
   );
   return updatedCertificates;
 };
+const deleteCertificate = async (userId: string, certificateId: string) => {
+  // Find the user first
+  const nurse = await Clinic_Model.findOne({ userId });
+
+  if (!nurse) {
+    throw new Error("Solo nurse not found for this user");
+  }
+
+  console.log("service form clinic", userId, certificateId);
+  // Perform delete using $pull
+  const updated = await Clinic_Model.findOneAndUpdate(
+    { userId },
+    {
+      $pull: {
+        clinicCertificates: { _id: certificateId },
+      },
+    },
+    { new: true }
+  );
+
+  return updated;
+};
+
 const availabilitySettings = async (userId: string, payload: any) => {
   console.log("payload from service ", payload);
 
@@ -156,6 +177,7 @@ export const ClinicService = {
   getClinicById,
   updateClinicBasic,
   uploadCertificate,
+  deleteCertificate,
   availabilitySettings,
   addNewPaymentMethod,
   deleteClinic,

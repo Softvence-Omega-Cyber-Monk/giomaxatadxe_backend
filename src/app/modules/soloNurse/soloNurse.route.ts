@@ -19,6 +19,14 @@ router.put(
   SoloNurseController.uploadCertificate
 );
 
+router.delete("/delete-certificate/:userId/:certificateId", SoloNurseController.deleteCertificate);
+
+router.put("/availability/:userId", SoloNurseController.availabilitySettings);
+router.put(
+  "/addNewPaymentMethod/:userId",
+  SoloNurseController.addNewPaymentMethod
+);
+
 router.delete("/:id", SoloNurseController.deleteSoloNurse);
 
 export const SoloNurseRoutes = router;

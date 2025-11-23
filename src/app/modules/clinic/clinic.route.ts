@@ -14,8 +14,16 @@ router.put(
   clinicCertificate.single("uploadCertificates"),
   ClinicController.uploadCertificate
 );
+
+router.delete(
+  "/delete-certificate/:userId/:certificateId",
+  ClinicController.deleteCertificate
+);
 router.put("/availability/:userId", ClinicController.availabilitySettings);
-router.put("/addNewPaymentMethod/:userId", ClinicController.addNewPaymentMethod);
+router.put(
+  "/addNewPaymentMethod/:userId",
+  ClinicController.addNewPaymentMethod
+);
 router.delete("/delete/:userId", ClinicController.deleteClinic);
 
 export const ClinicRoutes = router;

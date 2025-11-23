@@ -84,6 +84,30 @@ const uploadCertificate = async (req: Request, res: Response) => {
     });
   }
 };
+
+ const   deleteCertificate = async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+      const certificateId = req.params.certificateId;
+
+      const result = await ClinicService.deleteCertificate(userId, certificateId);
+  
+      res.json({
+        success: true,
+        message: "Certificate deleted successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+
+
+
 const availabilitySettings = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -145,6 +169,7 @@ export const ClinicController = {
   getClinicById,
   updateClinicBasic,
   uploadCertificate,
+  deleteCertificate,
   availabilitySettings,
   addNewPaymentMethod,
   deleteClinic,

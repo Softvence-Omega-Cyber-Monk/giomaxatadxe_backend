@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { SoloNurseService } from "./soloNurse.service";
+import { de } from "zod/v4/locales";
 
 export const SoloNurseController = {
 
@@ -78,6 +79,66 @@ export const SoloNurseController = {
       res.json({
         success: true,
         message: "Certificate updated successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
+
+   deleteCertificate : async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+      const certificateId = req.params.certificateId;
+
+      const result = await SoloNurseService.deleteCertificate(userId, certificateId);
+  
+      res.json({
+        success: true,
+        message: "Certificate deleted successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
+
+   availabilitySettings : async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+      const data = req.body;
+  
+      const result = await SoloNurseService.availabilitySettings(userId, data);
+  
+      res.json({
+        success: true,
+        message: "availability settings for Nurse updated successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
+  
+   addNewPaymentMethod : async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+      const data = req.body;
+  
+      const result = await SoloNurseService.addNewPaymentMethod(userId, data);
+  
+      res.json({
+        success: true,
+        message: "New Payment Method for Nurse added successfully",
         data: result,
       });
     } catch (error: any) {

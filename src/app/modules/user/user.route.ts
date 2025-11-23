@@ -3,7 +3,6 @@ import { Router } from "express";
 import { createUploader } from "../../utils/cloudinary";
 import { user_controllers } from "./user.controller";
 
-
 const nurseCertificate = createUploader("nurseCertificates");
 
 const clinicCertificate = createUploader("clinicCertificates");
@@ -11,10 +10,7 @@ const clinicCertificate = createUploader("clinicCertificates");
 const router = Router();
 
 // CREATE paitent
-router.post(
-  "/create-paient",
-  user_controllers.createPatient
-);
+router.post("/create-paient", user_controllers.createPatient);
 router.post(
   "/create-solo-nurse",
   nurseCertificate.single("uploadCertificates"),
@@ -25,7 +21,5 @@ router.post(
   clinicCertificate.single("uploadCertificates"),
   user_controllers.createClinic
 );
-
-
 
 export const user_routes = router;

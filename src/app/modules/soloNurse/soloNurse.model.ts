@@ -42,7 +42,10 @@ const soloNurseSchema = new Schema<TSoloNurse>(
       {
         uploadCertificates: { type: String, required: true },
         certificateType: { type: String, required: false },
-        certificateName: { type: String, required: false },
+        certificateName: {
+          type: String,
+          required: false,
+        },
       },
     ],
     availability: {

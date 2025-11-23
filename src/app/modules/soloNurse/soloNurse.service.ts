@@ -95,24 +95,23 @@ export const SoloNurseService = {
     }
   },
 
-
-   uploadCertificate : async (userId: string, payload: any) => {
+  uploadCertificate: async (userId: string, payload: any) => {
     // console.log("payload from service ", payload);
-  
+
     const clinic = await SoloNurse_Model.findOne({ userId });
-  
+
     if (!clinic) {
       throw new Error("Clinic not found for this user");
     }
-  
+
     const newCertificate = {
       uploadCertificates: payload.certificateUrl, // correct field name
       certificateType: payload.data?.certificateType,
       certificateName: payload.data?.certificateName,
     };
-  
+
     // console.log("service ", newCertificate);
-  
+
     const updatedCertificates = await SoloNurse_Model.findOneAndUpdate(
       { userId },
       {
@@ -121,6 +120,82 @@ export const SoloNurseService = {
       { new: true }
     );
     return updatedCertificates;
+  },
+  deleteCertificate: async (userId: string, certificateId: string) => {
+    // Find the user first
+    const nurse = await SoloNurse_Model.findOne({ userId });
+
+    if (!nurse) {
+      throw new Error("Solo nurse not found for this user");
+    }
+
+
+    console.log(userId, certificateId);
+    // Perform delete using $pull
+    const updated = await SoloNurse_Model.findOneAndUpdate(
+      { userId },
+      {
+        $pull: {
+          certificates: { _id: certificateId },
+        },
+      },
+      { new: true }
+    );
+
+    return updated;
+  },
+
+   availabilitySettings : async (userId: string, payload: any) => {
+    console.log("payload from service ", payload);
+  
+    const availability = {
+      startTime: payload?.startTime,
+      endTime: payload?.endTime,
+      workingDays: payload?.workingDays,
+    };
+  
+    const clinic = await SoloNurse_Model.findOne({ userId });
+  
+    if (!clinic) {
+      throw new Error("Clinic not found for this user");
+    }
+  
+    const updatedCertificates = await SoloNurse_Model.findOneAndUpdate(
+      { userId },
+      {
+        $set: { availability },
+      },
+      { new: true }
+    );
+    return updatedCertificates;
+  },
+
+   addNewPaymentMethod : async (userId: string, payload: any) => {
+    console.log("payload from service ", payload);
+  
+    const clinic = await SoloNurse_Model.findOne({ userId });
+  
+    if (!clinic) {
+      throw new Error("Clinic not found for this user");
+    }
+  
+    const newMethod = {
+      cardHolderName: payload.cardHolderName,
+      cardNumber: payload.cardNumber,
+      cvv: payload.cvv,
+      expiryDate: payload.expiryDate,
+    };
+  
+    // push into nested array
+    const updatedClinic = await SoloNurse_Model.findOneAndUpdate(
+      { userId },
+      {
+        $push: { "paymentAndEarnings.withdrawalMethods": newMethod },
+      },
+      { new: true }
+    );
+  
+    return updatedClinic;
   },
 
   deleteSoloNurse: async (id: string) => {
