@@ -16,14 +16,16 @@ const patientSchema = new Schema<TPatient>(
       required: false,
     },
     dateOfBirth: { type: String, required: false },
-    address: {
-      addressLabel: { type: String },
-      streetNumber: { type: String },
-      apartmentNumber: { type: String },
-      city: { type: String },
-      state: { type: String },
-      zipCode: { type: String },
-    },
+    address: [
+      {
+        addressLabel: { type: String },
+        streetNumber: { type: String },
+        apartmentNumber: { type: String },
+        city: { type: String },
+        state: { type: String },
+        zipCode: { type: String },
+      },
+    ],
     medicalHistory: {
       conditions: [
         {
@@ -50,7 +52,6 @@ const patientSchema = new Schema<TPatient>(
           reaction: { type: String, required: true },
         },
       ],
-     
     },
   },
   {

@@ -50,8 +50,12 @@ export const patientController = {
   },
   createOrUpdateAddress : async (req: Request, res: Response) => {
     try {
+
+      const addressId = req.query?.addressId;
+      
       const result = await patientService.createOrUpdateAddress(
         req.params.userId,
+        addressId ,
         req.body
       );
   
