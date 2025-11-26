@@ -24,8 +24,6 @@ const patientSchema = new Schema<TPatient>(
         city: { type: String },
         state: { type: String },
         zipCode: { type: String },
-
-  
       },
     ],
     medicalHistory: {
@@ -55,6 +53,15 @@ const patientSchema = new Schema<TPatient>(
         },
       ],
     },
+    paymentMethods: [
+      {
+        _id: false,
+        cardHolderName: { type: String },
+        cardNumber: { type: String },
+        cvv: { type: String },
+        expiryDate: { type: String },
+      },
+    ],
   },
   {
     timestamps: true,

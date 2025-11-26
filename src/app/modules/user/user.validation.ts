@@ -6,7 +6,7 @@ const create_user = z
     email: z.string({ message: "Email is required" }),
     password: z.string({ message: "Password is required" }),
     comfirmPassword: z.string({ message: "Comfirm Password is required" }),
-    role: z.enum(["patient", "solo_nurse", "clinic", "admin"], {
+    role: z.enum(["patient", "doctor", "solo_nurse", "clinic", "admin"], {
       message:
         "Role must be one of 'patient', 'solo_nurse', 'clinic', or 'admin'",
     }),

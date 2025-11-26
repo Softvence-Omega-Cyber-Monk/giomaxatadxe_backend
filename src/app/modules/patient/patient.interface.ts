@@ -33,5 +33,10 @@ export type TPatient = {
       reaction: string;
     }[];
   };
-
+  paymentMethods: {
+    cardHolderName: string;
+    cardNumber: string;
+    cvv: string;
+    expiryDate: string;
+  }[];
 };

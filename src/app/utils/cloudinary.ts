@@ -20,3 +20,6 @@ export const createUploader = (folder: string) => {
 
   return multer({ storage });
 };
+
+
+

@@ -70,6 +70,120 @@ export const patientController = {
     }
   },
 
+  addMedicalHistoryService: async (req: Request, res: Response) => {
+    try {
+      const { medicalConditions, medicalMedications, allergies } = req.body;
+      const userId = req.params.userId;
+
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: "userId is required",
+        });
+      }
+
+      const result = await patientService.addMedicalHistoryService(
+        userId,
+        medicalConditions,
+        medicalMedications,
+        allergies
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Medical history added successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Something went wrong",
+      });
+    }
+  },
+  updateMedicalHistoryService: async (req: Request, res: Response) => {
+    try {
+      const { medicalConditions, medicalMedications, allergies } = req.body;
+      const userId = req.params.userId;
+
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: "userId is required",
+        });
+      }
+
+      const result = await patientService.updateMedicalHistoryService(
+        userId,
+        medicalConditions,
+        medicalMedications,
+        allergies
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Medical history updated successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Something went wrong",
+      });
+    }
+  },
+  deleteMedicalHistoryService: async (req: Request, res: Response) => {
+    try {
+      const { medicalConditions, medicalMedications, allergies } = req.body;
+      const userId = req.params.userId;
+
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: "userId is required",
+        });
+      }
+
+      const result = await patientService.deleteMedicalHistoryService(
+        userId,
+        medicalConditions,
+        medicalMedications,
+        allergies
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Medical history deleted successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Something went wrong",
+      });
+    }
+  },
+
+     addNewPaymentMethod : async (req: Request, res: Response) => {
+      try {
+        const userId = req.params.userId;
+        const data = req.body;
+    
+        const result = await patientService.addNewPaymentMethod(userId, data);
+    
+        res.json({
+          success: true,
+          message: "New Payment Method for Patient added successfully",
+          data: result,
+        });
+      } catch (error: any) {
+        res.status(500).json({
+          success: false,
+          message: error.message,
+        });
+      }
+    },
+
   deletePatient: async (req: Request, res: Response) => {
     try {
       const deleted = await patientService.deletePatient(req.params.id);

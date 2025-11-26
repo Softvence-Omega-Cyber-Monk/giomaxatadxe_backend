@@ -5,5 +5,5 @@ export type TUser = {
   email: string;
   password: string;
   comfirmPassword: string;
-  role: "patient" | "solo_nurse" | " clinic" | "admin";
+  role: "patient" | "doctor" | "solo_nurse" | " clinic" | "admin";
 };

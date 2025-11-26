@@ -9,7 +9,7 @@ const user_schema = new Schema<TUser>(
     comfirmPassword: { type: String, required: true },
     role: {
       type: String,
-      enum: ["patient", "solo_nurse", "clinic", "admin"],
+      enum: ["patient", "doctor", "solo_nurse", "clinic", "admin"],
       required: true,
     },
   },
