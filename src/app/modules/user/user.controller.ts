@@ -145,7 +145,8 @@ const createClinic = async (req: Request, res: Response) => {
       certificateName,
     };
 
-    const servicesOfferedData = servicesOffered?.split(",")
+    const servicesOfferedData = servicesOffered
+      ?.split(",")
       .map((service: string) => service.trim());
 
     console.log(servicesOfferedData);
@@ -194,9 +195,50 @@ const createClinic = async (req: Request, res: Response) => {
     });
   }
 };
+const createDoctor = async (req: Request, res: Response) => {
+  try {
+    const {
+      certificateType,
+      certificateName,
+      appointmentType,
+
+      ...data
+    } = req.body;
+
+    // console.log("from controller ", req.body);
+
+    const certificateUrl = req.file ? (req.file as any).path : null;
+    console.log("certificateUrl", certificateUrl);
+
+    const doctorCertificates = {
+      uploadCertificates: certificateUrl ? certificateUrl : null,
+      certificateType,
+      certificateName,
+    };
+
+    const result = await UserService.createDoctor({
+      ...data,
+      certificates: doctorCertificates,
+      appointmentType,
+    });
+
+    console.log("doctor create", result);
+    res.status(201).json({
+      success: true,
+      message: "doctor created successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const user_controllers = {
   createPatient,
   createSoloNurse,
   createClinic,
+  createDoctor,
 };

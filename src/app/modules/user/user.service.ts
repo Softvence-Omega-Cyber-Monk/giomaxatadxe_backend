@@ -6,6 +6,13 @@ import { Patient_Model } from "../patient/patient.model";
 import mongoose from "mongoose";
 import { SoloNurse_Model } from "../soloNurse/soloNurse.model";
 import { Clinic_Model } from "../clinic/clinic.model";
+import crypto from "crypto";
+import { Doctor_Model } from "../doctor/doctor.model";
+import { sendEmail } from "../../utils/sendEmail";
+
+const generateRandomPassword = () => {
+  return crypto.randomBytes(6).toString("base64"); // ~8–10 chars
+};
 
 export const createPatient = async (payload: TUser) => {
   const session = await mongoose.startSession();
@@ -176,6 +183,82 @@ const createClinic = async (payload: any) => {
     await session.commitTransaction();
     session.endSession();
 
+    return createClinic[0];
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
+};
+const createDoctor = async (payload: any) => {
+  console.log("from service", payload);
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const {
+      clinicId,
+      doctorName,
+      email,
+      startTime,
+      endTime,
+      ...doctorPayload
+    } = payload;
+
+    const workingHour = {
+      startTime,
+      endTime,
+    };
+    const password = generateRandomPassword();
+    console.log("password genarete successfull", password);
+
+    // Check email
+    const existingEmail = await User_Model.findOne({ email }, null, {
+      session,
+    });
+    if (existingEmail) {
+      throw new Error("Email already exists.");
+    }
+
+    // Hash password
+    const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
+    const hashedPass = await bcrypt.hash(password, saltRounds);
+
+    const newUser = await User_Model.create(
+      [
+        {
+          fullName: doctorName,
+          email,
+          password: hashedPass,
+          comfirmPassword: hashedPass,
+          role: "doctor",
+        },
+      ],
+      { session }
+    );
+
+    const createClinic = await Doctor_Model.create(
+      [{ ...doctorPayload,workingHour, userId: newUser[0]._id, clinicId }],
+      { session }
+    );
+
+        // -------- 5. Send Email With Credentials --------
+    await sendEmail({
+      to: email,
+      subject: "Your Doctor Account Login Credentials",
+      html: `
+        <h2>Welcome, Dr. ${doctorName}</h2>
+        <p>Your account has been Registered successfully.</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Password:</strong> ${password}</p>
+        <p>Please login and update your password.</p>
+      `,
+    });
+
+
+
+    await session.commitTransaction();
+    session.endSession();
 
     return createClinic[0];
   } catch (error) {
@@ -185,10 +268,9 @@ const createClinic = async (payload: any) => {
   }
 };
 
-
-
 export const UserService = {
   createPatient,
   createSoloNurse,
-  createClinic
+  createClinic,
+  createDoctor,
 };

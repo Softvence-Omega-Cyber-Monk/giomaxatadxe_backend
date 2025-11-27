@@ -8,31 +8,31 @@ const ProfessionalInfoSchema = new Schema({
   qualifications: { type: String, required: true },
   about: { type: String, required: true },
 
-  onlineConsultationFee: { type: Number, required: true },
-  clinicVisitFee: { type: Number, required: true },
+  onlineConsultationFee: { type: Number,  },
+  clinicVisitFee: { type: Number, },
 });
 
 const CertificateSchema = new Schema({
   uploadCertificates: { type: String, required: true },
-  certificateType: { type: String, required: true },
-  certificateName: { type: String, required: true },
+  certificateType: { type: String,  },
+  certificateName: { type: String,  },
 });
 
 const DoctorSchema = new Schema<TDoctor>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "user", required: true },
     clinicId: { type: Schema.Types.ObjectId, ref: "Clinic", required: true },
-
-    doctorName: { type: String, required: true },
-    email: { type: String, required: true },
+    
     phoneNumber: { type: String, required: true },
     licenseNumber: { type: String, required: true },
 
     serviceType: { type: String, required: true },
-    status: { type: String, required: true },
+    workingHour: {
+      startTime: { type: String, required: true },
+      endTime: { type: String, required: true },
+    },
 
-    workingHour: { type: String, required: true },
-    availabilitySchedule: [{ type: String, required: true }],
+    availabilityScheduleDays: [{ type: String, required: true }],
 
     dateOfBirth: { type: String },
     gender: { type: String, enum: ["male", "female"] },
@@ -40,6 +40,7 @@ const DoctorSchema = new Schema<TDoctor>(
     professionalInformation: ProfessionalInfoSchema,
 
     certificates: [CertificateSchema],
+    appointmentType: { type: String, required: true },
   },
   { timestamps: true }
 );

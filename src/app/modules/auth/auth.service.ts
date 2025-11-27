@@ -6,7 +6,7 @@ import { User_Model } from "../user/user.schema";
 import { jwtHelpers } from "../../utils/JWT";
 import { configs } from "../../configs";
 import { JwtPayload, Secret } from "jsonwebtoken";
-import { sendEmailForCode } from "../../utils/sendMailForCode";
+import { sendEmailForCode } from "../../utils/sendEmail";
 import { isAccountExist } from "../../utils/isAccountExist";
 import { passwordResetModel } from "./auth.schema";
 

@@ -6,6 +6,7 @@ import { user_controllers } from "./user.controller";
 const nurseCertificate = createUploader("nurseCertificates");
 
 const clinicCertificate = createUploader("clinicCertificates");
+const doctorCertificate = createUploader("doctorCertificates");
 
 const router = Router();
 
@@ -20,6 +21,11 @@ router.post(
   "/create-clinic",
   clinicCertificate.single("uploadCertificates"),
   user_controllers.createClinic
+);
+router.post(
+  "/create-doctor",
+  doctorCertificate.single("uploadCertificates"),
+  user_controllers.createDoctor
 );
 
 export const user_routes = router;

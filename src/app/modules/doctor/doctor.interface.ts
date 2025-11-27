@@ -3,16 +3,17 @@ import { Types } from "mongoose";
 export type TDoctor = {
   userId: Types.ObjectId;
   clinicId: Types.ObjectId;
-  doctorName: string;
-  email: string;
   phoneNumber: string;
   licenseNumber: string;
 
   serviceType: string; // dropdown
-  status: string; // dropdown
+  appointmentType: "inClinic" | "online" | "both";
 
-  workingHour: string; // time range, or selected schedule
-  availabilitySchedule: string[]; // comma-separated (e.g. Monday, Tuesday)
+  workingHour: {
+    startTime: string; // "09:00 AM"
+    endTime: string; // "06:00 PM"
+  };
+  availabilityScheduleDays: string[]; // comma-separated (e.g. Monday, Tuesday)
 
   dateOfBirth?: string;
   gender?: "male" | "female";
@@ -25,13 +26,12 @@ export type TDoctor = {
     about: string;
 
     // Consultation Fees
-    onlineConsultationFee: number;
-    clinicVisitFee: number;
+    onlineConsultationFee?: number;
+    clinicVisitFee?: number;
   };
-  certificates?: {
+  certificates: {
     uploadCertificates: string;
     certificateType: string;
     certificateName: string;
   }[];
-
 };
