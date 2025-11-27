@@ -250,7 +250,12 @@ export const patientService = {
     return updatedClinic;
   },
 
+
   deletePatient: async (id: string) => {
     return await Patient_Model.findByIdAndDelete(id);
   },
 };
+
+
+
+
