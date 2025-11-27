@@ -16,16 +16,21 @@ export type TDoctor = {
   dateOfBirth: string;
   gender: "male" | "female";
 
-
-
-
+  professionalInformation?: {
     speciality: string;
-  experienceYears: number;
-  medicalLicenseNumber: string;
-  qualifications: string;
-  about: string;
+    experienceYears: number;
+    medicalLicenseNumber: string;
+    qualifications: string;
+    about: string;
 
-  // Consultation Fees
-  onlineConsultationFee: number;
-  
+    // Consultation Fees
+    onlineConsultationFee: number;
+    clinicVisitFee: number;
+  };
+  certificates?: {
+    uploadCertificates: string;
+    certificateType: string;
+    certificateName: string;
+  }[];
+
 };
