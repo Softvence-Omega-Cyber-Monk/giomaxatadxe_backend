@@ -2,45 +2,30 @@ import { Types } from "mongoose";
 
 export type TDoctor = {
   userId: Types.ObjectId;
+  doctorName: string;
+  email: string;
+  phoneNumber: string;
+  licenseNumber: string;
 
-  phoneNumber?: string;
+  serviceType: string; // dropdown
+  status: string; // dropdown
 
-  gender?: "male" | "female";
-  dateOfBirth?: string;
-  professionalInformation?: {
-    Services:
-      | "Blood test & Sample collection"
-      | "Nurse care and infusion therapy"
-      | "Nurse Care & Elderly Support"
-      | "Medical massage & Physio therapy";
+  certificateFile: string; // upload file
+  workingHour: string; // time range, or selected schedule
+  availabilitySchedule: string[]; // comma-separated (e.g. Monday, Tuesday)
+  dateOfBirth: string;
+  gender: "male" | "female";
+
+
+
+
     speciality: string;
-    experience: string;
-    MedicalLicense: string;
-    qualifications: string;
-    about: string;
-    consultationFee: string;
-  };
-  certificates?: {
-    uploadCertificates: string;
-    certificateType: string;
-    certificateName: string;
-  }[];
-  availability?: {
-    startTime: string;
-    endTime: string;
-    workingDays: string[];
-  };
-  paymentAndEarnings?: {
-    totalEarnings: {
-      totalThisMonth: number;
-      pending: number;
-      availbleForWithdrawal: number;
-    };
-    withdrawalMethods: {
-      cardHolderName: string;
-      cardNumber: string;
-      cvv: string;
-      expiryDate: string;
-    }[];
-  };
+  experienceYears: number;
+  medicalLicenseNumber: string;
+  qualifications: string;
+  about: string;
+
+  // Consultation Fees
+  onlineConsultationFee: number;
+  
 };
