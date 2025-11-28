@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 
 export type TClinic = {
   userId: Types.ObjectId;
+  
   phoneNumber?: string;
   nationality: string;
   nationalIdNumber: string;
