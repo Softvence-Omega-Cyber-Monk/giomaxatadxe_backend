@@ -9,7 +9,7 @@ cloudinary.config({
 });
 
 export const createUploader = (folder: string) => {
-  console.log("folder", folder);
+  // console.log("folder", folder);
   const storage = new CloudinaryStorage({
     cloudinary,
     params: async () => ({

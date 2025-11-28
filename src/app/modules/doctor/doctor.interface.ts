@@ -14,10 +14,8 @@ export type TDoctor = {
     endTime: string; // "06:00 PM"
   };
   availabilityScheduleDays: string[]; // comma-separated (e.g. Monday, Tuesday)
-
   dateOfBirth?: string;
   gender?: "male" | "female";
-
   professionalInformation?: {
     speciality: string;
     experienceYears: number;
