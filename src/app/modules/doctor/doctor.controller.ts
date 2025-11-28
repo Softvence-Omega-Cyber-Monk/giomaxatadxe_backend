@@ -27,9 +27,13 @@ export const DoctorController = {
 
   updateDoctorBasic: async (req: Request, res: Response) => {
     try {
+       const profileImageUrl = req.file ? (req.file as any).path : null;
+    console.log("profile image url ", profileImageUrl);
+
       const result = await DoctorService.updateDoctorBasic(
         req.params.userId,
-        req.body
+        req.body,
+        profileImageUrl
       );
 
       res.json({

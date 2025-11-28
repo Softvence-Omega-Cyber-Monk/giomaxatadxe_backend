@@ -64,9 +64,13 @@ const getClinicDoctors = async (req: Request, res: Response) => {
 
 const updateClinicBasic = async (req: Request, res: Response) => {
   try {
+    const profileImageUrl = req.file ? (req.file as any).path : null;
+    console.log("profile image url ", profileImageUrl);
+
     const result = await ClinicService.updateClinicBasic(
       req.params.userId,
-      req.body
+      req.body ,
+      profileImageUrl
     );
 
     res.json({
@@ -107,28 +111,25 @@ const uploadCertificate = async (req: Request, res: Response) => {
   }
 };
 
- const   deleteCertificate = async (req: Request, res: Response) => {
-    try {
-      const userId = req.params.userId;
-      const certificateId = req.params.certificateId;
+const deleteCertificate = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const certificateId = req.params.certificateId;
 
-      const result = await ClinicService.deleteCertificate(userId, certificateId);
-  
-      res.json({
-        success: true,
-        message: "Certificate deleted successfully",
-        data: result,
-      });
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
+    const result = await ClinicService.deleteCertificate(userId, certificateId);
+
+    res.json({
+      success: true,
+      message: "Certificate deleted successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
-
-
-
+};
 
 const availabilitySettings = async (req: Request, res: Response) => {
   try {

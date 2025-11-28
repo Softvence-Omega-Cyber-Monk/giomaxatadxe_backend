@@ -11,7 +11,11 @@ export const SoloNurseService = {
     return SoloNurse_Model.findOne({ userId }).populate("userId");
   },
 
-  updateSoloNurseBasic: async (userId: string, payload: any) => {
+  updateSoloNurseBasic: async (
+    userId: string,
+    payload: any,
+    profileImageUrl: string
+  ) => {
     const { fullName, phoneNumber, dateOfBirth, gender } = payload;
 
     const session = await mongoose.startSession();
@@ -21,7 +25,7 @@ export const SoloNurseService = {
       // step-1: Update user model
       const updatedUser = await User_Model.findByIdAndUpdate(
         userId,
-        { fullName },
+        { fullName, profileImage: profileImageUrl },
         { new: true, session }
       );
 
@@ -129,7 +133,6 @@ export const SoloNurseService = {
       throw new Error("Solo nurse not found for this user");
     }
 
-
     console.log(userId, certificateId);
     // Perform delete using $pull
     const updated = await SoloNurse_Model.findOneAndUpdate(
@@ -145,21 +148,21 @@ export const SoloNurseService = {
     return updated;
   },
 
-   availabilitySettings : async (userId: string, payload: any) => {
+  availabilitySettings: async (userId: string, payload: any) => {
     console.log("payload from service ", payload);
-  
+
     const availability = {
       startTime: payload?.startTime,
       endTime: payload?.endTime,
       workingDays: payload?.workingDays,
     };
-  
+
     const clinic = await SoloNurse_Model.findOne({ userId });
-  
+
     if (!clinic) {
       throw new Error("Clinic not found for this user");
     }
-  
+
     const updatedCertificates = await SoloNurse_Model.findOneAndUpdate(
       { userId },
       {
@@ -170,22 +173,22 @@ export const SoloNurseService = {
     return updatedCertificates;
   },
 
-   addNewPaymentMethod : async (userId: string, payload: any) => {
+  addNewPaymentMethod: async (userId: string, payload: any) => {
     console.log("payload from service ", payload);
-  
+
     const clinic = await SoloNurse_Model.findOne({ userId });
-  
+
     if (!clinic) {
       throw new Error("Clinic not found for this user");
     }
-  
+
     const newMethod = {
       cardHolderName: payload.cardHolderName,
       cardNumber: payload.cardNumber,
       cvv: payload.cvv,
       expiryDate: payload.expiryDate,
     };
-  
+
     // push into nested array
     const updatedClinic = await SoloNurse_Model.findOneAndUpdate(
       { userId },
@@ -194,7 +197,7 @@ export const SoloNurseService = {
       },
       { new: true }
     );
-  
+
     return updatedClinic;
   },
 

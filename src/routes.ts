@@ -13,7 +13,7 @@ const moduleRoutes = [
   { path: "/user", route: user_routes },
   { path: "/patient", route: patientRoutes },
   { path: "/clinic", route: ClinicRoutes },
-  { path: "/solo-nur se", route: SoloNurseRoutes },
+  { path: "/solo-nurse", route: SoloNurseRoutes },
   { path: "/doctor", route: DoctorRoutes },
 ];
 

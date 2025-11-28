@@ -15,7 +15,11 @@ export const DoctorService = {
     });
   },
 
-  updateDoctorBasic: async (userId: string, payload: any) => {
+  updateDoctorBasic: async (
+    userId: string,
+    payload: any,
+    profileImageUrl: string
+  ) => {
     const { fullName, phoneNumber, dateOfBirth, gender } = payload;
 
     const session = await mongoose.startSession();
@@ -25,7 +29,7 @@ export const DoctorService = {
       // step-1: Update user model
       const updatedUser = await User_Model.findByIdAndUpdate(
         userId,
-        { fullName },
+        { fullName, profileImage: profileImageUrl },
         { new: true, session }
       );
 
@@ -124,7 +128,7 @@ export const DoctorService = {
       },
       { new: true }
     );
-    
+
     return updatedCertificates;
   },
   deleteCertificate: async (userId: string, certificateId: string) => {

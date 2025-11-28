@@ -1,11 +1,18 @@
 import { Router } from "express";
 import { patientController } from "./patient.controller";
+import { createUploader } from "../../utils/cloudinary";
 
 const router = Router();
 
+const patientProfileImage = createUploader("patientProfileImage");
+
 router.get("/getAll", patientController.getAllPatients);
 router.get("/getSinglePatient/:userId", patientController.getPatientById);
-router.put("/update-basic/:userId", patientController.updatePatientBasic);
+router.put(
+  "/update-basic/:userId",
+  patientProfileImage.single("profileImage"),
+  patientController.updatePatientBasic
+);
 router.patch(
   "/createOrUpdateAddress/:userId",
   patientController.createOrUpdateAddress

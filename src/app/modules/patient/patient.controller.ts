@@ -30,9 +30,13 @@ export const patientController = {
 
   updatePatientBasic: async (req: Request, res: Response) => {
     try {
+      const profileImageUrl = req.file ? (req.file as any).path : null;
+      console.log("profile image url ", profileImageUrl);
+
       const result = await patientService.updatePatientBasic(
         req.params.userId,
-        req.body
+        req.body,
+        profileImageUrl
       );
 
       res.json({
@@ -164,25 +168,25 @@ export const patientController = {
     }
   },
 
-     addNewPaymentMethod : async (req: Request, res: Response) => {
-      try {
-        const userId = req.params.userId;
-        const data = req.body;
-    
-        const result = await patientService.addNewPaymentMethod(userId, data);
-    
-        res.json({
-          success: true,
-          message: "New Payment Method for Patient added successfully",
-          data: result,
-        });
-      } catch (error: any) {
-        res.status(500).json({
-          success: false,
-          message: error.message,
-        });
-      }
-    },
+  addNewPaymentMethod: async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+      const data = req.body;
+
+      const result = await patientService.addNewPaymentMethod(userId, data);
+
+      res.json({
+        success: true,
+        message: "New Payment Method for Patient added successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
 
   deletePatient: async (req: Request, res: Response) => {
     try {

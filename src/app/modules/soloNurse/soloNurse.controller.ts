@@ -3,8 +3,6 @@ import { SoloNurseService } from "./soloNurse.service";
 import { de } from "zod/v4/locales";
 
 export const SoloNurseController = {
-
-
   getAllSoloNurses: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.getAllSoloNurses();
@@ -23,13 +21,17 @@ export const SoloNurseController = {
     }
   },
 
-   updateSoloNurseBasic : async (req: Request, res: Response) => {
+  updateSoloNurseBasic: async (req: Request, res: Response) => {
     try {
+      const profileImageUrl = req.file ? (req.file as any).path : null;
+      console.log("profile image url ", profileImageUrl);
+
       const result = await SoloNurseService.updateSoloNurseBasic(
         req.params.userId,
-        req.body
+        req.body,
+        profileImageUrl
       );
-  
+
       res.json({
         success: true,
         message: "Solo Nurse updated successfully",
@@ -42,13 +44,13 @@ export const SoloNurseController = {
       });
     }
   },
-   professionalUpdate : async (req: Request, res: Response) => {
+  professionalUpdate: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.professionalUpdate(
         req.params.userId,
         req.body
       );
-  
+
       res.json({
         success: true,
         message: "Solo Nurse professional information  updated successfully",
@@ -62,20 +64,19 @@ export const SoloNurseController = {
     }
   },
 
-
-   uploadCertificate : async (req: Request, res: Response) => {
+  uploadCertificate: async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;
       const data = req.body;
-  
+
       const certificateUrl = req.file ? (req.file as any).path : null;
       console.log("certificateUrl", certificateUrl);
-  
+
       const result = await SoloNurseService.uploadCertificate(userId, {
         data,
         certificateUrl,
       });
-  
+
       res.json({
         success: true,
         message: "Certificate updated successfully",
@@ -89,13 +90,16 @@ export const SoloNurseController = {
     }
   },
 
-   deleteCertificate : async (req: Request, res: Response) => {
+  deleteCertificate: async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;
       const certificateId = req.params.certificateId;
 
-      const result = await SoloNurseService.deleteCertificate(userId, certificateId);
-  
+      const result = await SoloNurseService.deleteCertificate(
+        userId,
+        certificateId
+      );
+
       res.json({
         success: true,
         message: "Certificate deleted successfully",
@@ -109,13 +113,13 @@ export const SoloNurseController = {
     }
   },
 
-   availabilitySettings : async (req: Request, res: Response) => {
+  availabilitySettings: async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;
       const data = req.body;
-  
+
       const result = await SoloNurseService.availabilitySettings(userId, data);
-  
+
       res.json({
         success: true,
         message: "availability settings for Nurse updated successfully",
@@ -128,14 +132,14 @@ export const SoloNurseController = {
       });
     }
   },
-  
-   addNewPaymentMethod : async (req: Request, res: Response) => {
+
+  addNewPaymentMethod: async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;
       const data = req.body;
-  
+
       const result = await SoloNurseService.addNewPaymentMethod(userId, data);
-  
+
       res.json({
         success: true,
         message: "New Payment Method for Nurse added successfully",

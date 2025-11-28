@@ -1,8 +1,10 @@
+import { profile } from "console";
 import { z } from "zod";
 
 const create_user = z
   .object({
     fullName: z.string({ message: "Full name is required" }),
+    profileImage: z.string().optional(),
     email: z.string({ message: "Email is required" }),
     password: z.string({ message: "Password is required" }),
     comfirmPassword: z.string({ message: "Comfirm Password is required" }),

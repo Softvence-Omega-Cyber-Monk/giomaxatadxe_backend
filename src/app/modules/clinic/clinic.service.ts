@@ -19,7 +19,11 @@ const getClinicDoctors = async (clinicId: string) => {
   return result;
 };
 
-const updateClinicBasic = async (userId: string, payload: any) => {
+const updateClinicBasic = async (
+  userId: string,
+  payload: any,
+  profileImageUrl : string
+) => {
   const { fullName, email, phoneNumber, servicesOffered, clinicDescription } =
     payload;
 
@@ -35,7 +39,7 @@ const updateClinicBasic = async (userId: string, payload: any) => {
     // step-1: Update user model
     const updatedUser = await User_Model.findByIdAndUpdate(
       userId,
-      { fullName },
+      { fullName, profileImage: profileImageUrl },
       { new: true, session }
     );
 

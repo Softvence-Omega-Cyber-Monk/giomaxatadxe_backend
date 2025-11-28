@@ -12,7 +12,11 @@ export const patientService = {
     return await Patient_Model.findOne({ userId }).populate("userId");
   },
 
-  updatePatientBasic: async (userId: string, payload: any) => {
+  updatePatientBasic: async (
+    userId: string,
+    payload: any,
+    profileImageUrl: string
+  ) => {
     const { fullName, phoneNumber, dateOfBirth, gender, bloodGroup } = payload;
 
     const session = await mongoose.startSession();
@@ -22,7 +26,7 @@ export const patientService = {
       // step-1: Update user model
       const updatedUser = await User_Model.findByIdAndUpdate(
         userId,
-        { fullName },
+        { fullName, profileImage: profileImageUrl },
         { new: true, session }
       );
 
@@ -250,12 +254,7 @@ export const patientService = {
     return updatedClinic;
   },
 
-
   deletePatient: async (id: string) => {
     return await Patient_Model.findByIdAndDelete(id);
   },
 };
-
-
-
-
