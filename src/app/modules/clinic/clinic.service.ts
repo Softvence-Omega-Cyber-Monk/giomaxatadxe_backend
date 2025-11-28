@@ -2,6 +2,7 @@ import { Clinic_Model } from "./clinic.model";
 import { TClinic } from "./clinic.interface";
 import mongoose from "mongoose";
 import { User_Model } from "../user/user.schema";
+import { Doctor_Model } from "../doctor/doctor.model";
 
 const getAllClinics = async () => {
   const result = await Clinic_Model.find().populate("userId");
@@ -10,6 +11,11 @@ const getAllClinics = async () => {
 
 const getClinicById = async (userId: string) => {
   const result = await Clinic_Model.findOne({ userId }).populate("userId");
+  return result;
+};
+const getClinicDoctors = async (clinicId: string) => {
+  // console.log("clinti id 0", clinicId);
+  const result = await Doctor_Model.find({ clinicId }).populate("userId");
   return result;
 };
 
@@ -175,6 +181,7 @@ const deleteClinic = async (id: string) => {
 export const ClinicService = {
   getAllClinics,
   getClinicById,
+  getClinicDoctors,
   updateClinicBasic,
   uploadCertificate,
   deleteCertificate,

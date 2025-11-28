@@ -124,6 +124,7 @@ export const DoctorService = {
       },
       { new: true }
     );
+    
     return updatedCertificates;
   },
   deleteCertificate: async (userId: string, certificateId: string) => {

@@ -8,6 +8,7 @@ const router = Router();
 
 router.get("/getAll", ClinicController.getAllClinics);
 router.get("/getSingle/:userId", ClinicController.getClinicById);
+router.get("/getClinicDoctors/:clinicId", ClinicController.getClinicDoctors);
 router.put("/update-basic/:userId", ClinicController.updateClinicBasic);
 router.put(
   "/upload-certificate/:userId",

@@ -39,6 +39,28 @@ const getClinicById = async (req: Request, res: Response) => {
     });
   }
 };
+const getClinicDoctors = async (req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.getClinicDoctors(req.params.clinicId);
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "Clinic not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 const updateClinicBasic = async (req: Request, res: Response) => {
   try {
@@ -167,6 +189,7 @@ const deleteClinic = async (req: Request, res: Response) => {
 export const ClinicController = {
   getAllClinics,
   getClinicById,
+  getClinicDoctors,
   updateClinicBasic,
   uploadCertificate,
   deleteCertificate,
