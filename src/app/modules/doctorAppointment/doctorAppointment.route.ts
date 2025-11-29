@@ -4,15 +4,20 @@ import { doctorAppointmentController } from "./doctorAppointment.controller";
 const router = express.Router();
 
 router.post("/create", doctorAppointmentController.create);
+router.post("/reschedule", doctorAppointmentController.Reschedule);
 router.get("/getAll", doctorAppointmentController.getAll);
 router.get("/getSingle/:id", doctorAppointmentController.getOne);
-router.get("/getSinglePaintentAppointment/:patientId", doctorAppointmentController.getSinglePaintentAppointment);
+router.get(
+  "/getSinglePaintentAppointment/:patientId",
+  doctorAppointmentController.getSinglePaintentAppointment
+);
 
 router.patch("/update-status/:id", doctorAppointmentController.updateStatus);
+router.get(
+  "/getSelectedDateAndTime/:id",
+  doctorAppointmentController.getSelectedDateAndTime
+);
+
 router.delete("/delete/:id", doctorAppointmentController.delete);
 
 export const DoctorAppointmentRoutes = router;
-
-
-
-

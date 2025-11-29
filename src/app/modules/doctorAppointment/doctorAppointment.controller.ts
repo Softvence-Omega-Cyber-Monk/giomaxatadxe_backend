@@ -14,9 +14,20 @@ export const doctorAppointmentController = {
       res.status(500).json({ success: false, message: err.message });
     }
   },
+  Reschedule: async (req: Request, res: Response) => {
+    try {
+      const result = await doctorAppointmentService.Reschedule(req.body);
+      res.status(201).json({
+        success: true,
+        message: "Appointment reschedule successfully",
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
 
   getAll: async (req: Request, res: Response) => {
-
     try {
       const result = await doctorAppointmentService.getAllAppointments();
       res.json({
@@ -46,9 +57,10 @@ export const doctorAppointmentController = {
   },
   getSinglePaintentAppointment: async (req: Request, res: Response) => {
     try {
-      const result = await doctorAppointmentService.getSinglePaintentAppointment(
-        req.params.patientId
-      );
+      const result =
+        await doctorAppointmentService.getSinglePaintentAppointment(
+          req.params.patientId
+        );
       res.json({
         success: true,
         message: "Appointment fetched successfully",
@@ -70,6 +82,20 @@ export const doctorAppointmentController = {
       res.json({
         success: true,
         message: "Status updated successfully",
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+  getSelectedDateAndTime: async (req: Request, res: Response) => {
+    try {
+      const result = await doctorAppointmentService.getSelectedDateAndTime(
+        req.params.id
+      );
+      res.json({
+        success: true,
+        message: "get time and date successfully",
         data: result,
       });
     } catch (err: any) {
