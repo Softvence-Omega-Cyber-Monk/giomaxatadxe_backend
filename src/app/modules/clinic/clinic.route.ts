@@ -22,6 +22,7 @@ router.delete(
   ClinicController.deleteCertificate
 );
 router.put("/availability/:userId", ClinicController.availabilitySettings);
+router.put("/addReviews/:userId", ClinicController.addReviews);
 router.put(
   "/addNewPaymentMethod/:userId",
   ClinicController.addNewPaymentMethod

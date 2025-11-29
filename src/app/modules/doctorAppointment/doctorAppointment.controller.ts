@@ -44,6 +44,21 @@ export const doctorAppointmentController = {
       res.status(500).json({ success: false, message: err.message });
     }
   },
+  getSinglePaintentAppointment: async (req: Request, res: Response) => {
+    try {
+      const result = await doctorAppointmentService.getSinglePaintentAppointment(
+        req.params.patientId
+      );
+      res.json({
+        success: true,
+        message: "Appointment fetched successfully",
+
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
 
   updateStatus: async (req: Request, res: Response) => {
     try {

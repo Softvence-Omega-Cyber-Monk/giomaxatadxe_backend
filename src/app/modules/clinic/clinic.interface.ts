@@ -32,4 +32,10 @@ export type TClinic = {
       expiryDate: string;
     }[];
   };
+  reviews?: {
+    patientId: Types.ObjectId;
+    rating: number;
+    comment: string;
+  }[];
+  avarageRating?: number;
 };

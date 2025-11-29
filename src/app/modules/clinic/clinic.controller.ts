@@ -69,7 +69,7 @@ const updateClinicBasic = async (req: Request, res: Response) => {
 
     const result = await ClinicService.updateClinicBasic(
       req.params.userId,
-      req.body ,
+      req.body,
       profileImageUrl
     );
 
@@ -150,6 +150,25 @@ const availabilitySettings = async (req: Request, res: Response) => {
     });
   }
 };
+const addReviews = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+
+    const result = await ClinicService.addReviews(userId, data);
+
+    res.json({
+      success: true,
+      message: "Review added successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 const addNewPaymentMethod = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -195,6 +214,7 @@ export const ClinicController = {
   uploadCertificate,
   deleteCertificate,
   availabilitySettings,
+  addReviews,
   addNewPaymentMethod,
   deleteClinic,
 };

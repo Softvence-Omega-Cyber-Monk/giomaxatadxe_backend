@@ -23,7 +23,7 @@ const clinicSchema = new Schema<TClinic>(
       {
         uploadCertificates: { type: String },
         certificateType: { type: String },
-        certificateName: { type: String,  },
+        certificateName: { type: String },
       },
     ],
     medicalLicenseNumber: {
@@ -61,6 +61,17 @@ const clinicSchema = new Schema<TClinic>(
           expiryDate: { type: String },
         },
       ],
+    },
+    reviews: [
+      {
+        patientId: { type: Schema.Types.ObjectId, ref: "Patient" },
+        rating: { type: Number },
+        comment: { type: String },
+      },
+    ],
+    avarageRating: {
+      type: Number,
+      default: 0,
     },
   },
   {

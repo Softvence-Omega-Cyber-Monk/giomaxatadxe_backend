@@ -11,8 +11,14 @@ export const doctorAppointmentService = {
   getAllAppointments: async () => {
     const appointments = await doctorAppointment_Model
       .find()
-      .populate("patientId")
-      .populate("doctorId");
+      .populate({
+        path: "patientId",
+        select: "_id",
+      })
+      .populate({
+        path: "doctorId",
+        select: "_id",
+      });
     return appointments;
   },
 
@@ -20,8 +26,26 @@ export const doctorAppointmentService = {
   getAppointmentById: async (id: string) => {
     return await doctorAppointment_Model
       .findById(id)
-      .populate("patientId")
-      .populate("doctorId");
+      .populate({
+        path: "patientId",
+        select: "_id",
+      })
+      .populate({
+        path: "doctorId",
+        select: "_id",
+      });
+  },
+  getSinglePaintentAppointment: async (patientId: string) => {
+    return await doctorAppointment_Model
+      .find({ patientId: patientId })
+      .populate({
+        path: "patientId",
+        select: "_id",
+      })
+      .populate({
+        path: "doctorId",
+        select: "_id",
+      });
   },
 
   // Update status (approve/reject)

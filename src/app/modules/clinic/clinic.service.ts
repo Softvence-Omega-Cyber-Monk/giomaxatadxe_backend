@@ -5,24 +5,45 @@ import { User_Model } from "../user/user.schema";
 import { Doctor_Model } from "../doctor/doctor.model";
 
 const getAllClinics = async () => {
-  const result = await Clinic_Model.find().populate("userId");
+  const result = await Clinic_Model.find()
+    .populate("userId") // clinic owner
+    .populate({
+      path: "reviews.patientId",
+      select: "userId", // select patient.userId
+      populate: {
+        path: "userId",
+        model: "user", // ensure correct model name
+        select: "fullName profileImage", // fields you want
+      },
+    });
+
   return result;
 };
 
 const getClinicById = async (userId: string) => {
-  const result = await Clinic_Model.findOne({ userId }).populate("userId");
+  const result = await Clinic_Model.findOne({ userId })
+    .populate("userId")
+    .populate({
+      path: "reviews.patientId",
+      select: "userId", // select patient.userId
+      populate: {
+        path: "userId",
+        model: "user", // ensure correct model name
+        select: "fullName profileImage", // fields you want
+      },
+    });
   return result;
 };
+
 const getClinicDoctors = async (clinicId: string) => {
   // console.log("clinti id 0", clinicId);
   const result = await Doctor_Model.find({ clinicId }).populate("userId");
   return result;
 };
-
 const updateClinicBasic = async (
   userId: string,
   payload: any,
-  profileImageUrl : string
+  profileImageUrl: string
 ) => {
   const { fullName, email, phoneNumber, servicesOffered, clinicDescription } =
     payload;
@@ -149,6 +170,23 @@ const availabilitySettings = async (userId: string, payload: any) => {
   );
   return updatedCertificates;
 };
+const addReviews = async (userId: string, payload: any) => {
+  const clinic: any = await Clinic_Model.findOne({ userId });
+  if (!clinic) {
+    throw new Error("Clinic not found for this user");
+  }
+
+  clinic.reviews.push(payload);
+  const totalRatings = clinic.reviews.reduce(
+    (sum: any, review: { rating: any }) => sum + (review.rating || 0),
+    0
+  );
+  clinic.avarageRating = totalRatings / clinic.reviews.length;
+
+  await clinic.save();
+  return clinic;
+};
+
 const addNewPaymentMethod = async (userId: string, payload: any) => {
   console.log("payload from service ", payload);
 
@@ -190,6 +228,7 @@ export const ClinicService = {
   uploadCertificate,
   deleteCertificate,
   availabilitySettings,
+  addReviews,
   addNewPaymentMethod,
   deleteClinic,
 };
