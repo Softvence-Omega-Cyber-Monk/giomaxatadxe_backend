@@ -12,6 +12,11 @@ const appointmentSchema = new Schema(
       ref: "Doctor",
       required: true,
     },
+    clinicId: {
+      type: Schema.Types.ObjectId,
+      ref: "Clinic",
+      required: true,
+    },
     serviceType: {
       type: String,
       enum: ["inClinic", "online", "both"],
@@ -20,6 +25,10 @@ const appointmentSchema = new Schema(
     visitingType: {
       type: String,
       enum: ["fristVisit", "followUp"],
+      required: true,
+    },
+    reasonForVisit : {
+      type: String,
       required: true,
     },
     followUpDetails: {

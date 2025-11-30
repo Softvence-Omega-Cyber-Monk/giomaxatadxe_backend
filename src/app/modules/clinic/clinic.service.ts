@@ -3,6 +3,8 @@ import { TClinic } from "./clinic.interface";
 import mongoose from "mongoose";
 import { User_Model } from "../user/user.schema";
 import { Doctor_Model } from "../doctor/doctor.model";
+import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
+import { Patient_Model } from "../patient/patient.model";
 
 const getAllClinics = async () => {
   const result = await Clinic_Model.find()
@@ -34,12 +36,91 @@ const getClinicById = async (userId: string) => {
     });
   return result;
 };
+const getClinicAppointments = async (clinicId: string) => {
+  
+  const result = await doctorAppointment_Model
+    .find({ clinicId })
+    .populate({
+      path: "patientId",
+      select: "_id userId", 
+      populate: {
+        path: "userId",
+        model: "user", // ensure correct model name
+        select: "fullName role", // fields you want
+      },
+    })
+    .populate({
+      path: "doctorId",
+      select: "_id userId",
+      populate: {
+        path: "userId",
+        model: "user", // ensure correct model name
+        select: "fullName  role", // fields you want
+      },
+    });
+
+  return result;
+};
 
 const getClinicDoctors = async (clinicId: string) => {
   // console.log("clinti id 0", clinicId);
   const result = await Doctor_Model.find({ clinicId }).populate("userId");
   return result;
 };
+
+const getClinicPatients = async (clinicId: string) => {
+  const result = await doctorAppointment_Model.aggregate([
+    {
+      $match: { clinicId: new mongoose.Types.ObjectId(clinicId) },
+    },
+
+    // Group by patientId (latest appointment)
+    {
+      $group: {
+        _id: "$patientId",
+        visitingType: { $last: "$visitingType" },
+        createdAt: { $last: "$createdAt" },
+        prefarenceDate: { $last: "$prefarenceDate" },
+        prefarenceTime: { $last: "$prefarenceTime" },
+        serviceType: { $last: "$serviceType" },
+        reasonForVisit: { $last: "$reasonForVisit" }, // ✅ FIXED
+      },
+    },
+
+    // Populate patient details
+    {
+      $lookup: {
+        from: "patients",
+        localField: "_id",
+        foreignField: "_id",
+        as: "patient",
+      },
+    },
+    { $unwind: "$patient" },
+
+    {
+      $project: {
+        _id: 0,
+        visitingType: 1,
+        createdAt: 1,
+        prefarenceDate: 1,
+        prefarenceTime: 1,
+        serviceType: 1,
+        reasonForVisit: 1,
+
+        patient: {
+          _id: "$patient._id",
+          userId: "$patient.userId",
+          gender: "$patient.gender",
+          phoneNumber: "$patient.phoneNumber",
+        },
+      },
+    },
+  ]);
+
+  return { patients: result };
+};
+
 const updateClinicBasic = async (
   userId: string,
   payload: any,
@@ -223,7 +304,9 @@ const deleteClinic = async (id: string) => {
 export const ClinicService = {
   getAllClinics,
   getClinicById,
+  getClinicAppointments,
   getClinicDoctors,
+  getClinicPatients,
   updateClinicBasic,
   uploadCertificate,
   deleteCertificate,
