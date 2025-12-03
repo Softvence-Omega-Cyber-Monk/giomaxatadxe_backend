@@ -15,6 +15,8 @@ export const isAccountExist = async (email: string, populateField?: string) => {
   if (!isExistAccount) {
     throw new AppError("Account not found!!", httpStatus.NOT_FOUND);
   }
-
   return isExistAccount;
 };
+
+
+

@@ -4,7 +4,7 @@ import { configs } from "../configs";
 import { jwtHelpers, JwtPayloadType } from "../utils/JWT";
 import { User_Model } from "../modules/user/user.schema";
 
-type Role = "patient" | "solo_nurse" | "clinic" | "admin";
+type Role = "patient" | "doctor" | "solo_nurse" | "clinic" | "admin";
 
 const auth = (...roles: Role[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
