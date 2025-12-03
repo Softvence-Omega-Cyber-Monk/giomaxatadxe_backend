@@ -6,7 +6,7 @@ import { User_Model } from "../user/user.schema";
 import { jwtHelpers } from "../../utils/JWT";
 import { configs } from "../../configs";
 import { JwtPayload, Secret } from "jsonwebtoken";
-import { sendEmailForCode } from "../../utils/sendEmail";
+
 import { isAccountExist } from "../../utils/isAccountExist";
 import { passwordResetModel } from "./auth.schema";
 
@@ -133,11 +133,11 @@ export const requestPasswordReset = async (email: string) => {
   // Store new code
   await passwordResetModel.create({ email, code, expiresAt });
 
-  await sendEmailForCode({
-    to: email,
-    subject: "Your Password Reset Code",
-    text: `Your password reset code is ${code}. It will expire in 10 minutes.`,
-  });
+  // await sendEmail({
+  //   to: email,
+  //   subject: "Your Password Reset Code",
+  //   text: `Your password reset code is ${code}. It will expire in 10 minutes.`,
+  // });
 
   console.log(email, code, "====="); // for debug
   return { email };
