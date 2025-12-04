@@ -5,7 +5,10 @@ import { User_Model } from "../user/user.schema";
 
 export const patientService = {
   getAllPatients: async () => {
-    return await Patient_Model.find();
+    return await Patient_Model.find().populate({
+      path: "userId",
+      select: "fullName profileImage email",
+    });
   },
 
   getPatientById: async (userId: string) => {
