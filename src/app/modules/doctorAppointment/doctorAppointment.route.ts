@@ -11,6 +11,10 @@ router.get(
   "/getSinglePaintentAppointment/:patientId",
   doctorAppointmentController.getSinglePaintentAppointment
 );
+router.get(
+  "/getSingleDoctorAppointment/:doctorId",
+  doctorAppointmentController.getSingleDoctorAppointment
+);
 
 router.patch("/update-status/:id", doctorAppointmentController.updateStatus);
 router.get(

@@ -29,7 +29,8 @@ export const doctorAppointmentController = {
 
   getAll: async (req: Request, res: Response) => {
     try {
-      const result = await doctorAppointmentService.getAllAppointments();
+      const status = req.query.status as string | undefined;
+      const result = await doctorAppointmentService.getAllAppointments(status);
       res.json({
         success: true,
         message: "Appointments fetched successfully",
@@ -72,6 +73,21 @@ export const doctorAppointmentController = {
     }
   },
 
+  getSingleDoctorAppointment: async (req: Request, res: Response) => {
+    try {
+      const result = await doctorAppointmentService.getSingleDoctorAppointment(
+        req.params.doctorId
+      );
+      res.json({
+        success: true,
+        message: "Appointment fetched successfully",
+
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
   updateStatus: async (req: Request, res: Response) => {
     try {
       const { status } = req.body;

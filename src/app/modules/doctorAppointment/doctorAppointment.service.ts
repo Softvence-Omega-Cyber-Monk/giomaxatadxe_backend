@@ -74,20 +74,27 @@ export const doctorAppointmentService = {
   },
 
   // Get all appointments
-  getAllAppointments: async () => {
+  getAllAppointments: async (status?: string) => {
+    const filter: any = {};
+
+    if (status && status !== "all") {
+      filter.status = status; // status: "pending", "approved", "completed", etc.
+    }
+
     const appointments = await doctorAppointment_Model
-      .find()
+      .find(filter)
       .populate({
         path: "patientId",
-        select: "_id",
+        select: "_id name image email phone",
       })
       .populate({
         path: "doctorId",
-        select: "_id",
-      });
+        select: "_id name image specialization",
+      })
+      .sort({ createdAt: -1 });
+
     return appointments;
   },
-
   // Get single appointment
   getAppointmentById: async (id: string) => {
     return await doctorAppointment_Model
@@ -110,7 +117,30 @@ export const doctorAppointmentService = {
       })
       .populate({
         path: "doctorId",
-        select: "_id",
+        select: "_id userId ",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName role profileImage", // fields you want
+        },
+      });
+  },
+
+  getSingleDoctorAppointment: async (doctorId: string) => {
+    return await doctorAppointment_Model
+      .find({ doctorId: doctorId })
+      .populate({
+        path: "patientId",
+        select: "_id userId",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName role ", // fields you want
+        },
+      })
+      .populate({
+        path: "doctorId",
+        select: "_id userId",
       });
   },
 

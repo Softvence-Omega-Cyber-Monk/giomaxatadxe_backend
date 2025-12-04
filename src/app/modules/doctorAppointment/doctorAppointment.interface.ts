@@ -12,3 +12,9 @@ export type TDoctorAppointment = {
   prefarenceDate: Date;
   prefarenceTime: string;
 };
+
+
+
+
+
+
