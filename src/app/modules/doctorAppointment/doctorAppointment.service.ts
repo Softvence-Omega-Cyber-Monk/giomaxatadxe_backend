@@ -117,11 +117,11 @@ export const doctorAppointmentService = {
       })
       .populate({
         path: "doctorId",
-        select: "_id userId ",
+        select: "_id userId professionalInformation.speciality",
         populate: {
           path: "userId",
           model: "user", // ensure correct model name
-          select: "fullName role profileImage", // fields you want
+          select: "fullName role profileImage ", // fields you want
         },
       });
   },
