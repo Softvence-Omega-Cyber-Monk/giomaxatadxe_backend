@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const chatSchema = new mongoose.Schema(
   {
-    senderId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    senderId: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
+    receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
 
     // Optional field for admin-global chat
     receiverType: { type: String, enum: ["user", "admin"], default: "user" },

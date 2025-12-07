@@ -18,7 +18,7 @@ export const chatSocketHandler = (io: any, socket: any) => {
   // -------------------------
   // 🔵 Send normal message (user ↔ user)
   // -------------------------
-  
+
   socket.on("send_message", async (data: any) => {
     const { receiverId, message } = data;
 
@@ -29,8 +29,7 @@ export const chatSocketHandler = (io: any, socket: any) => {
     });
 
     // Send to sender
-    socket.emit("message_sent", newMsg)
-
+    socket.emit("message_sent", newMsg);
 
     // Send to receiver
     io.to(receiverId).emit("receive_message", newMsg);
@@ -40,6 +39,7 @@ export const chatSocketHandler = (io: any, socket: any) => {
   // 🔵 User → Admin
   // -------------------------
   socket.on("message_to_admin", async ({ message }: { message: string }) => {
+
     const newMsg = await ChatModel.create({
       senderId: userId,
       receiverType: "admin",
@@ -84,6 +84,5 @@ export const chatSocketHandler = (io: any, socket: any) => {
 
   socket.on("disconnect", () => console.log("Disconnected:", socket.id));
 };
-
 
 

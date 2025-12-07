@@ -33,7 +33,6 @@ export const initSocket = (server: any) => {
     }
   });
 
-  
   io.on("connection", (socket) => {
     console.log("✅ User connected:", socket.id);
     chatSocketHandler(io, socket);
