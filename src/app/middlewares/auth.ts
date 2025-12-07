@@ -32,6 +32,7 @@ const auth = (...roles: Role[]) => {
       }
 
       req.user = verifiedUser as JwtPayloadType;
+      
       next();
     } catch (err) {
       next(err);

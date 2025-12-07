@@ -1,11 +1,27 @@
-
 import mongoose from "mongoose";
+import http from "http";
 import app from "./app";
 import { configs } from "./app/configs";
+import { initSocket } from "./socket/initSocket";
+
 async function main() {
+  try {
     await mongoose.connect(configs.db_url!);
-    app.listen(configs.port, () => {
-        console.log(`Server listening on port ${configs.port}`);
+    console.log("MongoDB connected");
+
+    // Create HTTP server
+    const server = http.createServer(app);
+
+    // Initialize Socket.IO
+    initSocket(server);
+
+    // Start server
+    server.listen(configs.port, () => {
+      console.log(`🚀 Server running on port ${configs.port}`);
     });
+  } catch (err) {
+    console.log("❌ Error:", err);
+  }
 }
-main().catch(err => console.log(err));
+
+main();

@@ -243,17 +243,17 @@ const createDoctor = async (payload: any) => {
     );
 
         // -------- 5. Send Email With Credentials --------
-    await sendEmail({
-      to: email,
-      subject: "Your Doctor Account Login Credentials",
-      html: `
-        <h2>Welcome, Dr. ${doctorName}</h2>
-        <p>Your account has been Registered successfully.</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Password:</strong> ${password}</p>
-        <p>Please login and update your password.</p>
-      `,
-    });
+    // await sendEmail({
+    //   to: email,
+    //   subject: "Your Doctor Account Login Credentials",
+    //   html: `
+    //     <h2>Welcome, Dr. ${doctorName}</h2>
+    //     <p>Your account has been Registered successfully.</p>
+    //     <p><strong>Email:</strong> ${email}</p>
+    //     <p><strong>Password:</strong> ${password}</p>
+    //     <p>Please login and update your password.</p>
+    //   `,
+    // });
 
 
 
