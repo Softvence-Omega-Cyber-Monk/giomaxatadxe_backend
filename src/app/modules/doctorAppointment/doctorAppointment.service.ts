@@ -1,3 +1,5 @@
+import { Doctor_Model } from "../doctor/doctor.model";
+import { Patient_Model } from "../patient/patient.model";
 import { doctorAppointment_Model } from "./doctorAppointment.model";
 
 export const doctorAppointmentService = {
@@ -141,6 +143,37 @@ export const doctorAppointmentService = {
       .populate({
         path: "doctorId",
         select: "_id userId",
+      });
+  },
+
+  getSinglePaitentChats: async (patientId: string) => {
+    // Step 1: Get unique doctor IDs for this patient
+    const doctorIds = await doctorAppointment_Model.distinct("doctorId", {
+      patientId: patientId,
+    });
+
+    // Step 2: Fetch doctor details using the IDs
+    return await Doctor_Model.find({ _id: { $in: doctorIds } })
+      .select(" userId professionalInformation.speciality")
+      .populate({
+        path: "userId",
+        model: "user",
+        select: "fullName role profileImage",
+      });
+  },
+  getSingleDoctorChats: async (doctorId: string) => {
+    // Step 1: Get unique patient IDs for this doctor
+    const patientIds = await doctorAppointment_Model.distinct("patientId", {
+      doctorId: doctorId,
+    });
+
+    // Step 2: Fetch patient details using the IDs
+    return await Patient_Model.find({ _id: { $in: patientIds } })
+      .select("userId")
+      .populate({
+        path: "userId",
+        model: "user",
+        select: "fullName role profileImage",
       });
   },
 

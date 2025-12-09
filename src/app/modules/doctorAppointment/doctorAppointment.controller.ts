@@ -88,6 +88,40 @@ export const doctorAppointmentController = {
       res.status(500).json({ success: false, message: err.message });
     }
   },
+
+    getSinglePaitentChats: async (req: Request, res: Response) => {
+    try {
+      const result =
+        await doctorAppointmentService.getSinglePaitentChats(
+          req.params.patientId
+        );
+      res.json({
+        success: true,
+        message: "chats profile  fetched successfully",
+
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+    getSingleDoctorChats: async (req: Request, res: Response) => {
+    try {
+      const result =
+        await doctorAppointmentService.getSingleDoctorChats(
+          req.params.doctorId
+        );
+      res.json({
+        success: true,
+        message: "chats profile   fetched successfully",
+
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+
   updateStatus: async (req: Request, res: Response) => {
     try {
       const { status } = req.body;
