@@ -22,10 +22,15 @@ export const SoloNurseService = {
     session.startTransaction();
 
     try {
+      const updateData: any = { fullName };
+
+      if (profileImageUrl) {
+        updateData.profileImage = profileImageUrl;
+      }
       // step-1: Update user model
       const updatedUser = await User_Model.findByIdAndUpdate(
         userId,
-        { fullName, profileImage: profileImageUrl },
+        updateData,
         { new: true, session }
       );
 
