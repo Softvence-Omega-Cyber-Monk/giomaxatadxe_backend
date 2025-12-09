@@ -37,12 +37,11 @@ const getClinicById = async (userId: string) => {
   return result;
 };
 const getClinicAppointments = async (clinicId: string) => {
-  
   const result = await doctorAppointment_Model
     .find({ clinicId })
     .populate({
       path: "patientId",
-      select: "_id userId", 
+      select: "_id userId",
       populate: {
         path: "userId",
         model: "user", // ensure correct model name
@@ -138,10 +137,16 @@ const updateClinicBasic = async (
   session.startTransaction();
 
   try {
+    const updateData: any = { fullName };
+
+    if (profileImageUrl) {
+      updateData.profileImage = profileImageUrl;
+    }
+
     // step-1: Update user model
     const updatedUser = await User_Model.findByIdAndUpdate(
       userId,
-      { fullName, profileImage: profileImageUrl },
+      updateData,
       { new: true, session }
     );
 
