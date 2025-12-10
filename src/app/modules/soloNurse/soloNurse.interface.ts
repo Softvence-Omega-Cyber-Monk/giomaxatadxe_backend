@@ -9,11 +9,19 @@ export type TSoloNurse = {
   gender?: "male" | "female";
   dateOfBirth?: string;
   professionalInformation?: {
-    Services:
-      | "Blood test & Sample collection"
-      | "Nurse care and infusion therapy"
-      | "Nurse Care & Elderly Support"
-      | "Medical massage & Physio therapy";
+    service: {
+      serviceName:
+        | "Blood test & Sample collection"
+        | "Nurse care and infusion therapy"
+        | "Nurse Care & Elderly Support"
+        | "Medical massage & Physio therapy";
+
+      subServices: {
+        name: string;
+        price: number;
+      }[];
+    };
+
     speciality: string;
     experience: string;
     MedicalLicense: string;

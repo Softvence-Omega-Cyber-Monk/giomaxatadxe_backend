@@ -63,6 +63,44 @@ export const SoloNurseController = {
       });
     }
   },
+  addSingleSubService: async (req: Request, res: Response) => {
+    try {
+      const result = await SoloNurseService.addSingleSubService(
+        req.params.userId,
+        req.body
+      );
+
+      res.json({
+        success: true,
+        message: "Solo Nurse sub service added successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
+  deleteSingleSubService: async (req: Request, res: Response) => {
+    try {
+      const result = await SoloNurseService.deleteSingleSubService(
+        req.params.userId,
+        req.params.subServiceId,
+      );
+
+      res.json({
+        success: true,
+        message: "Solo Nurse sub service deleted successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
 
   uploadCertificate: async (req: Request, res: Response) => {
     try {

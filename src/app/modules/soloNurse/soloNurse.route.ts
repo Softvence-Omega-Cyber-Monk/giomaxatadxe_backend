@@ -16,6 +16,14 @@ router.put(
   SoloNurseController.professionalUpdate
 );
 router.put(
+  "/addSingleSubService/:userId",
+  SoloNurseController.addSingleSubService
+);
+router.put(
+  "/deleteSingleSubService/:userId/:subServiceId",
+  SoloNurseController.deleteSingleSubService
+);
+router.put(
   "/upload-certificate/:userId",
   nurseCertificate.single("uploadCertificates"),
   SoloNurseController.uploadCertificate

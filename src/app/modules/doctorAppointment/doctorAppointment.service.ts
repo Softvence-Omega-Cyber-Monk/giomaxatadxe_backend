@@ -150,6 +150,7 @@ export const doctorAppointmentService = {
     // Step 1: Get unique doctor IDs for this patient
     const doctorIds = await doctorAppointment_Model.distinct("doctorId", {
       patientId: patientId,
+      status: "approved",
     });
 
     // Step 2: Fetch doctor details using the IDs
@@ -165,6 +166,7 @@ export const doctorAppointmentService = {
     // Step 1: Get unique patient IDs for this doctor
     const patientIds = await doctorAppointment_Model.distinct("patientId", {
       doctorId: doctorId,
+      status: "approved",
     });
 
     // Step 2: Fetch patient details using the IDs

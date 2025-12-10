@@ -21,16 +21,26 @@ const soloNurseSchema = new Schema<TSoloNurse>(
     },
     dateOfBirth: { type: String, required: false },
     professionalInformation: {
-      Services: {
-        type: String,
-        enum: [
-          "Blood test & Sample collection",
-          "Nurse care and infusion therapy",
-          "Nurse Care & Elderly Support",
-          "Medical massage & Physio therapy",
+      service: {
+        serviceName: {
+          type: String,
+          enum: [
+            "Blood test & Sample collection",
+            "Nurse care and infusion therapy",
+            "Nurse Care & Elderly Support",
+            "Medical massage & Physio therapy",
+          ],
+          required: false,
+        },
+
+        subServices: [
+          {
+            name: { type: String, required: true },
+            price: { type: Number, required: true },
+          },
         ],
-        required: false,
       },
+
       speciality: { type: String, required: false },
       experience: { type: String, required: false },
       MedicalLicense: { type: String, required: false },
@@ -38,6 +48,7 @@ const soloNurseSchema = new Schema<TSoloNurse>(
       about: { type: String, required: false },
       consultationFee: { type: String, required: false },
     },
+
     certificates: [
       {
         uploadCertificates: { type: String, required: true },
