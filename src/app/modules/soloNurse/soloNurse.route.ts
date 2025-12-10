@@ -16,11 +16,11 @@ router.put(
   SoloNurseController.professionalUpdate
 );
 router.put(
-  "/addSingleSubService/:userId",
+  "/addSingleSubService/:userId/:serviceId",
   SoloNurseController.addSingleSubService
 );
 router.put(
-  "/deleteSingleSubService/:userId/:subServiceId",
+  "/deleteSingleSubService/:userId/:serviceId/:subServiceId",
   SoloNurseController.deleteSingleSubService
 );
 router.put(

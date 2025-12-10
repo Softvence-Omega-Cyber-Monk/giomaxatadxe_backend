@@ -67,6 +67,7 @@ export const SoloNurseController = {
     try {
       const result = await SoloNurseService.addSingleSubService(
         req.params.userId,
+        req.params.serviceId,
         req.body
       );
 
@@ -86,6 +87,7 @@ export const SoloNurseController = {
     try {
       const result = await SoloNurseService.deleteSingleSubService(
         req.params.userId,
+        req.params.serviceId,
         req.params.subServiceId,
       );
 
@@ -203,3 +205,6 @@ export const SoloNurseController = {
     }
   },
 };
+
+
+

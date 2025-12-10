@@ -9,7 +9,7 @@ export type TSoloNurse = {
   gender?: "male" | "female";
   dateOfBirth?: string;
   professionalInformation?: {
-    service: {
+    services: {
       serviceName:
         | "Blood test & Sample collection"
         | "Nurse care and infusion therapy"
@@ -20,7 +20,7 @@ export type TSoloNurse = {
         name: string;
         price: number;
       }[];
-    };
+    }[];
 
     speciality: string;
     experience: string;
@@ -29,6 +29,7 @@ export type TSoloNurse = {
     about: string;
     consultationFee: string;
   };
+
   certificates?: {
     uploadCertificates: string;
     certificateType: string;

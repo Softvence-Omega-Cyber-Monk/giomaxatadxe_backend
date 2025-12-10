@@ -67,8 +67,7 @@ export const SoloNurseService = {
   },
   professionalUpdate: async (userId: string, payload: any) => {
     const {
-      serviceName,
-      subServices,
+      services, // ARRAY NOW
       speciality,
       experience,
       MedicalLicense,
@@ -77,14 +76,8 @@ export const SoloNurseService = {
       consultationFee,
     } = payload;
 
-    // console.log('payload ', payload);
-
-    // Build the updated professional information object
     const professionalInformation = {
-      service: {
-        serviceName,
-        subServices, // [{ name, price }]
-      },
+      services, // [{ serviceName, subServices[] }]
       speciality,
       experience,
       MedicalLicense,
@@ -110,53 +103,31 @@ export const SoloNurseService = {
       throw error;
     }
   },
+
   addSingleSubService: async (
     userId: string,
-
+    serviceId: string,
     payload: any
   ) => {
-    // Find the solo nurse by userId
     const soloNurse = await SoloNurse_Model.findOne({ userId });
 
     if (!soloNurse) {
       throw new Error("Solo nurse not found for this user");
     }
 
-    // Create the new sub-service object
     const newSubService = {
       name: payload.name,
       price: payload.price,
     };
 
-    // Push the new sub-service into the subServices array
     const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
-      { userId },
       {
-        $push: { "professionalInformation.service.subServices": newSubService },
+        userId,
+        "professionalInformation.services._id": serviceId, // match correct service
       },
-      { new: true }
-    );
-
-    return updatedSoloNurse;
-  },
-  deleteSingleSubService: async (
-    userId: string,
-    subServiceId: string,
-    
-  ) => {
-    // Find the solo nurse by userId
-    const soloNurse = await SoloNurse_Model.findOne({ userId });
-
-    if (!soloNurse) {
-      throw new Error("Solo nurse not found for this user");
-    }
-
-    // Perform delete using $pull
-    const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
-      { userId },
       {
-        $pull: {
-          "professionalInformation.service.subServices": { _id: subServiceId },
+        $push: {
+          "professionalInformation.services.$.subServices": newSubService,
         },
       },
       { new: true }
@@ -164,6 +135,36 @@ export const SoloNurseService = {
 
     return updatedSoloNurse;
   },
+
+  deleteSingleSubService: async (
+    userId: string,
+    serviceId: string,
+    subServiceId: string
+  ) => {
+    const soloNurse = await SoloNurse_Model.findOne({ userId });
+
+    if (!soloNurse) {
+      throw new Error("Solo nurse not found for this user");
+    }
+
+    const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
+      {
+        userId,
+        "professionalInformation.services._id": serviceId,
+      },
+      {
+        $pull: {
+          "professionalInformation.services.$.subServices": {
+            _id: subServiceId,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    return updatedSoloNurse;
+  },
+
   uploadCertificate: async (userId: string, payload: any) => {
     // console.log("payload from service ", payload);
 
