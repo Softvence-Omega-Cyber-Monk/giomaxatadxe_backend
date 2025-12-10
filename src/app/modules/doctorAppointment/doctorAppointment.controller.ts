@@ -30,7 +30,7 @@ export const doctorAppointmentController = {
   getAll: async (req: Request, res: Response) => {
     try {
       const status = req.query.status as string | undefined;
-      const result = await doctorAppointmentService.getAllAppointments(status);
+      const result = await doctorAppointmentService.getAllAppointments(status , req.params.doctorId);
       res.json({
         success: true,
         message: "Appointments fetched successfully",

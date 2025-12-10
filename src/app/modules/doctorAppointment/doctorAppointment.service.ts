@@ -76,18 +76,27 @@ export const doctorAppointmentService = {
   },
 
   // Get all appointments
-  getAllAppointments: async (status?: string) => {
+  getAllAppointments: async (status?: string, doctorId?: string) => {
     const filter: any = {};
 
     if (status && status !== "all") {
       filter.status = status; // status: "pending", "approved", "completed", etc.
     }
 
+    if (doctorId) {
+      filter.doctorId = doctorId;
+    }
+
     const appointments = await doctorAppointment_Model
       .find(filter)
       .populate({
         path: "patientId",
-        select: "_id name image email phone",
+        select: "_id userId",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName profileImage role", // fields you want
+        },
       })
       .populate({
         path: "doctorId",

@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post("/create", doctorAppointmentController.create);
 router.post("/reschedule", doctorAppointmentController.Reschedule);
-router.get("/getAll", doctorAppointmentController.getAll);
+router.get("/getAll/:doctorId", doctorAppointmentController.getAll);
 router.get("/getSingle/:id", doctorAppointmentController.getOne);
 router.get(
   "/getSinglePaintentAppointment/:patientId",
