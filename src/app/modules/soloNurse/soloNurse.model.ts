@@ -83,6 +83,17 @@ const soloNurseSchema = new Schema<TSoloNurse>(
         },
       ],
     },
+    reviews: [
+      {
+        patientId: { type: Schema.Types.ObjectId, ref: "Patient" },
+        rating: { type: Number },
+        comment: { type: String },
+      },
+    ],
+    avarageRating: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

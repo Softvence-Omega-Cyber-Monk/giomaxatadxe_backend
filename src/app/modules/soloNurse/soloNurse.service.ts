@@ -266,6 +266,22 @@ export const SoloNurseService = {
 
     return updatedClinic;
   },
+  addReviews: async (userId: string, payload: any) => {
+    const soloNurse: any = await SoloNurse_Model.findOne({ userId });
+    if (!soloNurse) {
+      throw new Error("Solo nurse not found for this user");
+    }
+
+    soloNurse.reviews.push(payload);
+    const totalRatings = soloNurse.reviews.reduce(
+      (sum: any, review: { rating: any }) => sum + (review.rating || 0),
+      0
+    );
+    soloNurse.avarageRating = totalRatings / soloNurse.reviews.length;
+
+    await soloNurse.save();
+    return soloNurse;
+  },
 
   deleteSoloNurse: async (id: string) => {
     return SoloNurse_Model.findByIdAndDelete(id);

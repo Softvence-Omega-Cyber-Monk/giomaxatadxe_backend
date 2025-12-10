@@ -88,7 +88,7 @@ export const SoloNurseController = {
       const result = await SoloNurseService.deleteSingleSubService(
         req.params.userId,
         req.params.serviceId,
-        req.params.subServiceId,
+        req.params.subServiceId
       );
 
       res.json({
@@ -192,7 +192,25 @@ export const SoloNurseController = {
       });
     }
   },
+  addReviews: async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+      const data = req.body;
 
+      const result = await SoloNurseService.addReviews(userId, data);
+
+      res.json({
+        success: true,
+        message: "Review added successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
   deleteSoloNurse: async (req: Request, res: Response) => {
     try {
       await SoloNurseService.deleteSoloNurse(req.params.id);
@@ -205,6 +223,3 @@ export const SoloNurseController = {
     }
   },
 };
-
-
-

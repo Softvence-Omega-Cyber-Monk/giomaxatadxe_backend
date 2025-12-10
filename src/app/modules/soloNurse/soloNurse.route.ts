@@ -36,6 +36,7 @@ router.put(
   "/addNewPaymentMethod/:userId",
   SoloNurseController.addNewPaymentMethod
 );
+router.put("/addReviews/:userId", SoloNurseController.addReviews);
 
 router.delete("/:id", SoloNurseController.deleteSoloNurse);
 
