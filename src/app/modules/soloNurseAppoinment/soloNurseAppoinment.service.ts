@@ -137,4 +137,38 @@ export const soloNurseAppointmentService = {
 
     return grouped;
   },
+  getSinglePaintentAppointmentForNurse: async (patientId: string) => {
+    return await soloNurseAppoinment_Model
+      .find({ patientId: patientId })
+      .populate({
+        path: "patientId",
+        select: "_id",
+      })
+      .populate({
+        path: "soloNurseId",
+        select: "_id userId ",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName role profileImage ", // fields you want
+        },
+      });
+  },
+  getSingleNurseAppointment: async (soloNurseId: string) => {
+    return await soloNurseAppoinment_Model
+      .find({ soloNurseId: soloNurseId })
+      .populate({
+        path: "patientId",
+        select: "_id userId",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName role ", // fields you want
+        },
+      })
+      .populate({
+        path: "soloNurseId",
+        select: "_id userId",
+      });
+  },
 };

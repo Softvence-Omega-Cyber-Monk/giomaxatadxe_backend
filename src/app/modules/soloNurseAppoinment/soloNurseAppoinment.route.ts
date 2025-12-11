@@ -12,5 +12,15 @@ router.get(
   "/getSelectedDateAndTime/:id",
   soloNurseAppointmentController.getSelectedDateAndTime
 );
+router.get(
+  "/getSinglePaintentAppointmentForNurse/:patientId",
+  soloNurseAppointmentController.getSinglePaintentAppointmentForNurse
+);
+
+router.get(
+  "/getSingleNurseAppointment/:soloNurseId",
+  soloNurseAppointmentController.getSingleNurseAppointment
+);
+
 
 export const soloNurseAppoinmentRoutes = router;

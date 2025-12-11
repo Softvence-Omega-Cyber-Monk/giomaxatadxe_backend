@@ -97,4 +97,36 @@ export const soloNurseAppointmentController = {
       res.status(500).json({ success: false, message: err.message });
     }
   },
+
+  getSinglePaintentAppointmentForNurse: async (req: Request, res: Response) => {
+    try {
+      const result =
+        await soloNurseAppointmentService.getSinglePaintentAppointmentForNurse(
+          req.params.patientId
+        );
+      res.json({
+        success: true,
+        message: "Appointment fetched successfully",
+
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+  getSingleNurseAppointment: async (req: Request, res: Response) => {
+    try {
+      const result = await soloNurseAppointmentService.getSingleNurseAppointment(
+        req.params.soloNurseId
+      );
+      res.json({
+        success: true,
+        message: "Appointment fetched successfully",
+
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
 };
