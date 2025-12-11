@@ -32,8 +32,10 @@ export const soloNurseAppointmentController = {
 
   getAll: async (_req: Request, res: Response) => {
     try {
+      const status = _req.query.status as string | undefined;
+      const nurseId = _req.query.nurseId as string | undefined;
       const appointments =
-        await soloNurseAppointmentService.getAllAppointments();
+        await soloNurseAppointmentService.getAllAppointments( status , nurseId);
       res.status(200).json({
         success: true,
         message: "Appointments fetched successfully",
@@ -91,6 +93,21 @@ export const soloNurseAppointmentController = {
       res.json({
         success: true,
         message: "get time and date successfully",
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+  getAppoinmentTimeBasedOnDate: async (req: Request, res: Response) => {
+    try {
+      const result = await soloNurseAppointmentService.getAppoinmentTimeBasedOnDate(
+        req.body.Date,
+        req.params.id
+      );
+      res.json({
+        success: true,
+        message: "get time based on data fetch successfully",
         data: result,
       });
     } catch (err: any) {

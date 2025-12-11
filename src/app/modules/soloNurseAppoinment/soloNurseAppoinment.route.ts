@@ -13,6 +13,10 @@ router.get(
   soloNurseAppointmentController.getSelectedDateAndTime
 );
 router.get(
+  "/getAppoinmentTimeBasedOnDate/:id",
+  soloNurseAppointmentController.getAppoinmentTimeBasedOnDate
+);
+router.get(
   "/getSinglePaintentAppointmentForNurse/:patientId",
   soloNurseAppointmentController.getSinglePaintentAppointmentForNurse
 );

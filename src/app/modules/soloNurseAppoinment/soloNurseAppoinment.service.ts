@@ -72,19 +72,62 @@ export const soloNurseAppointmentService = {
 
     return updatedAppointment;
   },
+  getAllAppointments: async (status?: string, nurseId?: string) => {
+    let filter: any = {};
 
-  getAllAppointments: async () => {
-    return await soloNurseAppoinment_Model
-      .find()
-      .populate("patientId", "_id userId ")
+    // Filter by Solo Nurse
+    if (nurseId) {
+      filter.soloNurseId = nurseId;
+    }
+
+    // Normal status filtering
+    if (status && status !== "upcoming") {
+      filter.status = status;
+    }
+
+    // Fetch from DB
+    let appointments = await soloNurseAppoinment_Model
+      .find(filter)
+      .populate({
+        path: "patientId",
+        select: "_id userId",
+        populate: { path: "userId", select: "_id fullName profileImage role" },
+      })
       .populate({
         path: "soloNurseId",
         select: "_id userId",
-        populate: {
-          path: "userId",
-          select: "_id fullName profileImage role",
-        },
+        populate: { path: "userId", select: "_id fullName profileImage role" },
       });
+
+    // UPCOMING FILTER - DATE + TIME CHECK
+    if (status === "upcoming") {
+      const now = new Date();
+
+      appointments = appointments.filter((item: any) => {
+        const date = item.prefarenceDate; // Example: "2025-01-12"
+        const time = item.prefarenceTime; // Example: "10:30 AM"
+
+        // Build full datetime
+        const apptDateTime = new Date(
+          `${date.toISOString().split("T")[0]} ${time}`
+        );
+
+        return apptDateTime > now;
+      });
+
+      // Sort upcoming: nearest first
+      appointments.sort((a: any, b: any) => {
+        const ad = new Date(
+          `${a.prefarenceDate.toISOString().split("T")[0]} ${a.prefarenceTime}`
+        );
+        const bd = new Date(
+          `${b.prefarenceDate.toISOString().split("T")[0]} ${b.prefarenceTime}`
+        );
+        return ad.getTime() - bd.getTime();
+      });
+    }
+
+    return appointments;
   },
 
   getAppointmentById: async (id: string) => {
@@ -136,6 +179,34 @@ export const soloNurseAppointmentService = {
     });
 
     return grouped;
+  },
+  getAppoinmentTimeBasedOnDate: async (date: Date, id: string) => {
+    console.log("date and id ", date, id);
+    const appointments = await soloNurseAppoinment_Model
+      .find({
+        soloNurseId: id,
+        prefarenceDate: new Date(date),
+      })
+      .populate({
+        path: "patientId",
+        select: "_id userId",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName role profileImage ", // fields you want
+        },
+      })
+      .populate({
+        path: "soloNurseId",
+        select: "_id userId",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName role profileImage ", // fields you want
+        },
+      });
+
+    return appointments;
   },
   getSinglePaintentAppointmentForNurse: async (patientId: string) => {
     return await soloNurseAppoinment_Model
