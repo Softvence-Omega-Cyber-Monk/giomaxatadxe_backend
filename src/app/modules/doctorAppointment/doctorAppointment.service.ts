@@ -91,7 +91,7 @@ export const doctorAppointmentService = {
       .find(filter)
       .populate({
         path: "patientId",
-        select: "_id userId",
+        select: "_id userId gender age",
         populate: {
           path: "userId",
           model: "user", // ensure correct model name

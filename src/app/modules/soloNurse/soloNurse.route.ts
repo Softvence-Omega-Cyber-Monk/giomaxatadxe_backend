@@ -12,7 +12,7 @@ router.get("/getAll", SoloNurseController.getAllSoloNurses);
 router.get("/getSingle/:userId", SoloNurseController.getSoloNurseById);
 router.put("/update-basic/:userId", soloNurseProfileImage.single("profileImage"), SoloNurseController.updateSoloNurseBasic);
 router.put(
-  "/update-professional/:userId",
+  "/update-professional/:userId/",
   SoloNurseController.professionalUpdate
 );
 router.put(
