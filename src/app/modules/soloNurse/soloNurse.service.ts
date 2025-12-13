@@ -169,11 +169,12 @@ export const SoloNurseService = {
       throw new Error("Sub service already exists for this service");
     }
 
+    // console.log('paylodd', payload , serviceId); 
     // 🔹 Push sub-service
     const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
       {
         userId,
-        "professionalInformation.services._id": serviceId,
+        "professionalInformation.services.serviceId": serviceId,
       },
       {
         $push: {
@@ -186,6 +187,7 @@ export const SoloNurseService = {
       { new: true }
     );
 
+    // console.log('add sub service ', updatedSoloNurse);
     return updatedSoloNurse;
   },
 
