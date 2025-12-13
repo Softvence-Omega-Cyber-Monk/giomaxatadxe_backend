@@ -66,29 +66,26 @@ export const SoloNurseController = {
     }
   },
 
-addSingleSubService: async (req: Request, res: Response) => {
-  try {
-    const { userId, serviceId } = req.params;
+  addSingleSubService: async (req: Request, res: Response) => {
+    try {
+      const result = await SoloNurseService.addSingleSubService(
+        req.params.userId,
+        req.params.serviceId,
+        req.body
+      );
 
-    const result = await SoloNurseService.addSingleSubService(
-      userId,
-      serviceId,
-      req.body
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Solo Nurse sub service added successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
-},
-
+      res.json({
+        success: true,
+        message: "Solo Nurse sub service added successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
   deleteSingleSubService: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.deleteSingleSubService(

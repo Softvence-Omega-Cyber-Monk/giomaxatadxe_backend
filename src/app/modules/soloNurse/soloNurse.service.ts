@@ -202,7 +202,7 @@ export const SoloNurseService = {
       throw new Error("Solo nurse not found for this user");
     }
 
-    console.log('payload', userId, serviceId, subServiceId);
+    // console.log('payload', userId, serviceId, sub);
     const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
       {
         userId,
@@ -218,7 +218,7 @@ export const SoloNurseService = {
       { new: true }
     );
 
-    console.log('deleted ', updatedSoloNurse);
+    // console.log('deleted ', updatedSoloNurse);
 
     return updatedSoloNurse;
   },
