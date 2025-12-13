@@ -100,7 +100,7 @@ export const doctorAppointmentService = {
       })
       .populate({
         path: "doctorId",
-        select: "_id name image specialization",
+        select: "_id userId name image specialization",
       })
       .sort({ createdAt: -1 });
 
@@ -220,6 +220,33 @@ export const doctorAppointmentService = {
     });
 
     return grouped;
+  },
+
+  getAppoinmentTimeBasedOnDate: async (date: Date, id: string) => {
+    // console.log("date and id ", date, id);
+
+
+    const appointments = await doctorAppointment_Model
+      .find({
+        doctorId: id,
+        prefarenceDate: new Date(date),
+      })
+      .populate({
+        path: "patientId",
+        select: "_id userId gender age",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName profileImage role", // fields you want
+        },
+      })
+      .populate({
+        path: "doctorId",
+        select: "_id userId name image specialization",
+      })
+      .sort({ createdAt: -1 });
+
+    return appointments;
   },
 
   // Delete

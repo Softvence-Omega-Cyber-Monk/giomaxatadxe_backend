@@ -30,7 +30,10 @@ export const doctorAppointmentController = {
   getAll: async (req: Request, res: Response) => {
     try {
       const status = req.query.status as string | undefined;
-      const result = await doctorAppointmentService.getAllAppointments(status , req.params.doctorId);
+      const result = await doctorAppointmentService.getAllAppointments(
+        status,
+        req.params.doctorId
+      );
       res.json({
         success: true,
         message: "Appointments fetched successfully",
@@ -89,12 +92,11 @@ export const doctorAppointmentController = {
     }
   },
 
-    getSinglePaitentChats: async (req: Request, res: Response) => {
+  getSinglePaitentChats: async (req: Request, res: Response) => {
     try {
-      const result =
-        await doctorAppointmentService.getSinglePaitentChats(
-          req.params.patientId
-        );
+      const result = await doctorAppointmentService.getSinglePaitentChats(
+        req.params.patientId
+      );
       res.json({
         success: true,
         message: "chats profile  fetched successfully",
@@ -105,12 +107,11 @@ export const doctorAppointmentController = {
       res.status(500).json({ success: false, message: err.message });
     }
   },
-    getSingleDoctorChats: async (req: Request, res: Response) => {
+  getSingleDoctorChats: async (req: Request, res: Response) => {
     try {
-      const result =
-        await doctorAppointmentService.getSingleDoctorChats(
-          req.params.doctorId
-        );
+      const result = await doctorAppointmentService.getSingleDoctorChats(
+        req.params.doctorId
+      );
       res.json({
         success: true,
         message: "chats profile   fetched successfully",
@@ -146,6 +147,23 @@ export const doctorAppointmentController = {
       res.json({
         success: true,
         message: "get time and date successfully",
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+
+  getAppoinmentTimeBasedOnDate: async (req: Request, res: Response) => {
+    try {
+      const result =
+        await doctorAppointmentService.getAppoinmentTimeBasedOnDate(
+          req.body.Date,
+          req.params.id
+        );
+      res.json({
+        success: true,
+        message: "get time based on data fetch successfully",
         data: result,
       });
     } catch (err: any) {

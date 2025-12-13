@@ -31,6 +31,10 @@ router.get(
   "/getSelectedDateAndTime/:id",
   doctorAppointmentController.getSelectedDateAndTime
 );
+router.post(
+  "/getAppoinmentTimeBasedOnDate/:id",
+  doctorAppointmentController.getAppoinmentTimeBasedOnDate
+);
 
 router.delete("/delete/:id", doctorAppointmentController.delete);
 
