@@ -12,7 +12,7 @@ router.get(
   "/getSelectedDateAndTime/:id",
   soloNurseAppointmentController.getSelectedDateAndTime
 );
-router.get(
+router.post(
   "/getAppoinmentTimeBasedOnDate/:id",
   soloNurseAppointmentController.getAppoinmentTimeBasedOnDate
 );
