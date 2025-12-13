@@ -230,11 +230,11 @@ export const soloNurseAppointmentService = {
       .find({ soloNurseId: soloNurseId })
       .populate({
         path: "patientId",
-        select: "_id userId",
+        select: "_id userId gender ",
         populate: {
           path: "userId",
           model: "user", // ensure correct model name
-          select: "fullName role ", // fields you want
+          select: "fullName role  ", // fields you want
         },
       })
       .populate({
