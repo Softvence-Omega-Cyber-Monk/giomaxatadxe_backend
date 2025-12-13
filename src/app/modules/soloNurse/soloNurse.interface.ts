@@ -10,6 +10,7 @@ export type TSoloNurse = {
   dateOfBirth?: string;
   professionalInformation?: {
     services: {
+      serviceId: string;
       serviceName:
         | "Blood test & Sample collection"
         | "Nurse care and infusion therapy"

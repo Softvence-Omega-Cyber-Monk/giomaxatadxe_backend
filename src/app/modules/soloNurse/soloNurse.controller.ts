@@ -46,14 +46,16 @@ export const SoloNurseController = {
   },
   professionalUpdate: async (req: Request, res: Response) => {
     try {
+      const { userId } = req.params;
+
       const result = await SoloNurseService.professionalUpdate(
-        req.params.userId,
+        userId,
         req.body
       );
 
-      res.json({
+      res.status(200).json({
         success: true,
-        message: "Solo Nurse professional information  updated successfully",
+        message: "Solo Nurse professional information updated successfully",
         data: result,
       });
     } catch (error: any) {
@@ -63,26 +65,30 @@ export const SoloNurseController = {
       });
     }
   },
-  addSingleSubService: async (req: Request, res: Response) => {
-    try {
-      const result = await SoloNurseService.addSingleSubService(
-        req.params.userId,
-        req.params.serviceId,
-        req.body
-      );
 
-      res.json({
-        success: true,
-        message: "Solo Nurse sub service added successfully",
-        data: result,
-      });
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  },
+addSingleSubService: async (req: Request, res: Response) => {
+  try {
+    const { userId, serviceId } = req.params;
+
+    const result = await SoloNurseService.addSingleSubService(
+      userId,
+      serviceId,
+      req.body
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Solo Nurse sub service added successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+},
+
   deleteSingleSubService: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.deleteSingleSubService(

@@ -66,42 +66,73 @@ export const SoloNurseService = {
     }
   },
   professionalUpdate: async (userId: string, payload: any) => {
-    const {
-      services, // ARRAY NOW
-      speciality,
-      experience,
-      MedicalLicense,
-      qualifications,
-      about,
-      consultationFee,
-    } = payload;
+    const updateData: any = {};
 
-    const professionalInformation = {
-      services, // [{ serviceName, subServices[] }]
-      speciality,
-      experience,
-      MedicalLicense,
-      qualifications,
-      about,
-      consultationFee,
-    };
+    // 🔹 Get existing nurse
+    const soloNurse = await SoloNurse_Model.findOne({ userId });
 
-    try {
-      const updatedProfessional = await SoloNurse_Model.findOneAndUpdate(
-        { userId },
-        { professionalInformation },
-        { new: true }
-      );
-
-      if (!updatedProfessional) {
-        throw new Error("Solo nurse profile not found");
-      }
-
-      return updatedProfessional;
-    } catch (error) {
-      console.error("Error updating professional info:", error);
-      throw error;
+    if (!soloNurse) {
+      throw new Error("Solo nurse profile not found");
     }
+
+    //   SERVICES (MERGE, NOT REPLACE)
+
+    if (payload.services && Array.isArray(payload.services)) {
+      const existingServices =
+        soloNurse.professionalInformation?.services || [];
+
+      // Merge services (avoid duplicates by serviceName OR serviceId)
+      const mergedServices = [...existingServices];
+
+      payload.services.forEach((newService: any) => {
+        const exists = existingServices.some(
+          (service: any) =>
+            service.serviceName === newService.serviceName ||
+            service.serviceId === newService.serviceId
+        );
+        if (!exists) {
+          mergedServices.push(newService);
+        }
+      });
+
+      updateData["professionalInformation.services"] = mergedServices;
+    }
+
+    // OTHER FIELDS (PATCH STYLE)
+    if (payload.speciality) {
+      updateData["professionalInformation.speciality"] = payload.speciality;
+    }
+
+    if (payload.experience) {
+      updateData["professionalInformation.experience"] = payload.experience;
+    }
+
+    if (payload.MedicalLicense) {
+      updateData["professionalInformation.MedicalLicense"] =
+        payload.MedicalLicense;
+    }
+
+    if (payload.qualifications) {
+      updateData["professionalInformation.qualifications"] =
+        payload.qualifications;
+    }
+
+    if (payload.about) {
+      updateData["professionalInformation.about"] = payload.about;
+    }
+
+    if (payload.consultationFee) {
+      updateData["professionalInformation.consultationFee"] =
+        payload.consultationFee;
+    }
+
+    const updatedProfessional = await SoloNurse_Model.findOneAndUpdate(
+      { userId },
+      { $set: updateData },
+      { new: true }
+    );
+
+    return updatedProfessional;
   },
 
   addSingleSubService: async (
@@ -109,25 +140,47 @@ export const SoloNurseService = {
     serviceId: string,
     payload: any
   ) => {
-    const soloNurse = await SoloNurse_Model.findOne({ userId });
+    const { name, price } = payload;
 
-    if (!soloNurse) {
-      throw new Error("Solo nurse not found for this user");
+    if (!name || price === undefined) {
+      throw new Error("Sub service name and price are required");
     }
 
-    const newSubService = {
-      name: payload.name,
-      price: payload.price,
-    };
+    // 🔹 Find nurse + service
+    const soloNurse = await SoloNurse_Model.findOne({
+      userId,
+      "professionalInformation.services.serviceId": serviceId,
+    });
 
+    if (!soloNurse) {
+      throw new Error("Service not found for this nurse");
+    }
+
+    // 🔹 Check duplicate sub-service name
+    const service = soloNurse.professionalInformation?.services.find(
+      (s: any) => s._id.toString() === serviceId
+    );
+
+    const alreadyExists = service?.subServices.some(
+      (sub: any) => sub.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (alreadyExists) {
+      throw new Error("Sub service already exists for this service");
+    }
+
+    // 🔹 Push sub-service
     const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
       {
         userId,
-        "professionalInformation.services._id": serviceId, // match correct service
+        "professionalInformation.services._id": serviceId,
       },
       {
         $push: {
-          "professionalInformation.services.$.subServices": newSubService,
+          "professionalInformation.services.$.subServices": {
+            name,
+            price,
+          },
         },
       },
       { new: true }

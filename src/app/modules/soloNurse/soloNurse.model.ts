@@ -23,6 +23,7 @@ const soloNurseSchema = new Schema<TSoloNurse>(
     professionalInformation: {
       services: [
         {
+          serviceId: { type: String, required: true },
           serviceName: {
             type: String,
             enum: [
