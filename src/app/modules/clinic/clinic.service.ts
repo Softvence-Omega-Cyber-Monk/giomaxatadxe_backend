@@ -50,13 +50,14 @@ const getClinicAppointments = async (clinicId: string) => {
     })
     .populate({
       path: "doctorId",
-      select: "_id userId",
+      select: "_id userId ",
       populate: {
         path: "userId",
         model: "user", // ensure correct model name
-        select: "fullName  role", // fields you want
-      },
+        select: "fullName ", // fields you want
+      }
     });
+  console.log("result ", result);
 
   return result;
 };
@@ -144,11 +145,10 @@ const updateClinicBasic = async (
     }
 
     // step-1: Update user model
-    const updatedUser = await User_Model.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true, session }
-    );
+    const updatedUser = await User_Model.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      session,
+    });
 
     if (!updatedUser) {
       throw new Error("User not found!");
