@@ -15,34 +15,29 @@ export const chatSocketHandler = (io: any, socket: any) => {
     console.log("Admin joined room");
   }
 
-  // -------------------------
   // 🔵 Send normal message (user ↔ user)
-  // -------------------------
 
   socket.on("send_message", async (data: any) => {
-    const { receiverId, message } = data;
+    const { receiverId, message, chatType } = data;
 
     const newMsg = await ChatModel.create({
       senderId: userId,
       receiverId,
+      chatType,
       message,
     });
 
-    // Send to sender
     socket.emit("message_sent", newMsg);
-
-    // Send to receiver
     io.to(receiverId).emit("receive_message", newMsg);
   });
 
-  // -------------------------
   // 🔵 User → Admin
-  // -------------------------
-  socket.on("message_to_admin", async ({ message }: { message: string }) => {
 
+  socket.on("message_to_admin", async ({ message }: { message: string }) => {
     const newMsg = await ChatModel.create({
       senderId: userId,
       receiverType: "admin",
+      chatType: "user_admin",
       message,
     });
 
@@ -68,6 +63,7 @@ export const chatSocketHandler = (io: any, socket: any) => {
       const newMsg = await ChatModel.create({
         senderId: userId,
         receiverId: targetUserId,
+        chatType: "user_admin",
         message,
       });
 
@@ -84,5 +80,3 @@ export const chatSocketHandler = (io: any, socket: any) => {
 
   socket.on("disconnect", () => console.log("Disconnected:", socket.id));
 };
-
-
