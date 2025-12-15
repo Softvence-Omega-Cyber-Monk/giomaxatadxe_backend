@@ -6,6 +6,7 @@ export type TPatient = {
   gender?: "male" | "female";
   bloodGroup?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
   dateOfBirth?: string;
+  age?: number;
   address?: {
     addressLabel: string;
     streetNumber: string;

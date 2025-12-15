@@ -14,9 +14,41 @@ const generateRandomPassword = () => {
   return crypto.randomBytes(6).toString("base64"); // ~8–10 chars
 };
 
-export const createPatient = async (payload: TUser) => {
+export const createPatient = async (payload: any) => {
   const session = await mongoose.startSession();
   session.startTransaction();
+
+  // console.log("from service", payload);
+  if (payload.dateOfBirth) {
+    const dob = new Date(payload.dateOfBirth);
+    const today = new Date();
+
+    if (isNaN(dob.getTime())) {
+      throw new Error("Invalid date of birth");
+    }
+
+    if (dob > today) {
+      throw new Error("Date of birth cannot be in the future.");
+    }
+
+    let age = today.getFullYear() - dob.getFullYear();
+
+    const monthDiff = today.getMonth() - dob.getMonth();
+    const dayDiff = today.getDate() - dob.getDate();
+
+    // If birthday has not occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--;
+    }
+
+    // Optional: validate minimum age
+    if (age < 0) {
+      throw new Error("Invalid age calculated");
+    }
+
+    payload.age = age; // store or use age
+
+  }
 
   try {
     // 1. Check if email already exists
@@ -65,7 +97,7 @@ export const createPatient = async (payload: TUser) => {
 
     // 6. Create Patient using new userId
     const newPatient = await Patient_Model.create(
-      [{ ...patientPayload, userId: createdUser._id }],
+      [{ ...patientPayload, age : payload.age, userId: createdUser._id }],
       { session }
     );
 
@@ -238,11 +270,11 @@ const createDoctor = async (payload: any) => {
     );
 
     const createClinic = await Doctor_Model.create(
-      [{ ...doctorPayload,workingHour, userId: newUser[0]._id, clinicId }],
+      [{ ...doctorPayload, workingHour, userId: newUser[0]._id, clinicId }],
       { session }
     );
 
-        // -------- 5. Send Email With Credentials --------
+    // -------- 5. Send Email With Credentials --------
     await sendEmail({
       to: email,
       subject: "Your Doctor Account Login Credentials",
@@ -254,8 +286,6 @@ const createDoctor = async (payload: any) => {
         <p>Please login and update your password.</p>
       `,
     });
-
-
 
     await session.commitTransaction();
     session.endSession();

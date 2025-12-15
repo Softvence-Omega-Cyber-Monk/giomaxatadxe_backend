@@ -142,7 +142,7 @@ export const doctorAppointmentService = {
       .find({ doctorId: doctorId })
       .populate({
         path: "patientId",
-        select: "_id userId",
+        select: "_id userId age gender bloodGroup",
         populate: {
           path: "userId",
           model: "user", // ensure correct model name
