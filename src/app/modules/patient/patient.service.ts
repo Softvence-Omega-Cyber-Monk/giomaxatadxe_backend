@@ -128,6 +128,68 @@ export const patientService = {
     }
   },
 
+  setDefaultAddress: async (patientId: string, addressId: string) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // 1️⃣ Remove default from all addresses
+      await Patient_Model.updateOne(
+        { _id: patientId },
+        {
+          $set: {
+            "address.$[].isDefault": false,
+          },
+        },
+        { session }
+      );
+
+      // 2️⃣ Set selected address as default
+      const updatedPatient = await Patient_Model.findOneAndUpdate(
+        {
+          _id: patientId,
+          "address._id": addressId,
+        },
+        {
+          $set: {
+            "address.$.isDefault": true,
+          },
+        },
+        { new: true, session }
+      );
+
+      if (!updatedPatient) {
+        throw new Error("Patient or address not found");
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return updatedPatient.address;
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
+  },
+
+  deleteAddress: async (patientId: string, addressId: string) => {
+    const updatedPatient = await Patient_Model.findByIdAndUpdate(
+      patientId,
+      {
+        $pull: {
+          address: { _id: addressId },
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedPatient) {
+      throw new Error("Patient not found");
+    }
+
+    return updatedPatient.address;
+  },
   addMedicalHistoryService: async (
     userId: string,
     medicalConditions?: any[],

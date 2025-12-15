@@ -17,6 +17,17 @@ router.patch(
   "/createOrUpdateAddress/:userId",
   patientController.createOrUpdateAddress
 );
+router.patch(
+  "/setDefaultAddress/:patientId/:addressId",
+  patientController.setDefaultAddressController
+);
+
+// Delete address
+router.delete(
+  "/deleteAddress/:patientId/:addressId",
+  patientController.deleteAddressController
+);
+
 router.post(
   "/medical-history/:userId",
   patientController.addMedicalHistoryService

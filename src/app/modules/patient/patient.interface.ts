@@ -13,6 +13,7 @@ export type TPatient = {
     city: string;
     state: string;
     zipCode: string;
+    isDefault: boolean;
   }[];
   medicalHistory?: {
     conditions: {
