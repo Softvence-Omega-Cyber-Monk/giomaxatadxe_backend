@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import { TDoctor } from "./doctor.interface";
 import { Doctor_Model } from "./doctor.model";
 import { User_Model } from "../user/user.schema";
+import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
+import { Patient_Model } from "../patient/patient.model";
 
 export const DoctorService = {
   getDoctors: async () => {
@@ -13,6 +15,27 @@ export const DoctorService = {
       path: "clinicId",
       select: "_id ", // only fetch _id and name
     });
+  },
+
+  getSingleDoctorPatientList: async (doctorId: string, ) => {
+    // 1️⃣ Get unique patient IDs for this doctor
+    const patientIds = await doctorAppointment_Model.distinct("patientId", {
+      doctorId,
+      status: "confirmed",
+    });
+
+    if (!patientIds.length) {
+      return [];
+    }
+
+    // 2️⃣ Fetch patient documents
+    const patients = await Patient_Model.find({
+      _id: { $in: patientIds },
+    })
+      .populate("userId") // optional
+      .sort({ createdAt: -1 });
+
+    return patients;
   },
 
   updateDoctorBasic: async (

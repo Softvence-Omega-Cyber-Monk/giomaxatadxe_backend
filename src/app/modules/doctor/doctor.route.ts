@@ -5,12 +5,19 @@ import { createUploader } from "../../utils/cloudinary";
 const doctorCertificate = createUploader("doctorCertificates");
 const doctorProfileImage = createUploader("doctorProfileImage");
 
-
 const router = Router();
 
 router.get("/getAll", DoctorController.getDoctors);
 router.get("/getSingle/:userId", DoctorController.getDoctorById);
-router.put("/update-basic/:userId", doctorProfileImage.single("profileImage"), DoctorController.updateDoctorBasic);
+router.get(
+  "/getSinglePatientList/:doctorId",
+  DoctorController.getSingleDoctorPatientList
+);
+router.put(
+  "/update-basic/:userId",
+  doctorProfileImage.single("profileImage"),
+  DoctorController.updateDoctorBasic
+);
 router.put("/update-professional/:userId", DoctorController.professionalUpdate);
 
 router.put(

@@ -24,6 +24,19 @@ export const DoctorController = {
       res.status(500).json({ success: false, message: error.message });
     }
   },
+  getSingleDoctorPatientList: async (req: Request, res: Response) => {
+    try {
+      const patientList  = await DoctorService.getSingleDoctorPatientList(req.params.doctorId);
+      if (!patientList) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Doctor not found" });
+      }
+      res.json({ success: true, message: "Patient list fetched successfully", data: patientList });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
 
   updateDoctorBasic: async (req: Request, res: Response) => {
     try {
