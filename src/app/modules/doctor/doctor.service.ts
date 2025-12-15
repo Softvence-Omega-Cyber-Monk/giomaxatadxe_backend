@@ -17,25 +17,28 @@ export const DoctorService = {
     });
   },
 
-  getSingleDoctorPatientList: async (doctorId: string, ) => {
-    // 1️⃣ Get unique patient IDs for this doctor
-    const patientIds = await doctorAppointment_Model.distinct("patientId", {
-      doctorId,
-      status: "confirmed",
-    });
-
-    if (!patientIds.length) {
-      return [];
-    }
-
-    // 2️⃣ Fetch patient documents
-    const patients = await Patient_Model.find({
-      _id: { $in: patientIds },
-    })
-      .populate("userId") // optional
+  getSingleDoctorPatientList: async (doctorId: string) => {
+    const appointments = await doctorAppointment_Model
+      .find({
+        doctorId,
+        status: "confirmed",
+      })
+      .populate({
+        path: "patientId",
+        select: "_id userId gender age bloodGroup",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName role", // fields you want
+        },
+      })
+      .populate({
+        path: "doctorId",
+        select: "_id userId",
+      })
       .sort({ createdAt: -1 });
 
-    return patients;
+    return appointments;
   },
 
   updateDoctorBasic: async (
