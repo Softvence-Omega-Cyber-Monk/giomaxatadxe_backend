@@ -25,6 +25,11 @@ router.get(
   soloNurseAppointmentController.getSingleNurseAppointment
 );
 
+router.get(
+  "/getSinlgePatientChatsForNurse/:soloNurseId",
+  soloNurseAppointmentController.getSinlgePatientChatsForNurse
+);
+
 
 
 export const soloNurseAppoinmentRoutes = router;

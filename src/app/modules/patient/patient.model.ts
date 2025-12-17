@@ -19,6 +19,7 @@ const patientSchema = new Schema<TPatient>(
     age: { type: Number, required: false },
     address: [
       {
+        
         addressLabel: { type: String },
         streetNumber: { type: String },
         apartmentNumber: { type: String },
