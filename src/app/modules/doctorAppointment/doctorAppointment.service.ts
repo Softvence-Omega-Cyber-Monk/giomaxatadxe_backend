@@ -1,3 +1,4 @@
+import { Clinic_Model } from "../clinic/clinic.model";
 import { Doctor_Model } from "../doctor/doctor.model";
 import { Patient_Model } from "../patient/patient.model";
 import { doctorAppointment_Model } from "./doctorAppointment.model";
@@ -159,7 +160,7 @@ export const doctorAppointmentService = {
     // Step 1: Get unique doctor IDs for this patient
     const doctorIds = await doctorAppointment_Model.distinct("doctorId", {
       patientId: patientId,
-      status: "approved",
+      status: "confirmed",
     });
 
     // Step 2: Fetch doctor details using the IDs
@@ -175,7 +176,23 @@ export const doctorAppointmentService = {
     // Step 1: Get unique patient IDs for this doctor
     const patientIds = await doctorAppointment_Model.distinct("patientId", {
       doctorId: doctorId,
-      status: "approved",
+      status: "confirmed",
+    });
+
+    // Step 2: Fetch patient details using the IDs
+    return await Patient_Model.find({ _id: { $in: patientIds } })
+      .select("userId")
+      .populate({
+        path: "userId",
+        model: "user",
+        select: "fullName role profileImage",
+      });
+  },
+  getSinlgeClinicChats: async (clinicId: string) => {
+    // Step 1: Get unique patient IDs for this doctor
+    const patientIds = await doctorAppointment_Model.distinct("patientId", {
+      clinicId: clinicId,
+      status: "confirmed",
     });
 
     // Step 2: Fetch patient details using the IDs
@@ -224,7 +241,6 @@ export const doctorAppointmentService = {
 
   getAppoinmentTimeBasedOnDate: async (date: Date, id: string) => {
     // console.log("date and id ", date, id);
-
 
     const appointments = await doctorAppointment_Model
       .find({

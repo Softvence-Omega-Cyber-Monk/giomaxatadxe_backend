@@ -13,7 +13,7 @@ const chatSchema = new mongoose.Schema(
     receiverType: { type: String, enum: ["user", "admin"], default: "user" },
     chatType: {
       type: String,
-      enum: ["doctor_patient", "nurse_patient", "user_admin"],
+      enum: ["doctor_patient", "doctor_clinic", "nurse_patient", "user_admin"],
       required: true,
     },
     message: { type: String, required: true },

@@ -122,6 +122,21 @@ export const doctorAppointmentController = {
       res.status(500).json({ success: false, message: err.message });
     }
   },
+  getSinlgeClinicChats: async (req: Request, res: Response) => {
+    try {
+      const result = await doctorAppointmentService.getSinlgeClinicChats(
+        req.params.clinicId
+      );
+      res.json({
+        success: true,
+        message: "chats profile   fetched successfully",
+
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
 
   updateStatus: async (req: Request, res: Response) => {
     try {
