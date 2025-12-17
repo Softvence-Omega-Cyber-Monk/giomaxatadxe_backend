@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { TSoloNurse } from "./soloNurse.interface";
+import { create } from "domain";
 
 const soloNurseSchema = new Schema<TSoloNurse>(
   {
@@ -89,6 +90,7 @@ const soloNurseSchema = new Schema<TSoloNurse>(
         patientId: { type: Schema.Types.ObjectId, ref: "Patient" },
         rating: { type: Number },
         comment: { type: String },
+        createdAt: { type: Date, default: Date.now },
       },
     ],
     avarageRating: {

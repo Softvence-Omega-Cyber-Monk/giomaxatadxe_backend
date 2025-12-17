@@ -58,6 +58,7 @@ export type TSoloNurse = {
     patientId: Types.ObjectId;
     rating: number;
     comment: string;
+    createdAt: Date;
   }[];
   avarageRating?: number;
 };
