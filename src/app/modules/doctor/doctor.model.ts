@@ -7,22 +7,19 @@ const ProfessionalInfoSchema = new Schema({
   medicalLicenseNumber: { type: String, required: true },
   qualifications: { type: String, required: true },
   about: { type: String, required: true },
-
-  onlineConsultationFee: { type: Number,  },
-  clinicVisitFee: { type: Number, },
 });
 
 const CertificateSchema = new Schema({
-  uploadCertificates: { type: String,  },
-  certificateType: { type: String,  },
-  certificateName: { type: String,  },
+  uploadCertificates: { type: String },
+  certificateType: { type: String },
+  certificateName: { type: String },
 });
 
 const DoctorSchema = new Schema<TDoctor>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "user", required: true },
     clinicId: { type: Schema.Types.ObjectId, ref: "Clinic", required: true },
-    
+
     phoneNumber: { type: String, required: true },
     licenseNumber: { type: String, required: true },
 
@@ -38,6 +35,8 @@ const DoctorSchema = new Schema<TDoctor>(
     gender: { type: String, enum: ["male", "female"] },
 
     professionalInformation: ProfessionalInfoSchema,
+    onlineConsultationFee: { type: Number },
+    clinicVisitFee: { type: Number },
 
     certificates: [CertificateSchema],
     appointmentType: { type: String, required: true },

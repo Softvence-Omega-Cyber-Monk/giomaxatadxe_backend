@@ -104,8 +104,6 @@ export const DoctorService = {
       medicalLicenseNumber,
       qualifications,
       about,
-      onlineConsultationFee,
-      clinicVisitFee,
     } = payload;
 
     const professionalInformation = {
@@ -114,8 +112,6 @@ export const DoctorService = {
       medicalLicenseNumber,
       qualifications,
       about,
-      onlineConsultationFee,
-      clinicVisitFee,
     };
 
     try {
