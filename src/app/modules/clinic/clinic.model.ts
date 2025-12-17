@@ -67,6 +67,7 @@ const clinicSchema = new Schema<TClinic>(
         patientId: { type: Schema.Types.ObjectId, ref: "Patient" },
         rating: { type: Number },
         comment: { type: String },
+        createdAt: { type: Date, default: Date.now },
       },
     ],
     avarageRating: {
