@@ -5,6 +5,7 @@ import { User_Model } from "../user/user.schema";
 import { Doctor_Model } from "../doctor/doctor.model";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
 import { Patient_Model } from "../patient/patient.model";
+import app from "../../../app";
 
 const getAllClinics = async () => {
   const result = await Clinic_Model.find()
@@ -55,7 +56,7 @@ const getClinicAppointments = async (clinicId: string) => {
         path: "userId",
         model: "user", // ensure correct model name
         select: "fullName ", // fields you want
-      }
+      },
     });
   console.log("result ", result);
 
@@ -69,56 +70,26 @@ const getClinicDoctors = async (clinicId: string) => {
 };
 
 const getClinicPatients = async (clinicId: string) => {
-  const result = await doctorAppointment_Model.aggregate([
-    {
-      $match: { clinicId: new mongoose.Types.ObjectId(clinicId) },
-    },
-
-    // Group by patientId (latest appointment)
-    {
-      $group: {
-        _id: "$patientId",
-        visitingType: { $last: "$visitingType" },
-        createdAt: { $last: "$createdAt" },
-        prefarenceDate: { $last: "$prefarenceDate" },
-        prefarenceTime: { $last: "$prefarenceTime" },
-        serviceType: { $last: "$serviceType" },
-        reasonForVisit: { $last: "$reasonForVisit" }, // ✅ FIXED
+  const appointmentRecords = await doctorAppointment_Model
+    .find({
+      clinicId,
+      status: "confirmed",
+    })
+    .populate({
+      path: "patientId",
+      select: "_id userId",
+      populate: {
+        path: "userId",
+        model: "user", // ensure correct model name
+        select: "fullName role", // fields you want
       },
-    },
+    })
+    .populate({
+      path: "doctorId",
+      select: "_id userId ",
+    });
 
-    // Populate patient details
-    {
-      $lookup: {
-        from: "patients",
-        localField: "_id",
-        foreignField: "_id",
-        as: "patient",
-      },
-    },
-    { $unwind: "$patient" },
-
-    {
-      $project: {
-        _id: 0,
-        visitingType: 1,
-        createdAt: 1,
-        prefarenceDate: 1,
-        prefarenceTime: 1,
-        serviceType: 1,
-        reasonForVisit: 1,
-
-        patient: {
-          _id: "$patient._id",
-          userId: "$patient.userId",
-          gender: "$patient.gender",
-          phoneNumber: "$patient.phoneNumber",
-        },
-      },
-    },
-  ]);
-
-  return { patients: result };
+  return appointmentRecords;
 };
 
 const updateClinicBasic = async (
@@ -305,6 +276,34 @@ const deleteClinic = async (id: string) => {
   const result = await Clinic_Model.findByIdAndDelete(id);
   return result;
 };
+const getAppoinmentTimeBasedOnDateForClinic = async (
+  date: Date,
+  id: string
+) => {
+  // console.log("date and id ", date, id);
+
+  const appointments = await doctorAppointment_Model
+    .find({
+      clinicId: id,
+      prefarenceDate: new Date(date),
+    })
+    .populate({
+      path: "patientId",
+      select: "_id userId gender age bloodGroup",
+      populate: {
+        path: "userId",
+        model: "user", // ensure correct model name
+        select: "fullName  role", // fields you want
+      },
+    })
+    .populate({
+      path: "doctorId",
+      select: "_id userId  specialization",
+    })
+    .sort({ createdAt: -1 });
+
+  return appointments;
+};
 
 export const ClinicService = {
   getAllClinics,
@@ -319,4 +318,5 @@ export const ClinicService = {
   addReviews,
   addNewPaymentMethod,
   deleteClinic,
+  getAppoinmentTimeBasedOnDateForClinic,
 };

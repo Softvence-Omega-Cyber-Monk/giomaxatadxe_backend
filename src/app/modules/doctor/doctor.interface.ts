@@ -27,7 +27,7 @@ export type TDoctor = {
     onlineConsultationFee?: number;
     clinicVisitFee?: number;
   };
-  certificates: {
+  certificates?: {
     uploadCertificates: string;
     certificateType: string;
     certificateName: string;

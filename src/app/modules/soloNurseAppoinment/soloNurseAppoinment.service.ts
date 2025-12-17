@@ -1,3 +1,4 @@
+import { Patient_Model } from "../patient/patient.model";
 import { soloNurseAppoinment_Model } from "./soloNurseAppoinment.model";
 
 export const soloNurseAppointmentService = {
@@ -240,6 +241,23 @@ export const soloNurseAppointmentService = {
       .populate({
         path: "soloNurseId",
         select: "_id userId",
+      });
+  },
+
+  getSinlgePatientChatsForNurse: async (soloNurseId: string) => {
+    // Step 1: Get unique patient IDs for this doctor
+    const patientIds = await soloNurseAppoinment_Model.distinct("patientId", {
+      soloNurseId: soloNurseId,
+      status: "comfirmed",
+    });
+
+    // Step 2: Fetch patient details using the IDs
+    return await Patient_Model.find({ _id: { $in: patientIds } })
+      .select("userId")
+      .populate({
+        path: "userId",
+        model: "user",
+        select: "fullName role profileImage",
       });
   },
 };

@@ -13,7 +13,7 @@ const ProfessionalInfoSchema = new Schema({
 });
 
 const CertificateSchema = new Schema({
-  uploadCertificates: { type: String, required: true },
+  uploadCertificates: { type: String,  },
   certificateType: { type: String,  },
   certificateName: { type: String,  },
 });

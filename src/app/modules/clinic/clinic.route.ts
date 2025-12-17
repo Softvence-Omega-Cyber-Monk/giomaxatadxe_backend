@@ -30,5 +30,9 @@ router.put(
   ClinicController.addNewPaymentMethod
 );
 router.delete("/delete/:userId", ClinicController.deleteClinic);
+router.post(
+  "/getAppoinmentTimeBasedOnDateForClinic/:id",
+  ClinicController.getAppoinmentTimeBasedOnDateForClinic
+);
 
 export const ClinicRoutes = router;

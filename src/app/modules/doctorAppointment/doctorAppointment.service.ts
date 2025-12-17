@@ -101,7 +101,7 @@ export const doctorAppointmentService = {
       })
       .populate({
         path: "doctorId",
-        select: "_id userId name image specialization",
+        select: "_id userId ",
       })
       .sort({ createdAt: -1 });
 
@@ -192,7 +192,7 @@ export const doctorAppointmentService = {
     // Step 1: Get unique patient IDs for this doctor
     const patientIds = await doctorAppointment_Model.distinct("patientId", {
       clinicId: clinicId,
-      status: "confirmed",
+      status: "pending",
     });
 
     // Step 2: Fetch patient details using the IDs
