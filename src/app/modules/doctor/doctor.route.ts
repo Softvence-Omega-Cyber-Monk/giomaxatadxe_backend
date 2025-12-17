@@ -7,6 +7,7 @@ const doctorProfileImage = createUploader("doctorProfileImage");
 
 const router = Router();
 
+router.put("/update/:doctorId", DoctorController.updateDoctor);
 router.get("/getAll", DoctorController.getDoctors);
 router.get("/getSingle/:userId", DoctorController.getDoctorById);
 router.get(

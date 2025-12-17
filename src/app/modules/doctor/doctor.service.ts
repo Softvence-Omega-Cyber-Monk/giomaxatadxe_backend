@@ -3,9 +3,69 @@ import { TDoctor } from "./doctor.interface";
 import { Doctor_Model } from "./doctor.model";
 import { User_Model } from "../user/user.schema";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
-import { Patient_Model } from "../patient/patient.model";
 
 export const DoctorService = {
+  updateDoctor: async (doctorId: string, payload: any) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const {
+        fullName,
+        email,
+        workingHour,
+        professionalInformation,
+        phoneNumber,
+        ...rest
+      } = payload;
+      // console.log('payload ,', payload);
+
+      // 1. Find doctor
+      const doctor = await Doctor_Model.findById(doctorId, null, { session });
+      if (!doctor) throw new Error("Doctor not found");
+
+      // 2. Update user info if needed
+      if (fullName || email) {
+        const userUpdate: any = {};
+        if (fullName) userUpdate.fullName = fullName;
+        if (email) {
+          // Check email uniqueness
+          const existingEmail = await User_Model.findOne(
+            { email, _id: { $ne: doctor.userId } },
+            null,
+            { session }
+          );
+          if (existingEmail) throw new Error("Email already exists");
+          userUpdate.email = email;
+        }
+        await User_Model.findByIdAndUpdate(doctor.userId, userUpdate, {
+          session,
+        });
+      }
+
+      // 3. Update doctor info
+      const doctorUpdate: any = { ...rest };
+      if (workingHour) doctorUpdate.workingHour = workingHour;
+      if (professionalInformation)
+        doctorUpdate.professionalInformation = professionalInformation;
+      if (phoneNumber) doctorUpdate.phoneNumber = phoneNumber;
+
+      const updatedDoctor = await Doctor_Model.findByIdAndUpdate(
+        doctorId,
+        doctorUpdate,
+        { new: true, session }
+      );
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return updatedDoctor;
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
+  },
   getDoctors: async () => {
     return Doctor_Model.find().populate("userId").populate("clinicId");
   },

@@ -2,6 +2,28 @@ import { Request, Response } from "express";
 import { DoctorService } from "./doctor.service";
 
 export const DoctorController = {
+  updateDoctor: async (req: Request, res: Response) => {
+    try {
+      const doctorId = req.params.doctorId;
+      const payload = req.body;
+
+      // console.log('controller payload ,', payload);
+
+      const updatedDoctor = await DoctorService.updateDoctor(doctorId, payload);
+
+      res.json({
+        success: true,
+        message: "Doctor updated successfully",
+        data: updatedDoctor,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to update doctor",
+      });
+    }
+  },
+
   getDoctors: async (req: Request, res: Response) => {
     try {
       const doctors = await DoctorService.getDoctors();
@@ -26,13 +48,19 @@ export const DoctorController = {
   },
   getSingleDoctorPatientList: async (req: Request, res: Response) => {
     try {
-      const patientList  = await DoctorService.getSingleDoctorPatientList(req.params.doctorId);
+      const patientList = await DoctorService.getSingleDoctorPatientList(
+        req.params.doctorId
+      );
       if (!patientList) {
         return res
           .status(404)
           .json({ success: false, message: "Doctor not found" });
       }
-      res.json({ success: true, message: "Patient list fetched successfully", data: patientList });
+      res.json({
+        success: true,
+        message: "Patient list fetched successfully",
+        data: patientList,
+      });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -40,8 +68,8 @@ export const DoctorController = {
 
   updateDoctorBasic: async (req: Request, res: Response) => {
     try {
-       const profileImageUrl = req.file ? (req.file as any).path : null;
-    console.log("profile image url ", profileImageUrl);
+      const profileImageUrl = req.file ? (req.file as any).path : null;
+      console.log("profile image url ", profileImageUrl);
 
       const result = await DoctorService.updateDoctorBasic(
         req.params.userId,
