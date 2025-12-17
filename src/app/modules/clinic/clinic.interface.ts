@@ -5,6 +5,7 @@ export type TClinic = {
   phoneNumber?: string;
   nationality: string;
   nationalIdNumber: string;
+  address?: string;
   clinicCertificates?: {
     uploadCertificates: string;
     certificateType?: string;

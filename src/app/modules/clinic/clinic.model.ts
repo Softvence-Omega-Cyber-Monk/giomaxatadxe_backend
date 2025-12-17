@@ -19,6 +19,9 @@ const clinicSchema = new Schema<TClinic>(
       type: String,
       required: true,
     },
+    address: {
+      type: String,
+    },
     clinicCertificates: [
       {
         uploadCertificates: { type: String },

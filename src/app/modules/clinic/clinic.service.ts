@@ -97,8 +97,14 @@ const updateClinicBasic = async (
   payload: any,
   profileImageUrl: string
 ) => {
-  const { fullName, email, phoneNumber, servicesOffered, clinicDescription } =
-    payload;
+  const {
+    fullName,
+    email,
+    phoneNumber,
+    servicesOffered,
+    clinicDescription,
+    address,
+  } = payload;
 
   const servicesOfferedData = servicesOffered
     ?.split(",")
@@ -132,6 +138,7 @@ const updateClinicBasic = async (
         phoneNumber,
         servicesOffered: servicesOfferedData,
         clinicDescription,
+        address,
       },
       { new: true, session }
     ).populate("userId");
