@@ -305,7 +305,6 @@ export const doctorAppointmentService = {
     // Step 1: Get unique patient IDs for this doctor
     const patientIds = await doctorAppointment_Model.distinct("patientId", {
       clinicId: clinicId,
-      status: "pending",
     });
 
     // Step 2: Fetch patient details using the IDs
