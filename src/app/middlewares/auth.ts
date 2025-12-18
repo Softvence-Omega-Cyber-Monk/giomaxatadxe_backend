@@ -26,13 +26,13 @@ const auth = (...roles: Role[]) => {
       const isUserExist = await User_Model.findOne({
         email: verifiedUser?.email,
       }).lean();
-      
+
       if (!isUserExist) {
         throw new AppError("user not found !", 404);
       }
 
       req.user = verifiedUser as JwtPayloadType;
-      
+
       next();
     } catch (err) {
       next(err);

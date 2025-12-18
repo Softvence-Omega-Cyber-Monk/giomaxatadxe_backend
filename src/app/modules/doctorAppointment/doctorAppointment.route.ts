@@ -7,7 +7,10 @@ router.post("/create", doctorAppointmentController.create);
 router.post("/reschedule", doctorAppointmentController.Reschedule);
 router.get("/getAll", doctorAppointmentController.getAll);
 router.get("/getSingle/:id", doctorAppointmentController.getOne);
-router.get("/getAdvanceFilter", doctorAppointmentController.AdvanceFilterInDashboard);
+router.get(
+  "/getAdvanceFilter",
+  doctorAppointmentController.AdvanceFilterInDashboard
+);
 router.get(
   "/getSinglePaintentAppointment/:patientId",
   doctorAppointmentController.getSinglePaintentAppointment

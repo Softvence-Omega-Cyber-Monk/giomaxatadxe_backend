@@ -37,30 +37,64 @@ const getClinicById = async (userId: string) => {
     });
   return result;
 };
-const getClinicAppointments = async (clinicId: string) => {
-  const result = await doctorAppointment_Model
-    .find({ clinicId })
+const getClinicAppointments = async (clinicId: string, status?: string) => {
+  let filter: any = { clinicId };
+
+  // Normal status filtering (exclude upcoming)
+  if (status && status !== "upcoming") {
+    filter.status = status;
+  }
+
+  // Fetch from DB
+  let appointments = await doctorAppointment_Model
+    .find(filter)
     .populate({
       path: "patientId",
       select: "_id userId",
       populate: {
         path: "userId",
-        model: "user", // ensure correct model name
-        select: "fullName role", // fields you want
+        model: "user",
+        select: "fullName role",
       },
     })
     .populate({
       path: "doctorId",
-      select: "_id userId ",
+      select: "_id userId",
       populate: {
         path: "userId",
-        model: "user", // ensure correct model name
-        select: "fullName ", // fields you want
+        model: "user",
+        select: "fullName",
       },
     });
-  console.log("result ", result);
 
-  return result;
+  // ✅ UPCOMING LOGIC (DATE + TIME)
+  if (status === "upcoming") {
+    const now = new Date();
+
+    appointments = appointments.filter((item: any) => {
+      const date = item.prefarenceDate; // Date object
+      const time = item.prefarenceTime; // "10:30 AM"
+
+      const appointmentDateTime = new Date(
+        `${date.toISOString().split("T")[0]} ${time}`
+      );
+
+      return appointmentDateTime > now;
+    });
+
+    // ✅ Sort nearest first
+    appointments.sort((a: any, b: any) => {
+      const ad = new Date(
+        `${a.prefarenceDate.toISOString().split("T")[0]} ${a.prefarenceTime}`
+      );
+      const bd = new Date(
+        `${b.prefarenceDate.toISOString().split("T")[0]} ${b.prefarenceTime}`
+      );
+      return ad.getTime() - bd.getTime();
+    });
+  }
+
+  return appointments;
 };
 
 const getClinicDoctors = async (clinicId: string, appointmentType: any) => {
