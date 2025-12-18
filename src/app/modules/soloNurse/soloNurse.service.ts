@@ -3,8 +3,16 @@ import { User_Model } from "../user/user.schema";
 import { SoloNurse_Model } from "./soloNurse.model";
 
 export const SoloNurseService = {
-  getAllSoloNurses: async () => {
-    return SoloNurse_Model.find().populate("userId");
+  getAllSoloNurses: async (serviceName?: string) => {
+    const query: any = {};
+
+    if (serviceName) {
+      query["professionalInformation.services.serviceName"] = serviceName;
+    }
+
+    return SoloNurse_Model.find(query)
+      .populate("userId")
+      .sort({ createdAt: -1 }); // optional: latest first
   },
 
   getSoloNurseById: async (userId: string) => {
@@ -169,7 +177,7 @@ export const SoloNurseService = {
       throw new Error("Sub service already exists for this service");
     }
 
-    // console.log('paylodd', payload , serviceId); 
+    // console.log('paylodd', payload , serviceId);
     // 🔹 Push sub-service
     const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
       {

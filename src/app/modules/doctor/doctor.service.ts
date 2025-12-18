@@ -242,7 +242,8 @@ export const DoctorService = {
     return updated;
   },
 
-  deleteDoctor: async (id: string) => {
-    return Doctor_Model.findByIdAndDelete(id);
+  deleteDoctor: async (doctorId: string, clinicId: string , doctorUserId: string) => {
+    const res = await User_Model.findOneAndDelete({ _id: doctorUserId });
+    await Doctor_Model.findOneAndDelete({ _id: doctorId, clinicId });
   },
 };

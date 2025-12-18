@@ -33,6 +33,9 @@ router.delete(
   DoctorController.deleteCertificate
 );
 
-router.delete("/delete-doctor/:id", DoctorController.deleteDoctor);
+router.delete(
+  "/delete-doctor",
+  DoctorController.deleteDoctor
+);
 
 export const DoctorRoutes = router;

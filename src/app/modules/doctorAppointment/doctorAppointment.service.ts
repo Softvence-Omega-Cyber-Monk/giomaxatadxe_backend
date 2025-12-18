@@ -101,7 +101,8 @@ export const doctorAppointmentService = {
       })
       .populate({
         path: "doctorId",
-        select: "_id userId ",
+        select: "_id userId",
+        populate: { path: "userId", model: "user", select: "fullName role" },
       })
       .sort({ createdAt: -1 });
 
@@ -120,6 +121,118 @@ export const doctorAppointmentService = {
         select: "_id",
       });
   },
+  AdvanceFilterInDashboard: async (payload: any) => {
+    const { patientName, doctorName, prefarenceDate, prefarenceTime } = payload;
+
+    const matchStage: any = {};
+
+    // Date filter
+    if (prefarenceDate) {
+      const start = new Date(prefarenceDate);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(prefarenceDate);
+      end.setHours(23, 59, 59, 999);
+
+      matchStage.prefarenceDate = { $gte: start, $lte: end };
+    }
+
+    // Time filter
+    if (prefarenceTime) {
+      matchStage.prefarenceTime = { $regex: prefarenceTime, $options: "i" };
+    }
+
+    return await doctorAppointment_Model.aggregate([
+      { $match: matchStage },
+
+      /* ---------------- PATIENT ---------------- */
+      {
+        $lookup: {
+          from: "patients",
+          localField: "patientId",
+          foreignField: "_id",
+          as: "patient",
+        },
+      },
+      { $unwind: "$patient" },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "patient.userId",
+          foreignField: "_id",
+          as: "patientUser",
+        },
+      },
+      { $unwind: "$patientUser" },
+
+      /* ---------------- DOCTOR ---------------- */
+      {
+        $lookup: {
+          from: "doctors",
+          localField: "doctorId",
+          foreignField: "_id",
+          as: "doctor",
+        },
+      },
+      { $unwind: "$doctor" },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "doctor.userId",
+          foreignField: "_id",
+          as: "doctorUser",
+        },
+      },
+      { $unwind: "$doctorUser" },
+
+      /* ---------------- NAME FILTER ---------------- */
+      {
+        $match: {
+          ...(patientName && {
+            "patientUser.fullName": {
+              $regex: patientName,
+              $options: "i",
+            },
+          }),
+          ...(doctorName && {
+            "doctorUser.fullName": {
+              $regex: doctorName,
+              $options: "i",
+            },
+          }),
+        },
+      },
+
+      /* ---------------- RESPONSE SHAPE ---------------- */
+      {
+        $project: {
+          status: 1,
+          serviceType: 1,
+          visitingType: 1,
+          reasonForVisit: 1,
+          prefarenceDate: 1,
+          prefarenceTime: 1,
+
+          patient: {
+            _id: "$patient._id",
+            fullName: "$patientUser.fullName",
+            phoneNumber: "$patient.phoneNumber",
+            role : "$patientUser.role",
+          },
+
+          doctor: {
+            _id: "$doctor._id",
+            fullName: "$doctorUser.fullName",
+            phoneNumber: "$doctor.phoneNumber",
+            role : "$doctorUser.role",
+          },
+        },
+      },
+    ]);
+  },
+
   getSinglePaintentAppointment: async (patientId: string) => {
     return await doctorAppointment_Model
       .find({ patientId: patientId })

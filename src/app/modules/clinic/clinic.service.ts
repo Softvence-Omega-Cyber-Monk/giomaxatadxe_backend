@@ -63,10 +63,18 @@ const getClinicAppointments = async (clinicId: string) => {
   return result;
 };
 
-const getClinicDoctors = async (clinicId: string) => {
+const getClinicDoctors = async (clinicId: string, appointmentType: any) => {
   // console.log("clinti id 0", clinicId);
-  const result = await Doctor_Model.find({ clinicId }).populate("userId");
-  return result;
+  if (appointmentType) {
+    const result = await Doctor_Model.find({
+      clinicId,
+      appointmentType: appointmentType,
+    }).populate("userId");
+    return result;
+  } else {
+    const result = await Doctor_Model.find({ clinicId }).populate("userId");
+    return result;
+  }
 };
 
 const getClinicPatients = async (clinicId: string) => {

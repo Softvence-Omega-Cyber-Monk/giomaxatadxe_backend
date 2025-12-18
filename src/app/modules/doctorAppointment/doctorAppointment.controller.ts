@@ -32,7 +32,7 @@ export const doctorAppointmentController = {
       const status = req.query.status as string | undefined;
       const result = await doctorAppointmentService.getAllAppointments(
         status,
-        req.params.doctorId
+        req.query.doctorId as string | undefined
       );
       res.json({
         success: true,
@@ -53,6 +53,20 @@ export const doctorAppointmentController = {
         success: true,
         message: "Appointment fetched successfully",
 
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+  AdvanceFilterInDashboard: async (req: Request, res: Response) => {
+    try {
+      const result = await doctorAppointmentService.AdvanceFilterInDashboard(
+        req.body
+      );
+      res.json({
+        success: true,
+        message: "Appointment fetched successfully",
         data: result,
       });
     } catch (err: any) {

@@ -5,7 +5,7 @@ import { de } from "zod/v4/locales";
 export const SoloNurseController = {
   getAllSoloNurses: async (req: Request, res: Response) => {
     try {
-      const result = await SoloNurseService.getAllSoloNurses();
+      const result = await SoloNurseService.getAllSoloNurses(req.query.serviceName as string);
       res.json({ success: true, data: result });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });

@@ -66,7 +66,10 @@ const getClinicAppointments = async (req: Request, res: Response) => {
 };
 const getClinicDoctors = async (req: Request, res: Response) => {
   try {
-    const result = await ClinicService.getClinicDoctors(req.params.clinicId);
+    const result = await ClinicService.getClinicDoctors(
+      req.params.clinicId,
+      req.query.appointmentType as any 
+    );
 
     if (!result) {
       return res.status(404).json({
@@ -248,22 +251,24 @@ const deleteClinic = async (req: Request, res: Response) => {
   }
 };
 
- const  getAppoinmentTimeBasedOnDateForClinic= async (req: Request, res: Response) => {
-    try {
-      const result =
-        await ClinicService.getAppoinmentTimeBasedOnDateForClinic(
-          req.body.Date,
-          req.params.id
-        );
-      res.json({
-        success: true,
-        message: "get time based on data fetch successfully",
-        data: result,
-      });
-    } catch (err: any) {
-      res.status(500).json({ success: false, message: err.message });
-    }
+const getAppoinmentTimeBasedOnDateForClinic = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const result = await ClinicService.getAppoinmentTimeBasedOnDateForClinic(
+      req.body.Date,
+      req.params.id
+    );
+    res.json({
+      success: true,
+      message: "get time based on data fetch successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
   }
+};
 
 export const ClinicController = {
   getAllClinics,
@@ -278,5 +283,5 @@ export const ClinicController = {
   addReviews,
   addNewPaymentMethod,
   deleteClinic,
-  getAppoinmentTimeBasedOnDateForClinic
+  getAppoinmentTimeBasedOnDateForClinic,
 };
