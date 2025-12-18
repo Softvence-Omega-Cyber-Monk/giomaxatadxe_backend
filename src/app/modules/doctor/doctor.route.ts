@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { DoctorController } from "./doctor.controller";
 import { createUploader } from "../../utils/cloudinary";
+import auth from "../../middlewares/auth";
 
 const doctorCertificate = createUploader("doctorCertificates");
 const doctorProfileImage = createUploader("doctorProfileImage");
@@ -33,9 +34,6 @@ router.delete(
   DoctorController.deleteCertificate
 );
 
-router.delete(
-  "/delete-doctor",
-  DoctorController.deleteDoctor
-);
+router.delete("/delete-doctor", auth("clinic"), DoctorController.deleteDoctor);
 
 export const DoctorRoutes = router;
