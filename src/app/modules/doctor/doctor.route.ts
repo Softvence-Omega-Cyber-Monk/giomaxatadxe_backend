@@ -34,6 +34,6 @@ router.delete(
   DoctorController.deleteCertificate
 );
 
-router.delete("/delete-doctor", auth("clinic"), DoctorController.deleteDoctor);
+router.put("/delete-doctor", auth("clinic"), DoctorController.deleteDoctor);
 
 export const DoctorRoutes = router;
