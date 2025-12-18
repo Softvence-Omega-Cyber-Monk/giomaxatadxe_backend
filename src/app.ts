@@ -7,6 +7,8 @@ import appRouter from "./routes";
 import { User_Model } from "./app/modules/user/user.schema";
 import bcrypt from "bcrypt";
 import { configs } from "./app/configs";
+import axios from "axios";
+const bodyParser = require("body-parser");
 
 const app = express();
 
@@ -22,11 +24,142 @@ app.use(
     credentials: true,
   })
 );
-
+app.use(bodyParser.json());
 app.use(express.json({ limit: "100mb" }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", appRouter);
+
+// ------------------------- BoG Payment Integration ------------------ //
+// These should come from your config / env
+const BOG_API_BASE = "https://api.bog.ge/payments/v1";
+const CLIENT_ID = process.env.BOG_CLIENT_ID;
+const CLIENT_SECRET = process.env.BOG_CLIENT_SECRET;
+const REDIRECT_AFTER_PAYMENT = "https://yourdomain.com/payment/callback";
+
+// 1. Function to get OAuth 2.0 access token
+async function getAccessToken() {
+  const response = await axios.post(
+    "https://oauth2.bog.ge/auth/realms/bog/protocol/openid-connect/token",
+    {
+      grant_type: "client_credentials",
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+    },
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  );
+
+  console.log("token response ", response.data.access_token);
+  return response.data.access_token;
+}
+
+async function createClinicPayment({
+  appointmentId,
+  clinicId,
+  patientId,
+}: any) {
+  // Example amount (replace later with DB value)
+  const totalAmount = 100; // GEL
+
+  // Mock local payment record (replace with DB later)
+  const payment = {
+    _id: "mockPaymentId12345",
+  };
+
+  // 1. Get OAuth token
+  const token = await getAccessToken();
+
+  // 2. BoG request body (MATCHES OFFICIAL DOC)
+  const body = {
+    callback_url: `${BOG_API_BASE}/payment/callback`,
+    external_order_id: payment._id, // your internal payment id
+
+    purchase_units: {
+      currency: "GEL",
+      total_amount: totalAmount,
+      basket: [
+        {
+          quantity: 1,
+          unit_price: totalAmount,
+          product_id: appointmentId,
+        },
+      ],
+    },
+
+    redirect_urls: {
+      success: `${BOG_API_BASE}/payment/success?paymentId=${payment._id}`,
+      fail: `${BOG_API_BASE}/payment/fail?paymentId=${payment._id}`,
+    },
+  };
+
+  // 3. Create order
+  const res = await axios.post(
+    "https://api.bog.ge/payments/v1/ecommerce/orders",
+    body,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "Accept-Language": "en",
+      },
+    }
+  );
+
+  console.log("payment response", res.data);
+
+  /*
+    Expected response contains:
+    - id (BoG order id)
+    - _links.redirect.href (payment page URL)
+  */
+
+  return res.data;
+}
+
+app.post("/start-clinic-payment", async (req, res) => {
+  try {
+    const order = await createClinicPayment(req.body);
+
+    const approveLink = order.links.find(
+      (link: any) => link.rel === "approve"
+    )?.href;
+
+    res.json({ approveUrl: approveLink });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ message: "Payment initiation failed" });
+  }
+});
+
+app.post("/payment/callback", async (req, res) => {
+  const data = req.body;
+
+  // const paymentId = data.shop_order_id;
+  // const status = data.status; // SUCCESS / FAILED
+
+  // const payment = await Payment.findById(paymentId);
+  // if (!payment) return res.sendStatus(404);
+
+  // if (status === "SUCCESS") {
+  //   payment.status = "PAID";
+
+  //   // confirm appointment
+  //   // await Appointment.findByIdAndUpdate(payment.appointmentId, {
+  //   //   status: "CONFIRMED",
+  //   // });
+  // } else {
+  //   payment.status = "FAILED";
+  // }
+
+  // await payment.save();
+  res.sendStatus(200);
+});
+
+// ------------------------- End of BoG Payment Integration ------------------ //
 
 // Root route
 app.get("/", (req: Request, res: Response) => {

@@ -90,7 +90,9 @@ const getClinicAppointments = async (clinicId: string, status?: string) => {
       const bd = new Date(
         `${b.prefarenceDate.toISOString().split("T")[0]} ${b.prefarenceTime}`
       );
-      return ad.getTime() - bd.getTime();
+
+      // 🔥 DESC order (latest first)
+      return bd.getTime() - ad.getTime();
     });
   }
 
@@ -348,6 +350,11 @@ const getAppoinmentTimeBasedOnDateForClinic = async (
     .populate({
       path: "doctorId",
       select: "_id userId  specialization",
+      populate: {
+        path: "userId",
+        model: "user", // ensure correct model name
+        select: "fullName role", // fields you want
+      },
     })
     .sort({ createdAt: -1 });
 
