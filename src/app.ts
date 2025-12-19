@@ -32,7 +32,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", appRouter);
 
 // ------------------------- BoG Payment Integration ------------------ //
-const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL || "http://localhost:5000";
+const BACKEND_BASE_URL =
+  process.env.BACKEND_BASE_URL || "http://localhost:5000";
 
 async function createClinicPayment({
   appointmentId,
