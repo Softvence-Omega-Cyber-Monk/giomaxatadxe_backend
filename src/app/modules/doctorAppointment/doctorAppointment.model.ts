@@ -19,7 +19,7 @@ const appointmentSchema = new Schema(
     },
     serviceType: {
       type: String,
-      enum: ["inClinic", "online", "both"],
+      enum: ["inClinic", "online",],
       required: true,
     },
     visitingType: {
@@ -27,7 +27,7 @@ const appointmentSchema = new Schema(
       enum: ["fristVisit", "followUp"],
       required: true,
     },
-    reasonForVisit : {
+    reasonForVisit: {
       type: String,
       required: true,
     },
@@ -47,6 +47,10 @@ const appointmentSchema = new Schema(
     prefarenceTime: {
       type: String,
       required: true,
+    },
+    appoinmentFee: {
+      type: Number,
+      default: 0,
     },
   },
   {

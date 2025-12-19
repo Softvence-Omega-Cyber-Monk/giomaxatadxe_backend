@@ -10,4 +10,6 @@ export type TSoloNurseAppoinment = {
   status: "pending" | "confirmed" | "completed" | "rejected";
   prefarenceDate: Date;
   prefarenceTime: string;
+  subService: string;
+  appointmentFee: number;
 };

@@ -42,6 +42,14 @@ const soloNurseAppoinmentSchema = new Schema(
       type: String,
       required: true,
     },
+    subService: {
+      type: String,
+      required: true,
+    },
+    appointmentFee: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,

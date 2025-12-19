@@ -1,9 +1,16 @@
 import { Patient_Model } from "../patient/patient.model";
+import { SoloNurse_Model } from "../soloNurse/soloNurse.model";
 import { soloNurseAppoinment_Model } from "./soloNurseAppoinment.model";
 
 export const soloNurseAppointmentService = {
   createAppointment: async (data: any) => {
     const { soloNurseId, prefarenceDate, prefarenceTime } = data;
+
+    // Check if patient exists
+    const soloNurse: any = await SoloNurse_Model.findById(soloNurseId);
+    if (!soloNurse) {
+      throw new Error("solo nurse  not found");
+    }
 
     // Normalize date (only YYYY-MM-DD)
     const formattedDate = new Date(prefarenceDate).toISOString().split("T")[0];
@@ -249,7 +256,7 @@ export const soloNurseAppointmentService = {
       soloNurseId: soloNurseId,
       status: "confirmed",
     });
-    console.log('paitent ids ', patientIds);
+    console.log("paitent ids ", patientIds);
 
     // Step 2: Fetch patient details using the IDs
     return await Patient_Model.find({ _id: { $in: patientIds } })

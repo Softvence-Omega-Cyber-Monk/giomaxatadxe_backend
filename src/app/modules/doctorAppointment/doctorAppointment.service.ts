@@ -6,10 +6,25 @@ import { doctorAppointment_Model } from "./doctorAppointment.model";
 export const doctorAppointmentService = {
   // Create Appointment
   createAppointment: async (payload: any) => {
-    const { doctorId, prefarenceDate, prefarenceTime } = payload;
+    const { doctorId, prefarenceDate, prefarenceTime, serviceType } =
+      payload;
 
+    let appointmentFee = 0;
     // Normalize date (only YYYY-MM-DD)
     const formattedDate = new Date(prefarenceDate).toISOString().split("T")[0];
+
+    // Check if patient exists
+    const doctor: any = await Doctor_Model.findById(doctorId);
+    if (!doctor) {
+      throw new Error("doctor  not found");
+    }
+    // console.log('doctor ', doctor);
+
+    if (serviceType === "online") {
+      appointmentFee = doctor.onlineConsultationFee;
+    } else if (serviceType === "inClinic") {
+      appointmentFee = doctor.clinicVisitFee;
+    }
 
     // Check if same date + same time already exists
     const booked = await doctorAppointment_Model.findOne({
@@ -28,10 +43,12 @@ export const doctorAppointmentService = {
       }
     }
 
+
     // Create new appointment
     const appointment = await doctorAppointment_Model.create({
       ...payload,
       prefarenceDate: new Date(prefarenceDate),
+      appoinmentFee: appointmentFee,
     });
 
     return appointment;
@@ -219,14 +236,14 @@ export const doctorAppointmentService = {
             _id: "$patient._id",
             fullName: "$patientUser.fullName",
             phoneNumber: "$patient.phoneNumber",
-            role : "$patientUser.role",
+            role: "$patientUser.role",
           },
 
           doctor: {
             _id: "$doctor._id",
             fullName: "$doctorUser.fullName",
             phoneNumber: "$doctor.phoneNumber",
-            role : "$doctorUser.role",
+            role: "$doctorUser.role",
           },
         },
       },
