@@ -35,7 +35,8 @@ app.use("/api/v1", appRouter);
 const BOG_API_BASE = "https://api.bog.ge/payments/v1";
 const CLIENT_ID = process.env.BOG_CLIENT_ID;
 const CLIENT_SECRET = process.env.BOG_CLIENT_SECRET;
-const REDIRECT_AFTER_PAYMENT = "https://yourdomain.com/payment/callback";
+const REDIRECT_AFTER_PAYMENT =
+  " https://giomaxatadxe-backend.onrender.com/payment/callback";
 
 // 1. Function to get OAuth 2.0 access token
 async function getAccessToken() {
@@ -75,8 +76,9 @@ async function createClinicPayment({
 
   // 2. BoG request body (MATCHES OFFICIAL DOC)
   const body = {
-    callback_url: `${BOG_API_BASE}/payment/callback`,
-    external_order_id: payment._id, // your internal payment id
+    callback_url: " https://giomaxatadxe-backend.onrender.com/payment/callback",
+
+    external_order_id: payment._id,
 
     purchase_units: {
       currency: "GEL",
@@ -91,8 +93,8 @@ async function createClinicPayment({
     },
 
     redirect_urls: {
-      success: `${BOG_API_BASE}/payment/success?paymentId=${payment._id}`,
-      fail: `${BOG_API_BASE}/payment/fail?paymentId=${payment._id}`,
+      success: "http://localhost:3000/payment/success",
+      fail: "http://localhost:3000/payment/fail",
     },
   };
 
@@ -124,19 +126,27 @@ app.post("/start-clinic-payment", async (req, res) => {
   try {
     const order = await createClinicPayment(req.body);
 
-    const approveLink = order.links.find(
-      (link: any) => link.rel === "approve"
-    )?.href;
+    console.log("order", order);
 
-    res.json({ approveUrl: approveLink });
+    const approveUrl = order?._links?.redirect?.href;
+
+    if (!approveUrl) {
+      return res.status(500).json({
+        message: "Payment redirect URL not found",
+      });
+    }
+
+    res.json({ approveUrl });
   } catch (err: any) {
-    console.error(err);
+    console.error(err?.response?.data || err);
     res.status(500).json({ message: "Payment initiation failed" });
   }
 });
 
 app.post("/payment/callback", async (req, res) => {
   const data = req.body;
+
+  console.log("payment callback", data);
 
   // const paymentId = data.shop_order_id;
   // const status = data.status; // SUCCESS / FAILED
