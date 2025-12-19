@@ -8,6 +8,7 @@ import { User_Model } from "./app/modules/user/user.schema";
 import bcrypt from "bcrypt";
 import { configs } from "./app/configs";
 import axios from "axios";
+import { getAccessToken } from "./app/utils/BankAccessToken";
 const bodyParser = require("body-parser");
 
 const app = express();
@@ -31,32 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", appRouter);
 
 // ------------------------- BoG Payment Integration ------------------ //
-// These should come from your config / env
-const BOG_API_BASE = "https://api.bog.ge/payments/v1";
-const CLIENT_ID = process.env.BOG_CLIENT_ID;
-const CLIENT_SECRET = process.env.BOG_CLIENT_SECRET;
-const REDIRECT_AFTER_PAYMENT =
-  " https://giomaxatadxe-backend.onrender.com/payment/callback";
-
-// 1. Function to get OAuth 2.0 access token
-async function getAccessToken() {
-  const response = await axios.post(
-    "https://oauth2.bog.ge/auth/realms/bog/protocol/openid-connect/token",
-    {
-      grant_type: "client_credentials",
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-    },
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
-  );
-
-  console.log("token response ", response.data.access_token);
-  return response.data.access_token;
-}
+const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL || "http://localhost:5000";
 
 async function createClinicPayment({
   appointmentId,
@@ -76,8 +52,7 @@ async function createClinicPayment({
 
   // 2. BoG request body (MATCHES OFFICIAL DOC)
   const body = {
-    callback_url: " https://giomaxatadxe-backend.onrender.com/payment/callback",
-
+    callback_url: `${BACKEND_BASE_URL}/payment/callback`,
     external_order_id: payment._id,
 
     purchase_units: {
@@ -93,8 +68,8 @@ async function createClinicPayment({
     },
 
     redirect_urls: {
-      success: "http://localhost:3000/payment/success",
-      fail: "http://localhost:3000/payment/fail",
+      success: `${BACKEND_BASE_URL}/payment/success?paymentId=${payment._id}`,
+      fail: `${BACKEND_BASE_URL}/payment/fail?paymentId=${payment._id}`,
     },
   };
 
@@ -111,7 +86,7 @@ async function createClinicPayment({
     }
   );
 
-  console.log("payment response", res.data);
+  // console.log("payment response", res.data);
 
   /*
     Expected response contains:
@@ -166,6 +141,21 @@ app.post("/payment/callback", async (req, res) => {
   // }
 
   // await payment.save();
+  res.sendStatus(200);
+});
+
+app.get("/payment/success", (req, res) => {
+  const paymentId = req.query.paymentId;
+  res.send("Payment successful");
+});
+
+app.get("/payment/fail", (req, res) => {
+  const paymentId = req.query.paymentId;
+  res.send("Payment failed");
+});
+
+app.post("/payment/callback", (req, res) => {
+  console.log("BOG webhook:", req.body);
   res.sendStatus(200);
 });
 
