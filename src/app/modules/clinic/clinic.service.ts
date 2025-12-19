@@ -100,15 +100,15 @@ const getClinicAppointments = async (clinicId: string, status?: string) => {
 };
 
 const getClinicDoctors = async (clinicId: string, appointmentType: any) => {
-  // console.log("clinti id 0", clinicId);
+  console.log("clinti id 0", clinicId);
   if (appointmentType) {
     const result = await Doctor_Model.find({
       clinicId,
       appointmentType: appointmentType,
-    }).populate("userId");
+    }).populate("userId").populate("clinicId");
     return result;
   } else {
-    const result = await Doctor_Model.find({ clinicId }).populate("userId");
+    const result = await Doctor_Model.find({ clinicId }).populate("userId").populate("clinicId");
     return result;
   }
 };
