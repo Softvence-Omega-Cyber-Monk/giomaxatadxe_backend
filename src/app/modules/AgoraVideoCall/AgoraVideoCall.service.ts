@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { generateAgoraToken } from "../../utils/agoraToken";
 import { ICall } from "./AgoraVideoCall.interface";
 import { videoCall_model } from "./AgoraVideoCall.model";
+import { io } from "../../../socket/initSocket";
 
 const startCallService = async (callerId: string, receiverId: string) => {
   const channelName = `call_${callerId}_${receiverId}_${Date.now()}`;
@@ -15,6 +16,16 @@ const startCallService = async (callerId: string, receiverId: string) => {
     callerId,
     receiverId,
     status: "ringing",
+  });
+
+  if (!call) {
+    throw new Error("Call not created");
+  }
+
+  io.to(receiverId).emit("incoming_call", {
+    callId: call.callId,
+    channelName: call.channelName,
+    callerId,
   });
 
   return {

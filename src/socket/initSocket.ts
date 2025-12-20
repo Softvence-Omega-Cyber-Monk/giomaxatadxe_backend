@@ -3,8 +3,10 @@ import { jwtHelpers } from "../app/utils/JWT";
 import { configs } from "../app/configs";
 import { chatSocketHandler } from "./chatSocketHandler";
 
+let io: Server; 
+
 export const initSocket = (server: any) => {
-  const io = new Server(server, {
+  io = new Server(server, {
     cors: {
       origin: [
         "http://localhost:3000",
@@ -40,3 +42,7 @@ export const initSocket = (server: any) => {
 
   return io;
 };
+
+// ✅ Export io separately
+export { io };
+export default initSocket;
