@@ -48,6 +48,11 @@ const acceptCallService = async (callId: string, receiverId: string) => {
 
   const token = generateAgoraToken(call.channelName);
 
+  io.to(call.callerId).emit("call_accepted", {
+    channelName: call.channelName,
+    token,
+  });
+
   return {
     channelName: call.channelName,
     token,
@@ -64,6 +69,13 @@ const endCallService = async (callId: string) => {
   call.status = "ended";
   call.endedAt = new Date();
   await call.save();
+
+  // Emit to both caller and receiver
+  [call.callerId, call.receiverId].forEach((userId) => {
+    io.to(userId).emit("call_ended", {
+      channelName: call.channelName,
+    });
+  });
 
   return true;
 };
