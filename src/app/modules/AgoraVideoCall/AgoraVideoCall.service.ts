@@ -5,48 +5,40 @@ import { videoCall_model } from "./AgoraVideoCall.model";
 import { io } from "../../../socket/initSocket";
 
 const startCallService = async (callerId: string, receiverId: string) => {
-  const channelName = `call_${callerId}_${receiverId}_${Date.now()}`;
+  const pairKey =
+    callerId < receiverId
+      ? `${callerId}_${receiverId}`
+      : `${receiverId}_${callerId}`;
+
+  const channelName = `call_${pairKey}_${Date.now()}`;
   const callId = uuidv4();
-
-
-  // Check if user is already in a call
-  // const existingCall = await videoCall_model.findOne({
-  //   $or: [
-  //     { callerId, receiverId },
-  //     { callerId: receiverId, receiverId: callerId },
-  //   ],
-  //   status: { $in: ["ringing", "accepted"] },
-  // });
-
-  // if (existingCall) {
-  //   throw new Error("User is already in a call");
-  // }
 
   const token = generateAgoraToken(channelName);
 
-  const call: ICall = await videoCall_model.create({
-    callId,
-    channelName,
-    callerId,
-    receiverId,
-    status: "ringing",
-  });
+  try {
+    const call = await videoCall_model.create({
+      callId,
+      channelName,
+      callerId,
+      receiverId,
+      pairKey,
+      status: "ringing",
+    });
 
-  if (!call) {
-    throw new Error("Call not created");
+    io.to(receiverId).emit("incoming_call", {
+      callId,
+      channelName,
+      callerId,
+    });
+
+    return { callId, channelName, token };
+  } catch (err: any) {
+    if (err.code === 11000) {
+      // Duplicate key error
+      throw new Error("User is already in a call");
+    }
+    throw err;
   }
-
-  io.to(receiverId).emit("incoming_call", {
-    callId: call.callId,
-    channelName: call.channelName,
-    callerId,
-  });
-
-  return {
-    callId: call.callId,
-    channelName: call.channelName,
-    token,
-  };
 };
 
 const acceptCallService = async (callId: string, receiverId: string) => {
