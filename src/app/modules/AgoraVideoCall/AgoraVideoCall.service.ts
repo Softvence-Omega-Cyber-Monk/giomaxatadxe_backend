@@ -10,7 +10,7 @@ const startCallService = async (callerId: string, receiverId: string) => {
       ? `${callerId}_${receiverId}`
       : `${receiverId}_${callerId}`;
 
-  const channelName = `call_${pairKey}_${Date.now()}`;
+  const channelName = `call_${callerId}_${receiverId}_${Date.now()}`;
   const callId = uuidv4();
 
   const token = generateAgoraToken(channelName);
@@ -79,6 +79,7 @@ const rejectCallService = async (callId: string, receiverId: string) => {
   call.status = "rejected";
   call.endedAt = new Date();
   await call.save();
+  +(await videoCall_model.deleteOne({ callId }));
 
   // 🔔 Notify caller
   io.to(call.callerId).emit("call_rejected", {
@@ -99,6 +100,8 @@ const endCallService = async (callId: string) => {
   call.status = "ended";
   call.endedAt = new Date();
   await call.save();
+
+  await videoCall_model.deleteOne({ callId });
 
   // Emit to both caller and receiver
   [call.callerId, call.receiverId].forEach((userId) => {
