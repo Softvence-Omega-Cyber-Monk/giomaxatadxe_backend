@@ -8,6 +8,20 @@ const startCallService = async (callerId: string, receiverId: string) => {
   const channelName = `call_${callerId}_${receiverId}_${Date.now()}`;
   const callId = uuidv4();
 
+
+  // Check if user is already in a call
+  const existingCall = await videoCall_model.findOne({
+    $or: [
+      { callerId, receiverId },
+      { callerId: receiverId, receiverId: callerId },
+    ],
+    status: { $in: ["ringing", "accepted"] },
+  });
+
+  if (existingCall) {
+    throw new Error("User is already in a call");
+  }
+
   const token = generateAgoraToken(channelName);
 
   const call: ICall = await videoCall_model.create({
@@ -53,8 +67,6 @@ const acceptCallService = async (callId: string, receiverId: string) => {
     token,
   });
 
-
-
   return {
     channelName: call.channelName,
     token,
@@ -84,7 +96,6 @@ const rejectCallService = async (callId: string, receiverId: string) => {
 
   return true;
 };
-
 
 const endCallService = async (callId: string) => {
   const call = await videoCall_model.findOne({ callId });
