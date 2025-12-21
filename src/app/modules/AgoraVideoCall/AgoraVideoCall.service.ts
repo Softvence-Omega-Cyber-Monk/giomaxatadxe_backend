@@ -5,7 +5,7 @@ import { videoCall_model } from "./AgoraVideoCall.model";
 import { io } from "../../../socket/initSocket";
 
 const startCallService = async (callerId: string, receiverId: string) => {
-  const channelName = `call_${callerId}_${receiverId}_${Date.now()}`;
+  const channelName = `call_${callerId}_${receiverId}`;
   const callId = uuidv4();
 
   const token = generateAgoraToken(channelName);
