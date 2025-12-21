@@ -8,7 +8,7 @@ export const generateAgoraToken = (
   uid: number = 1
 ): string => {
   const role = RtcRole.PUBLISHER;
-  const expireTime = 3600;
+  const expireTime =  24 * 60 * 60;
 
   const currentTime = Math.floor(Date.now() / 1000);
   const privilegeExpireTime = currentTime + expireTime;
@@ -22,3 +22,5 @@ export const generateAgoraToken = (
     privilegeExpireTime
   );
 };
+
+
