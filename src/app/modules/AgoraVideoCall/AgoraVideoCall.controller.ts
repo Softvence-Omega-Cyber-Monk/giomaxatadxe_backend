@@ -44,7 +44,7 @@ const acceptCall = async (req: Request, res: Response) => {
     res.status(404).json({ success: false, message: error.message });
   }
 };
-const rejectCallController= async (req: Request, res: Response) => {
+const rejectCallController = async (req: Request, res: Response) => {
   try {
     const { callId, receiverId } = req.body;
 
@@ -56,7 +56,7 @@ const rejectCallController= async (req: Request, res: Response) => {
     res.json({
       success: true,
       appId: process.env.AGORA_APP_ID,
-      data,
+      rejected: data,
     });
   } catch (error: any) {
     res.status(404).json({ success: false, message: error.message });
