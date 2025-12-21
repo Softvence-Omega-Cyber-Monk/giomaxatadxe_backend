@@ -5,40 +5,34 @@ import { videoCall_model } from "./AgoraVideoCall.model";
 import { io } from "../../../socket/initSocket";
 
 const startCallService = async (callerId: string, receiverId: string) => {
-  const pairKey =
-    callerId < receiverId
-      ? `${callerId}_${receiverId}`
-      : `${receiverId}_${callerId}`;
-
   const channelName = `call_${callerId}_${receiverId}_${Date.now()}`;
   const callId = uuidv4();
 
   const token = generateAgoraToken(channelName);
 
-  try {
-    const call = await videoCall_model.create({
-      callId,
-      channelName,
-      callerId,
-      receiverId,
-      pairKey,
-      status: "ringing",
-    });
+  const call: ICall = await videoCall_model.create({
+    callId,
+    channelName,
+    callerId,
+    receiverId,
+    status: "ringing",
+  });
 
-    io.to(receiverId).emit("incoming_call", {
-      callId,
-      channelName,
-      callerId,
-    });
-
-    return { callId, channelName, token };
-  } catch (err: any) {
-    if (err.code === 11000) {
-      // Duplicate key error
-      throw new Error("User is already in a call");
-    }
-    throw err;
+  if (!call) {
+    throw new Error("Call not created");
   }
+
+  io.to(receiverId).emit("incoming_call", {
+    callId: call.callId,
+    channelName: call.channelName,
+    callerId,
+  });
+
+  return {
+    callId: call.callId,
+    channelName: call.channelName,
+    token,
+  };
 };
 
 const acceptCallService = async (callId: string, receiverId: string) => {
@@ -58,6 +52,8 @@ const acceptCallService = async (callId: string, receiverId: string) => {
     channelName: call.channelName,
     token,
   });
+
+
 
   return {
     channelName: call.channelName,
@@ -79,7 +75,6 @@ const rejectCallService = async (callId: string, receiverId: string) => {
   call.status = "rejected";
   call.endedAt = new Date();
   await call.save();
-  +(await videoCall_model.deleteOne({ callId }));
 
   // 🔔 Notify caller
   io.to(call.callerId).emit("call_rejected", {
@@ -89,6 +84,7 @@ const rejectCallService = async (callId: string, receiverId: string) => {
 
   return true;
 };
+
 
 const endCallService = async (callId: string) => {
   const call = await videoCall_model.findOne({ callId });
@@ -100,8 +96,6 @@ const endCallService = async (callId: string) => {
   call.status = "ended";
   call.endedAt = new Date();
   await call.save();
-
-  await videoCall_model.deleteOne({ callId });
 
   // Emit to both caller and receiver
   [call.callerId, call.receiverId].forEach((userId) => {
