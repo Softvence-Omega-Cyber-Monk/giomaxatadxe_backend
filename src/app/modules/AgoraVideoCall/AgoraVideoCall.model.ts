@@ -23,11 +23,11 @@ const callSchema = new Schema<ICall>(
       required: true,
       index: true,
     },
-     pairKey: {
-    type: String,
-    unique: true,
-    index: true,
-  },
+    pairKey: {
+      type: String,
+      unique: true,
+      index: true,
+    },
     status: {
       type: String,
       enum: ["ringing", "accepted", "rejected", "ended", "missed"], // ✅ FIX
@@ -45,7 +45,4 @@ const callSchema = new Schema<ICall>(
   }
 );
 
-export const videoCall_model = mongoose.model<ICall>(
-  "videoCall",
-  callSchema
-);
+export const videoCall_model = mongoose.model<ICall>("videoCall", callSchema);

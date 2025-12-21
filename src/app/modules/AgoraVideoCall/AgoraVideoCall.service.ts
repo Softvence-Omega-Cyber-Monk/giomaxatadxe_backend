@@ -5,6 +5,12 @@ import { videoCall_model } from "./AgoraVideoCall.model";
 import { io } from "../../../socket/initSocket";
 
 const startCallService = async (callerId: string, receiverId: string) => {
+  if (callerId === receiverId) {
+    throw new Error("Caller and receiver cannot be same");
+  }
+
+
+
   const channelName = `call_${callerId}_${receiverId}_${Date.now()}`;
   const callId = uuidv4();
 
@@ -53,8 +59,6 @@ const acceptCallService = async (callId: string, receiverId: string) => {
     token,
   });
 
-
-
   return {
     channelName: call.channelName,
     token,
@@ -84,7 +88,6 @@ const rejectCallService = async (callId: string, receiverId: string) => {
 
   return true;
 };
-
 
 const endCallService = async (callId: string) => {
   const call = await videoCall_model.findOne({ callId });
