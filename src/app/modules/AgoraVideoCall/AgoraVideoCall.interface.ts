@@ -1,7 +1,11 @@
-
 import { Document } from "mongoose";
 
-export type CallStatus = "ringing" | "accepted" | "ended" | "missed";
+export type CallStatus =
+  | "ringing"
+  | "accepted"
+  | "ended"
+  | "missed"
+  | "rejected";
 
 export interface ICall extends Document {
   callId: string;

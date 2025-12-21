@@ -3,8 +3,8 @@ import { PaymentController } from "./payment.controller";
 
 const router = express.Router();
 
-router.post("/clinic/start", PaymentController.startClinicPayment);
-router.post("/solo-nurse/start", PaymentController.startSoloNursePayment);
+router.post("/clinic", PaymentController.startClinicPayment);
+router.post("/solo-nurse", PaymentController.startSoloNursePayment);
 
 router.post("/bog/callback", PaymentController.bogCallbackController);
 

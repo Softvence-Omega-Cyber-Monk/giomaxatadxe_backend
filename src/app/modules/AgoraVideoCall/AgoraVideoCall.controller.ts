@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AgoraVideoCallService } from "./AgoraVideoCall.service";
 
- const startCall = async (req: Request, res: Response) => {
+const startCall = async (req: Request, res: Response) => {
   try {
     const { callerId, receiverId } = req.body;
 
@@ -26,7 +26,7 @@ import { AgoraVideoCallService } from "./AgoraVideoCall.service";
   }
 };
 
- const acceptCall = async (req: Request, res: Response) => {
+const acceptCall = async (req: Request, res: Response) => {
   try {
     const { callId, receiverId } = req.body;
 
@@ -44,8 +44,26 @@ import { AgoraVideoCallService } from "./AgoraVideoCall.service";
     res.status(404).json({ success: false, message: error.message });
   }
 };
+const rejectCallController= async (req: Request, res: Response) => {
+  try {
+    const { callId, receiverId } = req.body;
 
- const endCall = async (req: Request, res: Response) => {
+    const data = await AgoraVideoCallService.rejectCallService(
+      callId,
+      receiverId
+    );
+
+    res.json({
+      success: true,
+      appId: process.env.AGORA_APP_ID,
+      data,
+    });
+  } catch (error: any) {
+    res.status(404).json({ success: false, message: error.message });
+  }
+};
+
+const endCall = async (req: Request, res: Response) => {
   try {
     const { callId } = req.body;
 
@@ -63,5 +81,6 @@ import { AgoraVideoCallService } from "./AgoraVideoCall.service";
 export const AgoraVideoCallController = {
   startCall,
   acceptCall,
+  rejectCallController,
   endCall,
 };

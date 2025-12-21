@@ -5,7 +5,7 @@ import { videoCall_model } from "./AgoraVideoCall.model";
 import { io } from "../../../socket/initSocket";
 
 const startCallService = async (callerId: string, receiverId: string) => {
-  const channelName = `call_${callerId}_${receiverId}`;
+  const channelName = `call_${callerId}_${receiverId}_${Date.now()}`;
   const callId = uuidv4();
 
   const token = generateAgoraToken(channelName);
@@ -53,11 +53,38 @@ const acceptCallService = async (callId: string, receiverId: string) => {
     token,
   });
 
+
+
   return {
     channelName: call.channelName,
     token,
   };
 };
+
+const rejectCallService = async (callId: string, receiverId: string) => {
+  const call = await videoCall_model.findOne({ callId, receiverId });
+
+  if (!call) {
+    throw new Error("Call not found");
+  }
+
+  if (call.status !== "ringing") {
+    throw new Error("Call already handled");
+  }
+
+  call.status = "rejected";
+  call.endedAt = new Date();
+  await call.save();
+
+  // 🔔 Notify caller
+  io.to(call.callerId).emit("call_rejected", {
+    callId: call.callId,
+    receiverId,
+  });
+
+  return true;
+};
+
 
 const endCallService = async (callId: string) => {
   const call = await videoCall_model.findOne({ callId });
@@ -83,5 +110,6 @@ const endCallService = async (callId: string) => {
 export const AgoraVideoCallService = {
   startCallService,
   acceptCallService,
+  rejectCallService,
   endCallService,
 };

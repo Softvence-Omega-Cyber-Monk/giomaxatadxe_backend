@@ -1,4 +1,4 @@
-import mongoose, { Schema, Model } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { ICall } from "./AgoraVideoCall.interface";
 
 const callSchema = new Schema<ICall>(
@@ -16,14 +16,16 @@ const callSchema = new Schema<ICall>(
     callerId: {
       type: String,
       required: true,
+      index: true,
     },
     receiverId: {
       type: String,
       required: true,
+      index: true,
     },
     status: {
       type: String,
-      enum: ["ringing", "accepted", "ended", "missed"],
+      enum: ["ringing", "accepted", "rejected", "ended", "missed"], // ✅ FIX
       default: "ringing",
     },
     startedAt: {
@@ -38,4 +40,7 @@ const callSchema = new Schema<ICall>(
   }
 );
 
-export const videoCall_model = mongoose.model<ICall>("videoCall", callSchema);
+export const videoCall_model = mongoose.model<ICall>(
+  "videoCall",
+  callSchema
+);
