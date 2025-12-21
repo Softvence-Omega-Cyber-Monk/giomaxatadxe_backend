@@ -9,6 +9,7 @@ import { DoctorAppointmentRoutes } from "./app/modules/doctorAppointment/doctorA
 import { soloNurseAppoinmentRoutes } from "./app/modules/soloNurseAppoinment/soloNurseAppoinment.route";
 import { MainServiceRoutes } from "./app/modules/mainService/mainService.route";
 import { AgoraVideoCallRoute } from "./app/modules/AgoraVideoCall/AgoraVideoCall.route";
+import { PaymentRoutes } from "./app/modules/payment/payment.route";
 
 const appRouter = Router();
 
@@ -23,6 +24,7 @@ const moduleRoutes = [
   { path: "/doctor-appointment", route: DoctorAppointmentRoutes },
   { path: "/solo-nurse-appointment", route: soloNurseAppoinmentRoutes },
   { path: "/agora-video-call", route: AgoraVideoCallRoute },
+  { path: "/payment", route: PaymentRoutes },
 ];
 
 moduleRoutes.forEach((route) => appRouter.use(route.path, route.route));
