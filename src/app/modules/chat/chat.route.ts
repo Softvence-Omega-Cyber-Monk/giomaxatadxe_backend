@@ -5,7 +5,7 @@ import auth from "../../middlewares/auth";
 const router = Router();
 
 router.get(
-  "/:id",
+  "/getChat/:id",
   auth("patient", "doctor", "solo_nurse", "clinic", "admin"),
   chatController.getConversation
 );
@@ -15,4 +15,4 @@ router.get(
   chatController.getAdminConversation
 );
 
-export default router;
+export const ChatRoutes = router;

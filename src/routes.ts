@@ -10,6 +10,7 @@ import { soloNurseAppoinmentRoutes } from "./app/modules/soloNurseAppoinment/sol
 import { MainServiceRoutes } from "./app/modules/mainService/mainService.route";
 import { AgoraVideoCallRoute } from "./app/modules/AgoraVideoCall/AgoraVideoCall.route";
 import { PaymentRoutes } from "./app/modules/payment/payment.route";
+import { ChatRoutes } from "./app/modules/chat/chat.route";
 
 const appRouter = Router();
 
@@ -25,6 +26,7 @@ const moduleRoutes = [
   { path: "/solo-nurse-appointment", route: soloNurseAppoinmentRoutes },
   { path: "/agora-video-call", route: AgoraVideoCallRoute },
   { path: "/payment", route: PaymentRoutes },
+  { path: "/chatHistory", route: ChatRoutes },
 ];
 
 moduleRoutes.forEach((route) => appRouter.use(route.path, route.route));
