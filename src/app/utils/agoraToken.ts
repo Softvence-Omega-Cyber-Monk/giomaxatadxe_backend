@@ -8,10 +8,9 @@ export const generateAgoraToken = (
   uid: number = 1
 ): string => {
   const role = RtcRole.PUBLISHER;
-  const expireTime =  24 * 60 * 60;
 
-  const currentTime = Math.floor(Date.now() / 1000);
-  const privilegeExpireTime = currentTime + expireTime;
+  // Token valid for 24 hours
+  const expireTimeInSeconds = 24 * 60 * 60;
 
   return RtcTokenBuilder.buildTokenWithUid(
     APP_ID,
@@ -19,8 +18,6 @@ export const generateAgoraToken = (
     channelName,
     uid,
     role,
-    privilegeExpireTime
+    expireTimeInSeconds // <-- pass duration in seconds, not absolute timestamp
   );
 };
-
-
