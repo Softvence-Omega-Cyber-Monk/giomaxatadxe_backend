@@ -13,7 +13,7 @@ const startCallService = async (callerId: string, receiverId: string) => {
   console.log("channel name", channelName);
   const callId = uuidv4();
 
-  const token = generateAgoraToken(channelName, callerId);
+  const token = generateAgoraToken(channelName);
   console.log("agora access token ", token);
 
   const call: ICall = await videoCall_model.create({
@@ -52,7 +52,7 @@ const acceptCallService = async (callId: string, receiverId: string) => {
   call.startedAt = new Date();
   await call.save();
 
-  const token = generateAgoraToken(call.channelName, receiverId);
+  const token = generateAgoraToken(call.channelName);
 
   io.to(call.callerId).emit("call_accepted", {
     channelName: call.channelName,
