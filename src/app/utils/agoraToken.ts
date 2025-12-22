@@ -5,22 +5,20 @@ const APP_CERT = process.env.AGORA_APP_CERT as string;
 
 export const generateAgoraToken = (
   channelName: string,
-  uid: number = 1
+  userAccount: string
 ): string => {
   const role = RtcRole.PUBLISHER;
-  const expireTime =  24 * 60 * 60;
+  const expireTime = 24 * 60 * 60;
 
   const currentTime = Math.floor(Date.now() / 1000);
   const privilegeExpireTime = currentTime + expireTime;
 
-  return RtcTokenBuilder.buildTokenWithUid(
+  return RtcTokenBuilder.buildTokenWithAccount(
     APP_ID,
     APP_CERT,
     channelName,
-    uid,
+    userAccount,
     role,
     privilegeExpireTime
   );
 };
-
-

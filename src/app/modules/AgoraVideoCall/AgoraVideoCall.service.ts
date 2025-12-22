@@ -9,12 +9,10 @@ const startCallService = async (callerId: string, receiverId: string) => {
     throw new Error("Caller and receiver cannot be same");
   }
 
-
-
   const channelName = `call_${callerId}_${receiverId}_${Date.now()}`;
   const callId = uuidv4();
 
-  const token = generateAgoraToken(channelName);
+  const token = generateAgoraToken(channelName , callerId);
 
   const call: ICall = await videoCall_model.create({
     callId,
@@ -52,7 +50,7 @@ const acceptCallService = async (callId: string, receiverId: string) => {
   call.startedAt = new Date();
   await call.save();
 
-  const token = generateAgoraToken(call.channelName);
+  const token = generateAgoraToken(call.channelName , receiverId);
 
   io.to(call.callerId).emit("call_accepted", {
     channelName: call.channelName,
