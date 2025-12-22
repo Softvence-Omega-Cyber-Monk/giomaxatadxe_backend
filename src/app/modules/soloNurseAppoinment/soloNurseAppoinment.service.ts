@@ -251,7 +251,7 @@ export const soloNurseAppointmentService = {
       });
   },
   getSinlgePatientChatsForNurse: async (soloNurseId: string) => {
-    console.log('solonurse id ', soloNurseId);
+    console.log("solonurse id ", soloNurseId);
     // Step 1: Get unique patient IDs for this doctor
     const patientIds = await soloNurseAppoinment_Model.distinct("patientId", {
       soloNurseId: soloNurseId,
@@ -268,19 +268,20 @@ export const soloNurseAppointmentService = {
         select: "fullName role profileImage",
       });
   },
-    getSinlgeSoloNurseChats: async (soloNurseId: string) => {
-      // Step 1: Get unique patient IDs for this soloNurse
-      const patientIds = await soloNurseAppoinment_Model.distinct("patientId", {
-        soloNurseId: soloNurseId,
+  getSinlgePatientChatsWithNurse: async (patientId: string) => {
+    // Step 1: Get unique patient IDs for this soloNurse
+    const soloNurseIds = await soloNurseAppoinment_Model.distinct("soloNurseId", {
+      patientId: patientId,
+      status: "confirmed",
+    });
+
+    // Step 2: Fetch patient details using the IDs
+    return await SoloNurse_Model.find({ _id: { $in: soloNurseIds } })
+      .select("userId")
+      .populate({
+        path: "userId",
+        model: "user",
+        select: "fullName role profileImage",
       });
-  
-      // Step 2: Fetch patient details using the IDs
-      return await Patient_Model.find({ _id: { $in: patientIds } })
-        .select("userId")
-        .populate({
-          path: "userId",
-          model: "user",
-          select: "fullName role profileImage",
-        });
-    },
+  },
 };

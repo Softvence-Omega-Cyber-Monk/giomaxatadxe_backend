@@ -161,10 +161,10 @@ export const soloNurseAppointmentController = {
       }
     },
 
-      getSinlgeSoloNurseChats: async (req: Request, res: Response) => {
+      getSinlgePatientChatsWithNurse: async (req: Request, res: Response) => {
         try {
-          const result = await soloNurseAppointmentService.getSinlgeSoloNurseChats(
-            req.params.soloNurseId
+          const result = await soloNurseAppointmentService.getSinlgePatientChatsWithNurse(
+            req.params.patientId
           );
           res.json({
             success: true,

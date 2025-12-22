@@ -30,8 +30,8 @@ router.get(
   soloNurseAppointmentController.getSinlgePatientChatsForNurse
 );
 router.get(
-  "/getSinlgeSoloNurseChats/:soloNurseId",
-  soloNurseAppointmentController.getSinlgeSoloNurseChats
+  "/getSinglePatientChatsWithNurse/:patientId",
+  soloNurseAppointmentController.getSinlgePatientChatsWithNurse
 );
 
 
