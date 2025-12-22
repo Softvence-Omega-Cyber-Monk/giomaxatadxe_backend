@@ -29,6 +29,10 @@ router.get(
   "/getSinlgePatientChatsForNurse/:soloNurseId",
   soloNurseAppointmentController.getSinlgePatientChatsForNurse
 );
+router.get(
+  "/getSinlgeSoloNurseChats/:soloNurseId",
+  soloNurseAppointmentController.getSinlgeSoloNurseChats
+);
 
 
 

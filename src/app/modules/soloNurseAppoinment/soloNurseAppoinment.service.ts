@@ -268,4 +268,19 @@ export const soloNurseAppointmentService = {
         select: "fullName role profileImage",
       });
   },
+    getSinlgeSoloNurseChats: async (soloNurseId: string) => {
+      // Step 1: Get unique patient IDs for this soloNurse
+      const patientIds = await soloNurseAppoinment_Model.distinct("patientId", {
+        soloNurseId: soloNurseId,
+      });
+  
+      // Step 2: Fetch patient details using the IDs
+      return await Patient_Model.find({ _id: { $in: patientIds } })
+        .select("userId")
+        .populate({
+          path: "userId",
+          model: "user",
+          select: "fullName role profileImage",
+        });
+    },
 };

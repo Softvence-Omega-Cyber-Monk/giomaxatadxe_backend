@@ -160,5 +160,21 @@ export const soloNurseAppointmentController = {
         res.status(500).json({ success: false, message: err.message });
       }
     },
+
+      getSinlgeSoloNurseChats: async (req: Request, res: Response) => {
+        try {
+          const result = await soloNurseAppointmentService.getSinlgeSoloNurseChats(
+            req.params.soloNurseId
+          );
+          res.json({
+            success: true,
+            message: "chats profile   fetched successfully",
+    
+            data: result,
+          });
+        } catch (err: any) {
+          res.status(500).json({ success: false, message: err.message });
+        }
+      },
   
 };
