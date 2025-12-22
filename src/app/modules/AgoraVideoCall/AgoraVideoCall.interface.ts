@@ -12,7 +12,7 @@ export interface ICall extends Document {
   channelName: string;
   callerId: string;
   receiverId: string;
-  pairKey: string;
+  // pairKey: string;
   status: CallStatus;
   startedAt?: Date;
   endedAt?: Date;

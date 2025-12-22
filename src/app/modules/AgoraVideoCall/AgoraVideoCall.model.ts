@@ -23,11 +23,11 @@ const callSchema = new Schema<ICall>(
       required: true,
       index: true,
     },
-    pairKey: {
-      type: String,
-      unique: true,
-      index: true,
-    },
+    // pairKey: {
+    //   type: String,
+    //   unique: true,
+    //   index: true,
+    // },
     status: {
       type: String,
       enum: ["ringing", "accepted", "rejected", "ended", "missed"], // ✅ FIX
