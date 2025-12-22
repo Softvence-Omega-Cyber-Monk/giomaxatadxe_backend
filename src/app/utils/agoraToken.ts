@@ -5,7 +5,7 @@ const APP_CERT = process.env.AGORA_APP_CERT as string;
 
 export const generateAgoraToken = (
   channelName: string,
-  uid: number = 1
+  uid: number = 0
 ): string => {
   const role = RtcRole.PUBLISHER;
 

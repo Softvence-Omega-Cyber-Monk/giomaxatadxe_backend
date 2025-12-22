@@ -251,6 +251,7 @@ export const soloNurseAppointmentService = {
       });
   },
   getSinlgePatientChatsForNurse: async (soloNurseId: string) => {
+    console.log('solonurse id ', soloNurseId);
     // Step 1: Get unique patient IDs for this doctor
     const patientIds = await soloNurseAppoinment_Model.distinct("patientId", {
       soloNurseId: soloNurseId,
