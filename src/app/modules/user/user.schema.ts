@@ -5,7 +5,7 @@ const user_schema = new Schema<TUser>(
   {
     fullName: { type: String, required: true },
     profileImage: { type: String },
-    email: { type: String, required: true , unique: true},
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     comfirmPassword: { type: String, required: true },
     role: {
@@ -13,6 +13,7 @@ const user_schema = new Schema<TUser>(
       enum: ["patient", "doctor", "solo_nurse", "clinic", "admin"],
       required: true,
     },
+    fcmToken: { type: String, default: null },
   },
   {
     versionKey: false,

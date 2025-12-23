@@ -9,4 +9,5 @@ export type TUser = {
   role: "patient" | "doctor" | "solo_nurse" | " clinic" | "admin";
   dateOfBirth?: Date,
   age?: number,
+  fcmToken?: string
 };
