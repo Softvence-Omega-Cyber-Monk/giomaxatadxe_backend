@@ -7,24 +7,24 @@ const createBoGOrder = async (payment: any) => {
   const token = await getAccessToken();
 
   const body = {
-    callback_url: `${process.env.BACKEND_URL}/payment/bog/callback`,
+    callback_url: `${process.env.BACKEND_URL}/api/v1/payment/bog/callback`,
     external_order_id: payment._id.toString(),
 
     purchase_units: {
       currency: "GEL",
-      total_amount: payment.amount,
+      total_amount: payment.amount.toFixed(2),
       basket: [
         {
           quantity: 1,
-          unit_price: payment.amount,
+          unit_price: payment.amount.toFixed(2),
           product_id: payment.appointmentId.toString(),
         },
       ],
     },
 
     redirect_urls: {
-      success: `${process.env.BACKEND_URL}/payment/success`,
-      fail: `${process.env.BACKEND_URL}/payment/fail`,
+      success: `${process.env.BACKEND_URL}/api/v1/payment/success`,
+      fail: `${process.env.BACKEND_URL}/api/v1/payment/fail`,
     },
   };
 
@@ -35,12 +35,14 @@ const createBoGOrder = async (payment: any) => {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "Accept-Language": "en",
       },
     }
   );
 
   return res.data;
 };
+
 
 interface BoGCallbackPayload {
   external_order_id: string;

@@ -46,6 +46,6 @@ router.put(
   patientController.addNewPaymentMethod
 );
 
-router.delete("/deletePatient/:id", patientController.deletePatient);
+router.delete("/deletePatient/:patientId", patientController.deletePatient);
 
 export const patientRoutes = router;

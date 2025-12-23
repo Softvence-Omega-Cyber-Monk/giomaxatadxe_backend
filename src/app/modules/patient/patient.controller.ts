@@ -241,7 +241,7 @@ export const patientController = {
 
   deletePatient: async (req: Request, res: Response) => {
     try {
-      const deleted = await patientService.deletePatient(req.params.id);
+      const deleted = await patientService.deletePatient(req.params.patientId);
 
       res.status(200).json({
         success: true,

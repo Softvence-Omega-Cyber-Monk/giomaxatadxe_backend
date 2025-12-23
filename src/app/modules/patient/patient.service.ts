@@ -326,6 +326,21 @@ export const patientService = {
   },
 
   deletePatient: async (id: string) => {
-    return await Patient_Model.findByIdAndDelete(id);
+    // 1. Find patient first
+    const existingPatient = await Patient_Model.findOne({ _id: id });
+
+    if (!existingPatient) {
+      throw new Error("Patient not found");
+    }
+
+    // 2. Delete linked user
+    await User_Model.findByIdAndDelete(existingPatient.userId);
+
+    // 3. Delete patient
+    await Patient_Model.findOneAndDelete({ _id: id });
+
+    return {
+      message: "Patient deleted successfully",
+    };
   },
 };
