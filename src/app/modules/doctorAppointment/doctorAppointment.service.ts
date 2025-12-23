@@ -6,8 +6,7 @@ import { doctorAppointment_Model } from "./doctorAppointment.model";
 export const doctorAppointmentService = {
   // Create Appointment
   createAppointment: async (payload: any) => {
-    const { doctorId, prefarenceDate, prefarenceTime, serviceType } =
-      payload;
+    const { doctorId, prefarenceDate, prefarenceTime, serviceType } = payload;
 
     let appointmentFee = 0;
     // Normalize date (only YYYY-MM-DD)
@@ -42,7 +41,6 @@ export const doctorAppointmentService = {
         );
       }
     }
-
 
     // Create new appointment
     const appointment = await doctorAppointment_Model.create({
@@ -326,6 +324,25 @@ export const doctorAppointmentService = {
 
     // Step 2: Fetch patient details using the IDs
     return await Patient_Model.find({ _id: { $in: patientIds } })
+      .select("userId")
+      .populate({
+        path: "userId",
+        model: "user",
+        select: "fullName role profileImage",
+      });
+  },
+  getSinglePatientChatsWithClinic: async (patientId: string) => {
+    // Step 1: Get unique clinic IDs for this patient
+    const clinicIds = await doctorAppointment_Model.distinct("clinicId", {
+      patientId,
+    });
+
+    console.log('clinic', clinicIds);
+
+    if (!clinicIds.length) return [];
+
+    // Step 2: Fetch clinic user details
+    return Clinic_Model.find({ _id: { $in: clinicIds } })
       .select("userId")
       .populate({
         path: "userId",

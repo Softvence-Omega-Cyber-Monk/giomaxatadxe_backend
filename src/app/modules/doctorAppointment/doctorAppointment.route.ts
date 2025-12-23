@@ -28,11 +28,11 @@ router.get(
   "/getSingleDoctorChats/:doctorId",
   doctorAppointmentController.getSingleDoctorChats
 );
-router.get(
-  "/getSingleClinicChats/:clinicId",
-  doctorAppointmentController.getSinlgeClinicChats
-);
 
+router.get(
+  "/getSinlgePatientChatsWithClinic/:patientId",
+  doctorAppointmentController.getSinglePatientChatsWithClinic
+);
 router.patch("/update-status/:id", doctorAppointmentController.updateStatus);
 router.get(
   "/getSelectedDateAndTime/:id",

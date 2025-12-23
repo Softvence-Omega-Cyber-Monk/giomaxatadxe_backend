@@ -3,6 +3,11 @@ import { getAccessToken } from "../../utils/BankAccessToken";
 import { Payment_Model } from "./payment.model";
 import { Wallet_Model } from "./wallet.model";
 
+interface BoGCallbackPayload {
+  external_order_id: string;
+  status: "SUCCESS" | "FAILED";
+}
+
 const createBoGOrder = async (payment: any) => {
   const token = await getAccessToken();
 
@@ -44,10 +49,7 @@ const createBoGOrder = async (payment: any) => {
 };
 
 
-interface BoGCallbackPayload {
-  external_order_id: string;
-  status: "SUCCESS" | "FAILED";
-}
+
 
  const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
   const { external_order_id, status } = payload;

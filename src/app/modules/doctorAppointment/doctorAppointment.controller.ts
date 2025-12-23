@@ -151,6 +151,22 @@ export const doctorAppointmentController = {
       res.status(500).json({ success: false, message: err.message });
     }
   },
+  getSinglePatientChatsWithClinic: async (req: Request, res: Response) => {
+    try {
+      const patientId = req.params.patientId;
+      const result = await doctorAppointmentService.getSinglePatientChatsWithClinic(
+        patientId
+      );
+      res.json({
+        success: true,
+        message: "chats profile   fetched successfully",
+
+        data: result,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
 
   updateStatus: async (req: Request, res: Response) => {
     try {
