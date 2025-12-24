@@ -33,19 +33,22 @@ export const chatSocketHandler = (io: any, socket: any) => {
 
   // 🔵 User → Admin
 
-  socket.on("message_to_admin", async ({ message }: { message: string }) => {
-    const newMsg = await ChatModel.create({
-      senderId: userId,
-      receiverType: "admin",
-      chatType: "user_admin",
-      message,
-    });
+  socket.on(
+    "send_message_to_admin",
+    async ({ message }: { message: string }) => {
+      const newMsg = await ChatModel.create({
+        senderId: userId,
+        receiverType: "admin",
+        chatType: "user_admin",
+        message,
+      });
 
-    // Notify admin
-    io.to("ADMIN_ROOM").emit("receive_from_user", newMsg);
+      // Notify admin
+      io.to("ADMIN_ROOM").emit("receive_from_user", newMsg);
 
-    socket.emit("message_sent", newMsg);
-  });
+      socket.emit("message_sent", newMsg);
+    }
+  );
 
   // -------------------------
   // 🔵 Admin → User
@@ -67,7 +70,7 @@ export const chatSocketHandler = (io: any, socket: any) => {
         message,
       });
 
-      io.to(targetUserId).emit("admin_message", newMsg);
+      io.to(targetUserId).emit("receive_message_from_admin", newMsg);
     }
   );
 
