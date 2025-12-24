@@ -1,3 +1,4 @@
+import { sendNotification } from "../../utils/notificationHelper";
 import { Clinic_Model } from "../clinic/clinic.model";
 import { Doctor_Model } from "../doctor/doctor.model";
 import { Patient_Model } from "../patient/patient.model";
@@ -48,6 +49,15 @@ export const doctorAppointmentService = {
       prefarenceDate: new Date(prefarenceDate),
       appoinmentFee: appointmentFee,
     });
+
+
+
+    // console.log("appoinment ", appointment);
+    await sendNotification(
+      appointment.clinicId.toString(),
+      "New Appointment Created",
+      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details. ${appointment.clinicId}`
+    );
 
     return appointment;
   },
@@ -337,7 +347,7 @@ export const doctorAppointmentService = {
       patientId,
     });
 
-    console.log('clinic', clinicIds);
+    console.log("clinic", clinicIds);
 
     if (!clinicIds.length) return [];
 
