@@ -4,12 +4,12 @@ import { configs } from "../configs";
 import { jwtHelpers, JwtPayloadType } from "../utils/JWT";
 import { User_Model } from "../modules/user/user.schema";
 
-type Role = "patient" | "solo_nurse" | "clinic" | "admin";
+type Role = "patient" | "doctor" | "solo_nurse" | "clinic" | "admin";
 
 const auth = (...roles: Role[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.headers.authorization;
+      const token = req.headers.authorization?.split(" ")[1];
       if (!token) {
         throw new AppError("You are not authorize!!", 401);
       }
@@ -26,12 +26,13 @@ const auth = (...roles: Role[]) => {
       const isUserExist = await User_Model.findOne({
         email: verifiedUser?.email,
       }).lean();
-      
+
       if (!isUserExist) {
         throw new AppError("user not found !", 404);
       }
 
       req.user = verifiedUser as JwtPayloadType;
+
       next();
     } catch (err) {
       next(err);

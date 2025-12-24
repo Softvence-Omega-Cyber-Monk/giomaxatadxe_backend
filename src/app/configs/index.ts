@@ -15,6 +15,7 @@ export const configs = {
 
     },
     db_url: process.env.DB_URL,
+    bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUND,
     email: {
         app_email: process.env.APP_USER_EMAIL,
         app_password: process.env.APP_PASSWORD

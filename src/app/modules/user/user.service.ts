@@ -1,68 +1,306 @@
+import { cleanRegex } from "zod/v4/core/util.cjs";
 import { TUser } from "./user.interface";
 import { User_Model } from "./user.schema";
 import bcrypt from "bcrypt";
+import { Patient_Model } from "../patient/patient.model";
+import mongoose from "mongoose";
+import { SoloNurse_Model } from "../soloNurse/soloNurse.model";
+import { Clinic_Model } from "../clinic/clinic.model";
+import crypto from "crypto";
+import { Doctor_Model } from "../doctor/doctor.model";
+import { sendEmail } from "../../utils/sendEmail";
 
-const createUser = async (payload: TUser) => {
-  // Check if email already exists
-  const existingEmailUser = await User_Model.findOne({ email: payload.email });
-  if (existingEmailUser) {
-    throw new Error("A user with this email address already exists.");
+const generateRandomPassword = () => {
+  return crypto.randomBytes(6).toString("base64"); // ~8–10 chars
+};
+
+export const createPatient = async (payload: any) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  // console.log("from service", payload);
+  if (payload.dateOfBirth) {
+    const dob = new Date(payload.dateOfBirth);
+    const today = new Date();
+
+    if (isNaN(dob.getTime())) {
+      throw new Error("Invalid date of birth");
+    }
+
+    if (dob > today) {
+      throw new Error("Date of birth cannot be in the future.");
+    }
+
+    let age = today.getFullYear() - dob.getFullYear();
+
+    const monthDiff = today.getMonth() - dob.getMonth();
+    const dayDiff = today.getDate() - dob.getDate();
+
+    // If birthday has not occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--;
+    }
+
+    // Optional: validate minimum age
+    if (age < 0) {
+      throw new Error("Invalid age calculated");
+    }
+
+    payload.age = age; // store or use age
+
   }
 
-  // Check if verified National ID already exists
-  const existingNationalId = await User_Model.findOne({
-    NationalIdNumber: payload.NationalIdNumber,
-  });
-  if (payload.NationalIdNumber && existingNationalId) {
-    throw new Error(
-      "The provided National ID number is already registered and verified."
+  try {
+    // 1. Check if email already exists
+    const existingEmail = await User_Model.findOne(
+      { email: payload.email },
+      null,
+      { session }
     );
+
+    if (existingEmail) {
+      throw new Error("The provided email is already registered.");
+    }
+
+    // Extract
+    const { fullName, email, password, comfirmPassword, ...patientPayload } =
+      payload;
+
+    // 2. Check password === confirm password
+    if (password !== comfirmPassword) {
+      throw new Error("Password and confirm password do not match.");
+    }
+
+    // 3. Hash Password
+    const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
+    if (isNaN(saltRounds)) {
+      throw new Error(
+        "Invalid bcrypt salt round value in environment variable."
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // 4. Prepare user data
+    const newUserData = {
+      fullName,
+      email,
+      password: hashedPassword,
+      comfirmPassword: hashedPassword,
+      role: "patient",
+    };
+
+    // 5. Create User with session
+    const newUser = await User_Model.create([newUserData], { session });
+    const createdUser = newUser[0];
+    console.log("new user", createdUser);
+
+    // 6. Create Patient using new userId
+    const newPatient = await Patient_Model.create(
+      [{ ...patientPayload, age : payload.age, userId: createdUser._id }],
+      { session }
+    );
+
+    // 7. Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return newPatient[0];
+  } catch (error) {
+    // ❌ If anything fails → rollback all operations
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
   }
+};
 
-  // 3. Check if password matches confirm password
-  if (payload.password !== payload.comfirmPassword) {
-    throw new Error("Password and confirm password do not match.");
+const createSoloNurse = async (payload: any) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { fullName, email, password, comfirmPassword, ...nursePayload } =
+      payload;
+
+    // Check email
+    const existingEmail = await User_Model.findOne({ email }, null, {
+      session,
+    });
+    if (existingEmail) {
+      throw new Error("Email already exists.");
+    }
+
+    // Validate passwords
+    if (password !== comfirmPassword) {
+      throw new Error("Password and confirm password do not match.");
+    }
+
+    // Hash password
+    const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
+    const hashedPass = await bcrypt.hash(password, saltRounds);
+
+    const newUser = await User_Model.create(
+      [
+        {
+          fullName,
+          email,
+          password: hashedPass,
+          comfirmPassword: hashedPass,
+          role: "solo_nurse",
+        },
+      ],
+      { session }
+    );
+
+    const createdNurse = await SoloNurse_Model.create(
+      [{ ...nursePayload, userId: newUser[0]._id }],
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return createdNurse[0];
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
   }
+};
 
-  const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
+const createClinic = async (payload: any) => {
+  // console.log('from service',payload);
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  if (isNaN(saltRounds)) {
-    throw new Error("Invalid bcrypt salt round value in environment variable.");
+  try {
+    const { fullName, email, password, comfirmPassword, ...clinicpayload } =
+      payload;
+
+    // Check email
+    const existingEmail = await User_Model.findOne({ email }, null, {
+      session,
+    });
+    if (existingEmail) {
+      throw new Error("Email already exists.");
+    }
+
+    // Validate passwords
+    if (password !== comfirmPassword) {
+      throw new Error("Password and confirm password do not match.");
+    }
+
+    // Hash password
+    const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
+    const hashedPass = await bcrypt.hash(password, saltRounds);
+
+    const newUser = await User_Model.create(
+      [
+        {
+          fullName,
+          email,
+          password: hashedPass,
+          comfirmPassword: hashedPass,
+          role: "clinic",
+        },
+      ],
+      { session }
+    );
+
+    const createClinic = await Clinic_Model.create(
+      [{ ...clinicpayload, userId: newUser[0]._id }],
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return createClinic[0];
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
   }
-
-  const hashedPassword = await bcrypt.hash(payload.password, saltRounds);
-
-  // Replace original password with hashed one
-  payload.password = hashedPassword;
-
-  // Create new user
-  const newUser = await User_Model.create(payload);
-  return newUser;
 };
+const createDoctor = async (payload: any) => {
+  console.log("from service", payload);
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-const updateUser = async (id: string, payload: Partial<TUser>) => {
-  // Create a copy without email
-  const { email, password, comfirmPassword, ...updateData } = payload;
+  try {
+    const {
+      clinicId,
+      doctorName,
+      email,
+      startTime,
+      endTime,
+      ...doctorPayload
+    } = payload;
 
-  return User_Model.findByIdAndUpdate(id, updateData, { new: true });
-};
+    const workingHour = {
+      startTime,
+      endTime,
+    };
+    const password = generateRandomPassword();
+    console.log("password genarete successfull", password);
 
-const getAllUsers = async () => {
-  return User_Model.find();
-};
+    // Check email
+    const existingEmail = await User_Model.findOne({ email }, null, {
+      session,
+    });
+    if (existingEmail) {
+      throw new Error("Email already exists.");
+    }
 
-const getUserById = async (id: string) => {
-  return User_Model.findById(id);
-};
+    // Hash password
+    const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
+    const hashedPass = await bcrypt.hash(password, saltRounds);
 
-const deleteUser = async (id: string) => {
-  return User_Model.findByIdAndDelete(id);
+    const newUser = await User_Model.create(
+      [
+        {
+          fullName: doctorName,
+          email,
+          password: hashedPass,
+          comfirmPassword: hashedPass,
+          role: "doctor",
+        },
+      ],
+      { session }
+    );
+
+    const createClinic = await Doctor_Model.create(
+      [{ ...doctorPayload, workingHour, userId: newUser[0]._id, clinicId }],
+      { session }
+    );
+
+    // -------- 5. Send Email With Credentials --------
+    await sendEmail({
+      to: email,
+      subject: "Your Doctor Account Login Credentials",
+      html: `
+        <h2>Welcome, Dr. ${doctorName}</h2>
+        <p>Your account has been Registered successfully.</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Password:</strong> ${password}</p>
+        <p>Please login and update your password.</p>
+      `,
+    });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return createClinic[0];
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 };
 
 export const UserService = {
-  createUser,
-  updateUser,
-  getAllUsers,
-  getUserById,
-  deleteUser,
+  createPatient,
+  createSoloNurse,
+  createClinic,
+  createDoctor,
 };

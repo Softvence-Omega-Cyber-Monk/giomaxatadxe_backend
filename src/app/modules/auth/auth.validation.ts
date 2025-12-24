@@ -31,4 +31,3 @@ export const auth_validation = {
     verified_account
 }
 
-

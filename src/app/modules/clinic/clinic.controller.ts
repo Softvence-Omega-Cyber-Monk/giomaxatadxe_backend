@@ -1,0 +1,288 @@
+import { Request, Response } from "express";
+import { ClinicService } from "./clinic.service";
+
+const getAllClinics = async (_req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.getAllClinics();
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getClinicById = async (req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.getClinicById(req.params.userId);
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "Clinic not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const getClinicAppointments = async (req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.getClinicAppointments(
+      req.params.clinicId,
+      req.query.status as any
+    );
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "Clinic not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Clinic appointments fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const getClinicDoctors = async (req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.getClinicDoctors(
+      req.params.clinicId,
+      req.query.appointmentType as any 
+    );
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "Clinic not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Clinic doctors fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const getClinicPatients = async (req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.getClinicPatients(req.params.clinicId);
+
+    res.json({
+      success: true,
+      message: "Clinic patients fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const updateClinicBasic = async (req: Request, res: Response) => {
+  try {
+    const profileImageUrl = req.file ? (req.file as any).path : null;
+    console.log("profile image url ", profileImageUrl);
+
+    const result = await ClinicService.updateClinicBasic(
+      req.params.userId,
+      req.body,
+      profileImageUrl
+    );
+
+    res.json({
+      success: true,
+      message: "Clinic information updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const uploadCertificate = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+
+    const certificateUrl = req.file ? (req.file as any).path : null;
+    console.log("certificateUrl", certificateUrl);
+
+    const result = await ClinicService.uploadCertificate(userId, {
+      data,
+      certificateUrl,
+    });
+
+    res.json({
+      success: true,
+      message: "Certificate uploaded successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const deleteCertificate = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const certificateId = req.params.certificateId;
+
+    const result = await ClinicService.deleteCertificate(userId, certificateId);
+
+    res.json({
+      success: true,
+      message: "Certificate deleted successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const availabilitySettings = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+
+    const result = await ClinicService.availabilitySettings(userId, data);
+
+    res.json({
+      success: true,
+      message: "availability settings updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const addReviews = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+
+    const result = await ClinicService.addReviews(userId, data);
+
+    res.json({
+      success: true,
+      message: "Review added successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const addNewPaymentMethod = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+
+    const result = await ClinicService.addNewPaymentMethod(userId, data);
+
+    res.json({
+      success: true,
+      message: "New Payment Method added successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const deleteClinic = async (req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.deleteClinic(req.params.id);
+
+    res.json({
+      success: true,
+      message: "Clinic deleted successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getAppoinmentTimeBasedOnDateForClinic = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const result = await ClinicService.getAppoinmentTimeBasedOnDateForClinic(
+      req.body.Date,
+      req.params.id
+    );
+    res.json({
+      success: true,
+      message: "get time based on data fetch successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const ClinicController = {
+  getAllClinics,
+  getClinicById,
+  getClinicAppointments,
+  getClinicDoctors,
+  getClinicPatients,
+  updateClinicBasic,
+  uploadCertificate,
+  deleteCertificate,
+  availabilitySettings,
+  addReviews,
+  addNewPaymentMethod,
+  deleteClinic,
+  getAppoinmentTimeBasedOnDateForClinic,
+};
