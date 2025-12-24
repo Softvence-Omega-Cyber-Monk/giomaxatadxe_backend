@@ -12,6 +12,7 @@ export type TLoginPayload = {
   email: string;
   password: string;
   role: "patient" | "doctor" | "solo_nurse" | " clinic" | "admin";
+  fcmToken: string;
 };
 
 export type TJwtUser = {

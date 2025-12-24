@@ -1,4 +1,4 @@
-import { messaging } from "../configs/firebaseAdmin"; // ✅ correct path
+import { messaging } from "../configs/firebaseAdmin"; 
 import { NotificationModel } from "../modules/notifications/notifications.model";
 import { User_Model } from "../modules/user/user.schema";
 

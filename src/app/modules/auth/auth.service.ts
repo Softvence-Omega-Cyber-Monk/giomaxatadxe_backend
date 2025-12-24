@@ -28,6 +28,13 @@ const login_user_from_db = async (payload: TLoginPayload) => {
   if (!isPasswordMatch) {
     throw new AppError("Invalid password", httpStatus.UNAUTHORIZED);
   }
+
+  await User_Model.findOneAndUpdate(
+    { email: payload.email },
+    { fcmToken: payload?.fcmToken },
+    { new: true }
+  );
+
   const accessToken = jwtHelpers.generateToken(
     {
       userId: isExistAccount._id,
