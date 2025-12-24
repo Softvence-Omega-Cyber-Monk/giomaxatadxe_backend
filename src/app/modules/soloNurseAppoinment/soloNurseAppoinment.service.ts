@@ -302,4 +302,8 @@ export const soloNurseAppointmentService = {
         select: "fullName role profileImage",
       });
   },
+
+  getSoloNursePatientLists: async (soloNurseId: string) => {
+    
+  },
 };
