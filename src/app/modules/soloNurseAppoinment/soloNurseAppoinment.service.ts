@@ -303,7 +303,7 @@ export const soloNurseAppointmentService = {
       });
   },
 
-  getSoloNursePatientLists: async (soloNurseId: string) => {
-    
-  },
+  // getSoloNursePatientLists: async (soloNurseId: string) => {
+
+  // },
 };

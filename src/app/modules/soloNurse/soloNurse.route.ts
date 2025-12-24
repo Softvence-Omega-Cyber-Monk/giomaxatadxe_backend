@@ -5,12 +5,15 @@ import { createUploader } from "../../utils/cloudinary";
 const nurseCertificate = createUploader("nurseCertificates");
 const soloNurseProfileImage = createUploader("soloNurseProfileImage");
 
-
 const router = Router();
 
 router.get("/getAll", SoloNurseController.getAllSoloNurses);
 router.get("/getSingle/:userId", SoloNurseController.getSoloNurseById);
-router.put("/update-basic/:userId", soloNurseProfileImage.single("profileImage"), SoloNurseController.updateSoloNurseBasic);
+router.put(
+  "/update-basic/:userId",
+  soloNurseProfileImage.single("profileImage"),
+  SoloNurseController.updateSoloNurseBasic
+);
 router.put(
   "/update-professional/:userId/",
   SoloNurseController.professionalUpdate
@@ -29,7 +32,10 @@ router.put(
   SoloNurseController.uploadCertificate
 );
 
-router.delete("/delete-certificate/:userId/:certificateId", SoloNurseController.deleteCertificate);
+router.delete(
+  "/delete-certificate/:userId/:certificateId",
+  SoloNurseController.deleteCertificate
+);
 
 router.put("/availability/:userId", SoloNurseController.availabilitySettings);
 router.put(
@@ -38,6 +44,9 @@ router.put(
 );
 router.put("/addReviews/:userId", SoloNurseController.addReviews);
 
-router.delete("/:id", SoloNurseController.deleteSoloNurse);
+router.delete(
+  "/delete/:soloNurseUserId/:soloNurseId",
+  SoloNurseController.deleteSoloNurse
+);
 
 export const SoloNurseRoutes = router;

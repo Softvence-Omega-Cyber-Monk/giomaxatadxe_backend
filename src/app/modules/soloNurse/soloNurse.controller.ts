@@ -216,7 +216,8 @@ export const SoloNurseController = {
   },
   deleteSoloNurse: async (req: Request, res: Response) => {
     try {
-      await SoloNurseService.deleteSoloNurse(req.params.id);
+      const { soloNurseId,soloNurseUserId } = req.params;
+      await SoloNurseService.deleteSoloNurse( soloNurseId,soloNurseUserId);
       res.json({
         success: true,
         message: "Solo Nurse deleted successfully",

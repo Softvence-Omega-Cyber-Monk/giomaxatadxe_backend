@@ -349,7 +349,10 @@ export const SoloNurseService = {
     return soloNurse;
   },
 
-  deleteSoloNurse: async (id: string) => {
-    return SoloNurse_Model.findByIdAndDelete(id);
+  deleteSoloNurse: async (soloNurseId: string, soloNurseUserId: string) => {
+    const res = await User_Model.findOneAndDelete({ _id: soloNurseUserId });
+    await SoloNurse_Model.findOneAndDelete({
+      _id: soloNurseId,
+    });
   },
 };
