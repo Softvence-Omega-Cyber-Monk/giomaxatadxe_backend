@@ -50,13 +50,16 @@ export const doctorAppointmentService = {
       appoinmentFee: appointmentFee,
     });
 
+    const clinic = await Clinic_Model.findById(appointment.clinicId);
+    // console.log("clinic", clinic);
+    if (!clinic) {
+      throw new Error("clinic  not found");
+    }
 
-
-    // console.log("appoinment ", appointment);
     await sendNotification(
-      appointment.clinicId.toString(),
-      "New Appointment Created",
-      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details. ${appointment.clinicId}`
+      clinic.userId.toString(),
+      "New Appointment Created for A Doctor",
+      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details. `
     );
 
     return appointment;

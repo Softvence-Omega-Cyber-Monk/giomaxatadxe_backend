@@ -11,6 +11,7 @@ import { MainServiceRoutes } from "./app/modules/mainService/mainService.route";
 import { AgoraVideoCallRoute } from "./app/modules/AgoraVideoCall/AgoraVideoCall.route";
 import { PaymentRoutes } from "./app/modules/payment/payment.route";
 import { ChatRoutes } from "./app/modules/chat/chat.route";
+import { notificationRoutes } from "./app/modules/notifications/notification.route";
 
 const appRouter = Router();
 
@@ -27,6 +28,7 @@ const moduleRoutes = [
   { path: "/agora-video-call", route: AgoraVideoCallRoute },
   { path: "/payment", route: PaymentRoutes },
   { path: "/chatHistory", route: ChatRoutes },
+  { path: "/notification", route: notificationRoutes },
 ];
 
 moduleRoutes.forEach((route) => appRouter.use(route.path, route.route));

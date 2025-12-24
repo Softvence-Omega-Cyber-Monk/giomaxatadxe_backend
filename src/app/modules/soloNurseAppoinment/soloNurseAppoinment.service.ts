@@ -1,3 +1,4 @@
+import { sendNotification } from "../../utils/notificationHelper";
 import { Patient_Model } from "../patient/patient.model";
 import { SoloNurse_Model } from "../soloNurse/soloNurse.model";
 import { soloNurseAppoinment_Model } from "./soloNurseAppoinment.model";
@@ -36,6 +37,20 @@ export const soloNurseAppointmentService = {
       ...data,
       prefarenceDate: new Date(prefarenceDate),
     });
+
+    const solo_nurse: any = await SoloNurse_Model.findById(
+      appointment.soloNurseId
+    );
+    // console.log("clinic", clinic);
+    if (!solo_nurse) {
+      throw new Error("solo nurse  not found");
+    }
+
+    await sendNotification(
+      solo_nurse.userId.toString(),
+      "New Appointment Added ",
+      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details.`
+    );
 
     return appointment;
   },
@@ -270,10 +285,13 @@ export const soloNurseAppointmentService = {
   },
   getSinlgePatientChatsWithNurse: async (patientId: string) => {
     // Step 1: Get unique patient IDs for this soloNurse
-    const soloNurseIds = await soloNurseAppoinment_Model.distinct("soloNurseId", {
-      patientId: patientId,
-      status: "confirmed",
-    });
+    const soloNurseIds = await soloNurseAppoinment_Model.distinct(
+      "soloNurseId",
+      {
+        patientId: patientId,
+        status: "confirmed",
+      }
+    );
 
     // Step 2: Fetch patient details using the IDs
     return await SoloNurse_Model.find({ _id: { $in: soloNurseIds } })
