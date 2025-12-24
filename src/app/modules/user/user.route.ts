@@ -2,35 +2,30 @@ import { Router } from "express";
 
 import { createUploader } from "../../utils/cloudinary";
 import { user_controllers } from "./user.controller";
-import RequestValidator from "../../middlewares/request_validator";
-import { user_validations } from "./user.validation";
 
-const uploadCertificate = createUploader("userCertificates");
+const nurseCertificate = createUploader("nurseCertificates");
+
+const clinicCertificate = createUploader("clinicCertificates");
+const doctorCertificate = createUploader("doctorCertificates");
 
 const router = Router();
 
-// CREATE
+// CREATE paitent
+router.post("/create-paient", user_controllers.createPatient);
 router.post(
-  "/create-user",
-  uploadCertificate.single("cretificate"),
-  RequestValidator(user_validations.create_user),
-  user_controllers.createUser
+  "/create-solo-nurse",
+  nurseCertificate.single("uploadCertificates"),
+  user_controllers.createSoloNurse
 );
-
-// UPDATE
-router.put(
-  "/update-user/:id",
-  uploadCertificate.single("cretificate"),
-  user_controllers.updateUser
+router.post(
+  "/create-clinic",
+  clinicCertificate.single("uploadCertificates"),
+  user_controllers.createClinic
 );
-
-// GET ALL
-router.get("/getAll", user_controllers.getAllUsers);
-
-// GET SINGLE
-router.get("/getSingle/:id", user_controllers.getUserById);
-
-// DELETE
-router.delete("/delete-user/:id", user_controllers.deleteUser);
+router.post(
+  "/create-doctor",
+  doctorCertificate.single("uploadCertificates"),
+  user_controllers.createDoctor
+);
 
 export const user_routes = router;

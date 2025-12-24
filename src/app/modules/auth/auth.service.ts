@@ -6,50 +6,59 @@ import { User_Model } from "../user/user.schema";
 import { jwtHelpers } from "../../utils/JWT";
 import { configs } from "../../configs";
 import { JwtPayload, Secret } from "jsonwebtoken";
-import { sendEmailForCode } from "../../utils/sendMailForCode";
-import { isAccountExist } from "../../utils/isAccountExist";
+
 import { passwordResetModel } from "./auth.schema";
+import { sendEmail } from "../../utils/sendEmail";
+import { de } from "zod/v4/locales";
 
 // login user
-export const login_user_from_db = async (payload: TLoginPayload) => {
-  // 1️⃣ Find the user
-  const user: any = await User_Model.findOne({
-    email: payload.email,
+const login_user_from_db = async (payload: TLoginPayload) => {
+  // check account info
+
+  console.log("payload", payload);
+
+  const isExistAccount: any = await User_Model.findOne({
+    email: payload?.email,
   });
 
-  // console.log("user", user);
-
-  if (!user) {
-    throw new AppError("User not found", httpStatus.NOT_FOUND);
-  }
-
-  // 2️⃣ Check password
-  const isPasswordMatch = await bcrypt.compare(payload.password, user.password);
+  const isPasswordMatch = await bcrypt.compare(
+    payload.password,
+    isExistAccount?.password
+  );
   if (!isPasswordMatch) {
     throw new AppError("Invalid password", httpStatus.UNAUTHORIZED);
   }
 
-  // 5️⃣ Generate tokens
+  await User_Model.findOneAndUpdate(
+    { email: payload.email },
+    { fcmToken: payload?.fcmToken },
+    { new: true }
+  );
+
   const accessToken = jwtHelpers.generateToken(
-    { userId: user._id, email: user.email, role: user.role },
-    configs?.jwt.accessToken_secret as string,
+    {
+      userId: isExistAccount._id,
+      email: isExistAccount.email,
+      role: isExistAccount.role,
+    },
+    configs.jwt.accessToken_secret as Secret,
     configs.jwt.accessToken_expires as string
   );
 
   const refreshToken = jwtHelpers.generateToken(
-    { userId: user._id, email: user.email, role: user.role },
-    configs.jwt.refreshToken_secret as string,
+    {
+      userId: isExistAccount._id,
+      email: isExistAccount.email,
+      role: isExistAccount.role,
+    },
+    configs.jwt.refreshToken_secret as Secret,
     configs.jwt.refreshToken_expires as string
   );
-
-  // console.log("refreshToken", refreshToken);
-
-  // 6️⃣ Return response
   return {
-    accessToken,
-    refreshToken,
-    role: user.role,
-    userId: user._id,
+    accessToken: accessToken,
+    refreshToken: refreshToken,
+    role: isExistAccount.role,
+    userId: isExistAccount._id,
   };
 };
 
@@ -63,8 +72,6 @@ const refresh_token_from_db = async (token: string) => {
   } catch (err) {
     throw new Error("You are not authorized!");
   }
-
-  // console.log('decode data', decodedData);
 
   const userData: any = await User_Model.findOne({
     email: decodedData.email,
@@ -83,7 +90,9 @@ const change_password_from_db = async (
   user: JwtPayload,
   payload: { oldPassword: string; newPassword: string }
 ) => {
-  const isExistAccount: any = await User_Model.findOne({ email: user.email });
+  const isExistAccount: any = await User_Model.findOne({
+    _id: user.userId,
+  });
 
   if (!isExistAccount) {
     throw new AppError("Account not found", httpStatus.NOT_FOUND);
@@ -100,13 +109,7 @@ const change_password_from_db = async (
     throw new AppError("Old password is incorrect", httpStatus.UNAUTHORIZED);
   }
 
-  const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
-
-  if (isNaN(saltRounds)) {
-    throw new Error("Invalid bcrypt salt round value in environment variable.");
-  }
-
-  const hashedPassword = await bcrypt.hash(payload.newPassword, saltRounds);
+  const hashedPassword = await bcrypt.hash(payload.newPassword, 10);
 
   await User_Model.findOneAndUpdate(
     { email: isExistAccount.email },
@@ -118,7 +121,6 @@ const change_password_from_db = async (
 
   return "Password changed successful.";
 };
-
 
 export const requestPasswordReset = async (email: string) => {
   const user = await User_Model.findOne({ email });
@@ -133,7 +135,7 @@ export const requestPasswordReset = async (email: string) => {
   // Store new code
   await passwordResetModel.create({ email, code, expiresAt });
 
-  await sendEmailForCode({
+  await sendEmail({
     to: email,
     subject: "Your Password Reset Code",
     text: `Your password reset code is ${code}. It will expire in 10 minutes.`,
@@ -145,7 +147,7 @@ export const requestPasswordReset = async (email: string) => {
 
 export const verifyResetCode = async (email: string, code: string) => {
   const entry = await passwordResetModel.findOne({ email });
-  // console.log(entry, "entry--------");
+  console.log(entry, "entry--------");
   if (!entry) throw new Error("No reset code found. Please request again.");
 
   if (entry.expiresAt.getTime() < Date.now()) {
@@ -153,21 +155,24 @@ export const verifyResetCode = async (email: string, code: string) => {
     throw new Error("Reset code expired. Please request again.");
   }
 
-  // if (entry.code !== code) throw new Error("Invalid reset code.");
+  if (Number(entry.code) !== Number(code)) {
+    throw new Error("Invalid reset code.");
+  }
 
   return { verified: true };
 };
 
 export const resetPassword = async (
   email: string,
-  code: string,
+  code: any,
   newPassword: string
 ) => {
   const entry = await passwordResetModel.findOne({ email });
-  // console.log("reset password", entry);
-  // if (!entry || entry.code !== code)
-  //   throw new Error("Invalid or expired reset code.");
+  console.log("reset password", entry);
 
+  if (Number(entry?.code) !== Number(code)) {
+    throw new Error("Invalid reset code.");
+  }
   const user = await User_Model.findOne({ email });
   if (!user) throw new Error("User not found");
 
@@ -182,7 +187,6 @@ export const auth_services = {
   login_user_from_db,
   refresh_token_from_db,
   change_password_from_db,
-  // forget_password_from_db,
   requestPasswordReset,
   verifyResetCode,
   resetPassword,

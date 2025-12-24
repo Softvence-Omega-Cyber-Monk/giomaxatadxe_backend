@@ -2,12 +2,12 @@
 
 export type TUser = {
   fullName: string;
+  profileImage?: string;
   email: string;
   password: string;
   comfirmPassword: string;
-  role: "patient" | "solo_nurse" | " clinic" | "admin";
-  nationality?: string;
-  NationalIdNumber?: string;
-  certificate?: string;
-  isVerified?: boolean
+  role: "patient" | "doctor" | "solo_nurse" | " clinic" | "admin";
+  dateOfBirth?: Date,
+  age?: number,
+  fcmToken?: string
 };

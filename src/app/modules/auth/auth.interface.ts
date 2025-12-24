@@ -1,7 +1,7 @@
 export type TAccount = {
   email: string;
   password: string;
-  role: "Buyer" | "Seller" | "Admin";
+  role: "patient" | "doctor" | "solo_nurse" | " clinic" | "admin";
 };
 
 export interface TRegisterPayload extends TAccount {
@@ -11,12 +11,13 @@ export interface TRegisterPayload extends TAccount {
 export type TLoginPayload = {
   email: string;
   password: string;
-  role: "Buyer" | "Seller" | "Admin";
+  role: "patient" | "doctor" | "solo_nurse" | " clinic" | "admin";
+  fcmToken: string;
 };
 
 export type TJwtUser = {
   email: string;
-  role?: "Buyer" | "Seller" | "Admin";
+  role?: "patient" | "doctor" | "solo_nurse" | " clinic" | "admin";
 };
 
 export interface IChangePasswordPayload {
