@@ -1,4 +1,4 @@
-import { messaging } from "../configs/firebaseAdmin"; 
+import { messaging } from "../configs/firebaseAdmin";
 import { NotificationModel } from "../modules/notifications/notifications.model";
 import { User_Model } from "../modules/user/user.schema";
 
@@ -38,7 +38,6 @@ export const sendNotification = async (
       userProfile: user.profileImage || "",
       timestamp: new Date(),
     });
-
   } catch (error) {
     console.error("⚠️ Error sending notification:", error);
   }
