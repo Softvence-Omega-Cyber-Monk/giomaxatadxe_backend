@@ -28,16 +28,30 @@ export const getUserNotifications = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
-    const notifications = await NotificationModel.find({ userId }).sort({
-      createdAt: -1,
-    });
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [notifications, total] = await Promise.all([
+      NotificationModel.find({ userId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+
+      NotificationModel.countDocuments({ userId }),
+    ]);
 
     res.status(200).json({
       success: true,
+      total,
       data: notifications,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error });
+    console.error("Get notifications error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
