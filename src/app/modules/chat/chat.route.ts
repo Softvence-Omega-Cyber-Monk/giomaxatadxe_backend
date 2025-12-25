@@ -18,9 +18,9 @@ router.get(
   chatController.getAdminConversation
 );
 router.get(
-  "/user/history",
+  "/admin/getUserConversation/:userId",
   auth("patient", "doctor", "solo_nurse", "clinic", "admin"),
-  chatController.getUserConversationWithAdmin
+  chatController.getAdminUserConversation
 );
 
 router.post(

@@ -53,6 +53,9 @@ export const chatSocketHandler = (io: any, socket: any) => {
     async ({ message }: { message: string }) => {
       const newMsg = await ChatModel.create({
         senderId: userId,
+        
+
+
         receiverType: "admin",
         chatType: "user_admin",
         message,

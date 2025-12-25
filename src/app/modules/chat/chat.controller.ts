@@ -32,17 +32,22 @@ export const chatController = {
     const messages = await chatService.getAdminConversation(userId, adminIds);
     res.json(messages);
   },
-  getUserConversationWithAdmin: async (req: Request, res: Response) => {
-    if (!req.user || !req.user.userId) {
-      return res
-        .status(401)
-        .json({ error: "Unauthorized: user not found in request" });
+  getAdminUserConversation: async (req: Request, res: Response) => {
+    const adminId = req.user?.userId;
+    const { userId } = req.params;
+
+    if (!adminId) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
-    const userId = req?.user.userId as string;
-    // console.log('userid ', userId);
-    const messages = await chatService.getUserConversationWithAdmin(userId);
+
+    const messages = await chatService.getAdminUserConversation(
+      adminId,
+      userId
+    );
+
     res.json(messages);
   },
+
   documentOrFileUpload: async (req: Request, res: Response) => {
     const file = req.file ? (req.file as any).path : null;
     console.log("file", file);

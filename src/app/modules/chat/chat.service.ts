@@ -19,17 +19,24 @@ export const chatService = {
       ],
     }).sort({ createdAt: 1 });
   },
-  getUserConversationWithAdmin: async (userId: string) => {
-    return ChatModel.find({
-      $or: [
-        // User → Admin
-        { senderId: userId, receiverType: "admin" },
+getAdminUserConversation: async (
+  adminId: string,
+  userId: string
+) => {
+  return ChatModel.find({
+    chatType: "user_admin",
+    $or: [
+      // User → Admin
+      { senderId: userId, receiverType: "admin" },
 
-        // Admin → User
-        { receiverId: userId, receiverType: "admin" },
-      ],
-    }).sort({ createdAt: 1 });
-  },
+      // Admin → User
+      { senderId: adminId, receiverId: userId }
+    ],
+  })
+    .sort({ createdAt: 1 })
+    .lean();
+},
+
 
   documentOrFileUpload: async (file: any) => {
     return {
