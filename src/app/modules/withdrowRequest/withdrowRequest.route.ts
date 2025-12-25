@@ -12,8 +12,8 @@ router.get("/getWithdrawRequests/me", WithdrawRequestController.getMyWithdrawReq
 /**
  * Admin
  */
-router.get("getAll/admin", WithdrawRequestController.getAllWithdrawRequests);
-router.patch("/:id/pay", WithdrawRequestController.markWithdrawAsPaid);
-router.patch("/:id/reject", WithdrawRequestController.rejectWithdrawRequest);
+router.get("/getAll/admin", WithdrawRequestController.getAllWithdrawRequests);
+router.patch("/markAsPaid/:id", WithdrawRequestController.markWithdrawAsPaid);
+router.patch("/reject/:id", WithdrawRequestController.rejectWithdrawRequest);
 
 export const WithdrawRequestRoutes = router;

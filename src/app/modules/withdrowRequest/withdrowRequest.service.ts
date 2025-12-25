@@ -88,6 +88,7 @@ const rejectWithdraw = async (withdrawId: string) => {
 
     // Refund amount
     wallet.balance += withdraw.amount;
+    wallet.pendingBalance -= withdraw.amount;
     withdraw.status = "REJECTED";
 
     await wallet.save({ session });
