@@ -33,6 +33,10 @@ router.get(
   "/getSinglePatientChatsWithNurse/:patientId",
   soloNurseAppointmentController.getSinlgePatientChatsWithNurse
 );
+router.delete(
+  "/deleteAppointment/:appoinmentId",
+  soloNurseAppointmentController.deleteAppointment
+);
 
 
 

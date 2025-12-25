@@ -11,12 +11,12 @@ const createWithdrawRequest = async (payload: any) => {
   const wallet = await Wallet_Model.findById(walletId);
   if (!wallet) throw new Error("Wallet not found");
 
-  if (wallet.balance < amount) {
+  if (wallet.pendingBalance < amount) {
     throw new Error("Insufficient balance");
   }
 
   // Deduct balance
-  wallet.balance -= amount;
+  wallet.pendingBalance -= amount;
   await wallet.save();
 
   return await WithdrawRequest_Model.create({

@@ -308,4 +308,7 @@ export const soloNurseAppointmentService = {
       });
   },
 
+  deleteAppointment: async (id: string) => {
+    return await soloNurseAppoinment_Model.findByIdAndDelete(id);
+  },
 };

@@ -176,5 +176,20 @@ export const soloNurseAppointmentController = {
           res.status(500).json({ success: false, message: err.message });
         }
       },
+      deleteAppointment: async (req: Request, res: Response) => {
+        try {
+          const result = await soloNurseAppointmentService.deleteAppointment(
+            req.params.appoinmentId
+          );
+          res.json({
+            success: true,
+            message: "appointment deleted successfully",
+    
+            data: result,
+          });
+        } catch (err: any) {
+          res.status(500).json({ success: false, message: err.message });
+        }
+      },
   
 };

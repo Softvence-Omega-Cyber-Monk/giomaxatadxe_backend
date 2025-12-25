@@ -6,7 +6,6 @@ const walletSchema = new Schema(
       type: Schema.Types.ObjectId,
       required: true,
     },
-
     ownerType: {
       type: String,
       enum: ["CLINIC", "SOLO_NURSE"],
