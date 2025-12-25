@@ -73,7 +73,7 @@ const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
         ownerType: payment.receiverType,
       },
       {
-        $inc: { pendingBalance: payment.amount  , },
+        $inc: { pendingBalance: payment.amount },
       },
       { upsert: true, new: true }
     );

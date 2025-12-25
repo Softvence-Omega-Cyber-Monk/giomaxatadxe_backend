@@ -9,6 +9,7 @@ const withdrawRequestSchema = new Schema(
     },
     ownerId: {
       type: Schema.Types.ObjectId,
+      ref: "user",
       required: true,
       index: true,
     },

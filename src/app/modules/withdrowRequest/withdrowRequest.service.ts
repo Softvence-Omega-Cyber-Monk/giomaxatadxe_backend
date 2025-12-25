@@ -17,6 +17,8 @@ const createWithdrawRequest = async (payload: any) => {
 
   // Deduct balance
   wallet.pendingBalance -= amount;
+  wallet.balance += amount;
+
   await wallet.save();
 
   return await WithdrawRequest_Model.create({
