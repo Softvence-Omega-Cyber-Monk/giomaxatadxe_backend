@@ -16,8 +16,7 @@ const customOfferSchema = new mongoose.Schema(
 
     homeAddress: {
       type: String,
-      required: true,
-      trim: true,
+  
     },
 
     preferenceDate: {
