@@ -263,6 +263,11 @@ export const soloNurseAppointmentService = {
       .populate({
         path: "soloNurseId",
         select: "_id userId",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName role   ", // fields you want
+        }
       });
   },
   getSinlgePatientChatsForNurse: async (soloNurseId: string) => {

@@ -64,7 +64,6 @@ const chatSchema = new mongoose.Schema(
       enum: ["doctor_patient", "patient_clinic", "nurse_patient", "user_admin"],
       required: true,
     },
-
     message: {
       type: String,
       default: null,

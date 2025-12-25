@@ -48,10 +48,7 @@ const createBoGOrder = async (payment: any) => {
   return res.data;
 };
 
-
-
-
- const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
+const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
   const { external_order_id, status } = payload;
 
   const payment = await Payment_Model.findById(external_order_id);
