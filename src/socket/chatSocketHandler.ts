@@ -38,6 +38,8 @@ export const chatSocketHandler = (io: any, socket: any) => {
     if (document) payload.document = document;
     if (customOffer) payload.customOffer = customOffer;
 
+    // console.log('custom offfter ', payload.customOffer);
+
     const newMsg = await ChatModel.create(payload);
 
     socket.emit("message_sent", newMsg);

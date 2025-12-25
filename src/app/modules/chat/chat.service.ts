@@ -19,6 +19,18 @@ export const chatService = {
       ],
     }).sort({ createdAt: 1 });
   },
+  getUserConversationWithAdmin: async (userId: string) => {
+    return ChatModel.find({
+      $or: [
+        // User → Admin
+        { senderId: userId, receiverType: "admin" },
+
+        // Admin → User
+        { receiverId: userId, receiverType: "admin" },
+      ],
+    }).sort({ createdAt: 1 });
+  },
+
   documentOrFileUpload: async (file: any) => {
     return {
       success: true,
@@ -33,6 +45,6 @@ export const chatService = {
     // console.log("user list ", usersLists);
 
     const users = await User_Model.find({ _id: { $in: usersLists } });
-    return {users};
+    return { users };
   },
 };

@@ -17,7 +17,17 @@ router.get(
   auth("patient", "doctor", "solo_nurse", "clinic", "admin"),
   chatController.getAdminConversation
 );
-router.post("/uploadFileOrDocument",  uploadFileAndDocumentForChat.single("file"), chatController.documentOrFileUpload);
-router.get("/adminChat/getUserLists",   chatController.getUserListsForAdminChat);
+router.get(
+  "/user/history",
+  auth("patient", "doctor", "solo_nurse", "clinic", "admin"),
+  chatController.getUserConversationWithAdmin
+);
+
+router.post(
+  "/uploadFileOrDocument",
+  uploadFileAndDocumentForChat.single("file"),
+  chatController.documentOrFileUpload
+);
+router.get("/adminChat/getUserLists", chatController.getUserListsForAdminChat);
 
 export const ChatRoutes = router;
