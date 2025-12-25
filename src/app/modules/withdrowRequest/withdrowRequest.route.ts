@@ -16,4 +16,4 @@ router.get("getAll/admin", WithdrawRequestController.getAllWithdrawRequests);
 router.patch("/:id/pay", WithdrawRequestController.markWithdrawAsPaid);
 router.patch("/:id/reject", WithdrawRequestController.rejectWithdrawRequest);
 
-export default router;
+export const WithdrawRequestRoutes = router;

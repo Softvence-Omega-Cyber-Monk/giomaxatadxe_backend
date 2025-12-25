@@ -17,7 +17,6 @@ const walletSchema = new Schema(
       type: Number,
       default: 0,
     },
-
     pendingBalance: {
       type: Number,
       default: 0,

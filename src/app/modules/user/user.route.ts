@@ -27,5 +27,6 @@ router.post(
   doctorCertificate.single("uploadCertificates"),
   user_controllers.createDoctor
 );
+router.get("/get-admin", user_controllers.getAdmin);
 
 export const user_routes = router;

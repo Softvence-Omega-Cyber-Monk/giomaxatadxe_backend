@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getAccessToken } from "../../utils/BankAccessToken";
 import { Payment_Model } from "./payment.model";
-import { Wallet_Model } from "./wallet.model";
+import { Wallet_Model } from "../wallet/wallet.model";
 
 interface BoGCallbackPayload {
   external_order_id: string;
@@ -67,17 +67,17 @@ const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
     payment.status = "PAID";
 
     // Move money to pending balance (admin holds money)
-  const res =   await Wallet_Model.findOneAndUpdate(
+    const res = await Wallet_Model.findOneAndUpdate(
       {
         ownerId: payment.receiverId,
         ownerType: payment.receiverType,
       },
       {
-        $inc: { pendingBalance: payment.amount },
+        $inc: { pendingBalance: payment.amount  , },
       },
       { upsert: true, new: true }
     );
-    console.log('response wallet', res);
+    console.log("response wallet", res);
   } else {
     payment.status = "FAILED";
   }

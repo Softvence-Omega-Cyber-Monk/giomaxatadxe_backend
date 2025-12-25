@@ -1,12 +1,11 @@
-
 import mongoose from "mongoose";
-import { Wallet_Model } from "../payment/wallet.model";
+import { Wallet_Model } from "../wallet/wallet.model";
 import { WithdrawRequest_Model } from "./withdrowRequest.model";
 
 /**
  * Create withdraw request
  */
- const createWithdrawRequest = async (payload: any) => {
+const createWithdrawRequest = async (payload: any) => {
   const { walletId, ownerId, ownerType, amount } = payload;
 
   const wallet = await Wallet_Model.findById(walletId);
@@ -31,7 +30,7 @@ import { WithdrawRequest_Model } from "./withdrowRequest.model";
 /**
  * Get withdraw requests by owner
  */
- const getWithdrawRequestsByOwner = async (ownerId: string) => {
+const getWithdrawRequestsByOwner = async (ownerId: string) => {
   return await WithdrawRequest_Model.find({ ownerId }).sort({
     createdAt: -1,
   });
@@ -40,7 +39,7 @@ import { WithdrawRequest_Model } from "./withdrowRequest.model";
 /**
  * Admin: get all withdraw requests
  */
- const getAllWithdrawRequests = async () => {
+const getAllWithdrawRequests = async () => {
   return await WithdrawRequest_Model.find()
     .populate("walletId")
     .sort({ createdAt: -1 });
@@ -49,7 +48,7 @@ import { WithdrawRequest_Model } from "./withdrowRequest.model";
 /**
  * Admin: mark as PAID
  */
- const markAsPaid = async (withdrawId: string) => {
+const markAsPaid = async (withdrawId: string) => {
   const withdraw = await WithdrawRequest_Model.findById(withdrawId);
   if (!withdraw) throw new Error("Withdraw request not found");
 
@@ -66,7 +65,7 @@ import { WithdrawRequest_Model } from "./withdrowRequest.model";
 /**
  * Admin: reject withdraw
  */
- const rejectWithdraw = async (withdrawId: string) => {
+const rejectWithdraw = async (withdrawId: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
