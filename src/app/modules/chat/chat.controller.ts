@@ -35,9 +35,12 @@ export const chatController = {
   documentOrFileUpload: async (req: Request, res: Response) => {
     const file = req.file ? (req.file as any).path : null;
     console.log("file", file);
- 
 
     const messages = await chatService.documentOrFileUpload(file);
+    res.json(messages);
+  },
+  getUserListsForAdminChat: async (req: Request, res: Response) => {
+    const messages = await chatService.getUserListsForAdminChat();
     res.json(messages);
   },
 };

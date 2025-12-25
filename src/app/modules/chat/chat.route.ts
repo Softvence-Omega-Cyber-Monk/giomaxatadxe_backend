@@ -18,5 +18,6 @@ router.get(
   chatController.getAdminConversation
 );
 router.post("/uploadFileOrDocument",  uploadFileAndDocumentForChat.single("file"), chatController.documentOrFileUpload);
+router.get("/adminChat/getUserLists",   chatController.getUserListsForAdminChat);
 
 export const ChatRoutes = router;
