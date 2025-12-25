@@ -61,10 +61,10 @@ export const bogCallbackController = async (req: any, res: any) => {
   try {
     console.log("BoG Webhook Payload:", req.body);
 
-    await PaymentService.handleBoGCallbackService(req.body);
+   const callbackResult =  await PaymentService.handleBoGCallbackService(req.body);
 
     // BoG requires 200 OK always
-    res.sendStatus(200);
+    res.json({ success: true , data: callbackResult});
   } catch (error: any) {
     console.error("BoG Callback Error:", error.message);
 

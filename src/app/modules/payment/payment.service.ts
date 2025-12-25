@@ -52,6 +52,7 @@ const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
   const { external_order_id, status } = payload;
 
   const payment = await Payment_Model.findById(external_order_id);
+  console.log("payment ", payment);
 
   if (!payment) {
     throw new Error("Payment not found");
@@ -66,7 +67,7 @@ const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
     payment.status = "PAID";
 
     // Move money to pending balance (admin holds money)
-    await Wallet_Model.findOneAndUpdate(
+  const res =   await Wallet_Model.findOneAndUpdate(
       {
         ownerId: payment.receiverId,
         ownerType: payment.receiverType,
@@ -76,6 +77,7 @@ const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
       },
       { upsert: true, new: true }
     );
+    console.log('response wallet', res);
   } else {
     payment.status = "FAILED";
   }
