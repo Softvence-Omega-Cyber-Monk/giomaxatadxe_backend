@@ -30,7 +30,7 @@ export const chatService = {
     const usersLists = await ChatModel.find({ receiverType: "admin" }).distinct(
       "senderId"
     );
-    console.log("user list ", usersLists);
+    // console.log("user list ", usersLists);
 
     const users = await User_Model.find({ _id: { $in: usersLists } });
     return {users};
