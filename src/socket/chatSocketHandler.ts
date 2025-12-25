@@ -18,14 +18,27 @@ export const chatSocketHandler = (io: any, socket: any) => {
   // 🔵 Send normal message (user ↔ user)
 
   socket.on("send_message", async (data: any) => {
-    const { receiverId, message, chatType } = data;
+    const { receiverId, message, chatType, document, customOffer } = data;
 
-    const newMsg = await ChatModel.create({
+    if (!message && !document && !customOffer) {
+      throw new Error("Message, document, or custom offer is required");
+    }
+
+    const payload: any = {
       senderId: userId,
       receiverId,
       chatType,
-      message,
-    });
+    };
+
+
+
+
+    // ✅ conditionally add fields
+    if (message) payload.message = message;
+    if (document) payload.document = document;
+    if (customOffer) payload.customOffer = customOffer;
+
+    const newMsg = await ChatModel.create(payload);
 
     socket.emit("message_sent", newMsg);
     io.to(receiverId).emit("receive_message", newMsg);

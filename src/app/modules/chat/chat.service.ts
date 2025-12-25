@@ -18,5 +18,14 @@ export const chatService = {
       ],
     }).sort({ createdAt: 1 });
   },
+  documentOrFileUpload: async (file : any) => {
+    return {
+      success: true,
+      message: "File uploaded successfully",
+      data: file,
+    };
+
+  }
+
 };
 

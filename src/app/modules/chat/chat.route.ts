@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { chatController } from "./chat.controller";
 import auth from "../../middlewares/auth";
+import { createUploader } from "../../utils/cloudinary";
+
+const uploadFileAndDocumentForChat = createUploader("fileAndDocumentForChat");
 
 const router = Router();
 
@@ -14,5 +17,6 @@ router.get(
   auth("patient", "doctor", "solo_nurse", "clinic", "admin"),
   chatController.getAdminConversation
 );
+router.post("/uploadFileOrDocument",  uploadFileAndDocumentForChat.single("file"), chatController.documentOrFileUpload);
 
 export const ChatRoutes = router;

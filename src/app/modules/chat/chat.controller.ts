@@ -32,4 +32,12 @@ export const chatController = {
     const messages = await chatService.getAdminConversation(userId, adminIds);
     res.json(messages);
   },
+  documentOrFileUpload: async (req: Request, res: Response) => {
+    const file = req.file ? (req.file as any).path : null;
+    console.log("file", file);
+ 
+
+    const messages = await chatService.documentOrFileUpload(file);
+    res.json(messages);
+  },
 };
