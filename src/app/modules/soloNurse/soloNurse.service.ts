@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import { User_Model } from "../user/user.schema";
 import { SoloNurse_Model } from "./soloNurse.model";
+import { Wallet_Model } from "../wallet/wallet.model";
+import { WithdrawRequest_Model } from "../withdrowRequest/withdrowRequest.model";
 
 export const SoloNurseService = {
   getAllSoloNurses: async (serviceName?: string) => {
@@ -354,5 +356,32 @@ export const SoloNurseService = {
     await SoloNurse_Model.findOneAndDelete({
       _id: soloNurseId,
     });
+  },
+
+  getSoloNursePaymentData: async (soloNurseUserId: string) => {
+    const soloNurseMoney = await Wallet_Model.findOne({
+      ownerId: soloNurseUserId,
+      ownerType: "SOLO_NURSE",
+    });
+    const soloNursePendingMoney = soloNurseMoney?.pendingBalance || 0;
+
+    const soloNurseWithdrawRequests = await WithdrawRequest_Model.find({
+      ownerId: soloNurseUserId,
+      ownerType: "SOLO_NURSE",
+      status: "PAID",
+    });
+
+    const soloNurseTotalWithdrew = soloNurseWithdrawRequests.reduce(
+      (total, request) => {
+        return total + request.amount;
+      },
+      0
+    );
+
+    return {
+      soloNursePendingMoney,
+      soloNurseTotalWithdrew,
+      totalTransactions: soloNurseWithdrawRequests.length,
+    };
   },
 };

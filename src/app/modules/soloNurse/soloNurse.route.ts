@@ -48,5 +48,7 @@ router.delete(
   "/delete/:soloNurseUserId/:soloNurseId",
   SoloNurseController.deleteSoloNurse
 );
+router.get("/getSoloNursePaymentData/:soloNurseUserId", SoloNurseController.getSoloNursePaymentData);
+
 
 export const SoloNurseRoutes = router;

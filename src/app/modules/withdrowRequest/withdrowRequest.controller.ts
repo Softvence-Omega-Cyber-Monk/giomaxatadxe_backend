@@ -4,13 +4,28 @@ import { WithdrowRequestService } from "./withdrowRequest.service";
 const createWithdrawRequest = async (req: Request, res: Response) => {
   try {
     const result = await WithdrowRequestService.createWithdrawRequest(req.body);
+
     res.status(201).json({
       success: true,
-      message: "Withdraw request sent successfully",
+      message: `Withdraw request of ${
+        result.amount
+      } GEL for ${result.ownerType.toLowerCase()} created successfully.`,
       data: result,
     });
   } catch (error: any) {
-    res.status(400).json({ success: false, message: error.message });
+    let message = "Something went wrong. Please try again.";
+
+    // Custom messages for known errors
+    if (error.message.includes("Wallet not found")) {
+      message = "Your wallet was not found. Please check your account.";
+    } else if (error.message.includes("Insufficient balance")) {
+      message = "You do not have enough balance to request this withdrawal.";
+    }
+
+    res.status(400).json({
+      success: false,
+      message,
+    });
   }
 };
 
@@ -43,7 +58,9 @@ const getAllWithdrawRequests = async (_req: Request, res: Response) => {
 
 const markWithdrawAsPaid = async (req: Request, res: Response) => {
   try {
-    const result = await WithdrowRequestService.markAsPaid(req.params.id);
+    const result = await WithdrowRequestService.markAsPaid(
+      req.params.withdrawId
+    );
     res.json({
       success: true,
       message: "You received your money by cutting plaatfrom fee",

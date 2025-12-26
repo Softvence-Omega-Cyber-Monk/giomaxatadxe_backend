@@ -8,19 +8,25 @@ import { WithdrawRequest_Model } from "./withdrowRequest.model";
 const createWithdrawRequest = async (payload: any) => {
   const { walletId, ownerId, ownerType, amount } = payload;
 
-  const cliniComission = (amount * 9) / 100;
+  // Set commission based on owner type
+  const commissionRate =
+    ownerType === "CLINIC" ? 9 : ownerType === "SOLO_NURSE" ? 12 : 0;
+  const commission = (amount * commissionRate) / 100;
 
-  const wallet = await Wallet_Model.findById(walletId);
+  const wallet = await Wallet_Model.findOne({
+    _id: walletId,
+    ownerType,
+  });
+
   if (!wallet) throw new Error("Wallet not found");
 
-  if (wallet.pendingBalance < amount - cliniComission) {
+  if (wallet.pendingBalance < amount - commission) {
     throw new Error("Insufficient balance");
   }
 
   // Deduct balance
-
   wallet.pendingBalance -= amount;
-  wallet.balance += amount - cliniComission;
+  wallet.balance += amount - commission;
 
   await wallet.save();
 

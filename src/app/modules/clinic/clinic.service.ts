@@ -7,6 +7,7 @@ import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.
 import { Patient_Model } from "../patient/patient.model";
 import app from "../../../app";
 import { Wallet_Model } from "../wallet/wallet.model";
+import { WithdrawRequest_Model } from "../withdrowRequest/withdrowRequest.model";
 
 const getAllClinics = async () => {
   const result = await Clinic_Model.find()
@@ -372,11 +373,25 @@ const getClinicPaymentData = async (clinicUserId: string) => {
     ownerType: "CLINIC",
   });
   const clinicPendingMoney = clinicMoney?.pendingBalance || 0;
-  const clinicBalance = clinicMoney?.balance || 0;
 
-  
+  const clinicWithdrawRequests = await WithdrawRequest_Model.find({
+    ownerId: clinicUserId,
+    ownerType: "CLINIC",
+    status: "PAID",
+  });
 
+  const clinicTotalWithdrew = clinicWithdrawRequests.reduce(
+    (total, request) => {
+      return total + request.amount;
+    },
+    0
+  );
 
+  return {
+    clinicPendingMoney,
+    clinicTotalWithdrew,
+    totalTransactions: clinicWithdrawRequests.length,
+  };
 };
 
 export const ClinicService = {

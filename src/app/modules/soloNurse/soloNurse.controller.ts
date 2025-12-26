@@ -5,7 +5,9 @@ import { de } from "zod/v4/locales";
 export const SoloNurseController = {
   getAllSoloNurses: async (req: Request, res: Response) => {
     try {
-      const result = await SoloNurseService.getAllSoloNurses(req.query.serviceName as string);
+      const result = await SoloNurseService.getAllSoloNurses(
+        req.query.serviceName as string
+      );
       res.json({ success: true, data: result });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
@@ -216,14 +218,32 @@ export const SoloNurseController = {
   },
   deleteSoloNurse: async (req: Request, res: Response) => {
     try {
-      const { soloNurseId,soloNurseUserId } = req.params;
-      await SoloNurseService.deleteSoloNurse( soloNurseId,soloNurseUserId);
+      const { soloNurseId, soloNurseUserId } = req.params;
+      await SoloNurseService.deleteSoloNurse(soloNurseId, soloNurseUserId);
       res.json({
         success: true,
         message: "Solo Nurse deleted successfully",
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
+    }
+  },
+  getSoloNursePaymentData: async (req: Request, res: Response) => {
+    try {
+      const result = await SoloNurseService.getSoloNursePaymentData(
+        req.params.soloNurseUserId
+      );
+
+      res.json({
+        success: true,
+        message: "Solo Nurse payment data fetched successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
     }
   },
 };
