@@ -2,14 +2,15 @@ import { ChatModel } from "../app/modules/chat/chat.model";
 import { User_Model } from "../app/modules/user/user.schema";
 import { sendNotification } from "../app/utils/notificationHelper";
 
+const onlineUsers = new Map<string, string>();
+
+// 🔹 Helper function
+const isUserOnline = (userId: string): boolean => {
+  return onlineUsers.has(userId);
+};
+
 export const chatSocketHandler = (io: any, socket: any) => {
   // 🔹 Track online users globally (userId -> socketId)
-  const onlineUsers = new Map<string, string>();
-
-  // 🔹 Helper function
-  const isUserOnline = (userId: string): boolean => {
-    return onlineUsers.has(userId);
-  };
 
   const user = socket.data.user;
   const userId = user.userId.toString();
@@ -33,8 +34,9 @@ export const chatSocketHandler = (io: any, socket: any) => {
     const { receiverId, message, chatType, document, customOffer } = data;
 
     if (!message && !document && !customOffer) {
-      throw new Error("Message, document, or custom offer is required");
+      return console.log("Message, document, or custom offer is required");
     }
+
     const payload: any = {
       senderId: userId,
       receiverId,
@@ -48,14 +50,6 @@ export const chatSocketHandler = (io: any, socket: any) => {
 
     const newMsg = await ChatModel.create(payload);
 
-    socket.on("listen_custom_offer_status", async (data: any) => {
-      const { customOfferId, isAccept } = data;
-      await ChatModel.findOneAndUpdate(
-        { _id: customOfferId },
-        { $set: { "customOffer.isAccept": isAccept } }
-      );
-    });
-
     socket.emit("message_sent", newMsg);
     io.to(receiverId).emit("receive_message", newMsg);
 
@@ -66,6 +60,14 @@ export const chatSocketHandler = (io: any, socket: any) => {
         message || "📎 Attachment received"
       );
     }
+  });
+
+  socket.on("listen_custom_offer_status", async (data: any) => {
+    const { customOfferId, isAccept } = data;
+    await ChatModel.findOneAndUpdate(
+      { _id: customOfferId },
+      { $set: { "customOffer.isAccept": isAccept } }
+    );
   });
 
   // 🔵 User → Admin
