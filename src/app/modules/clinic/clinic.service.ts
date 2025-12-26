@@ -6,6 +6,7 @@ import { Doctor_Model } from "../doctor/doctor.model";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
 import { Patient_Model } from "../patient/patient.model";
 import app from "../../../app";
+import { Wallet_Model } from "../wallet/wallet.model";
 
 const getAllClinics = async () => {
   const result = await Clinic_Model.find()
@@ -105,10 +106,14 @@ const getClinicDoctors = async (clinicId: string, appointmentType: any) => {
     const result = await Doctor_Model.find({
       clinicId,
       appointmentType: appointmentType,
-    }).populate("userId").populate("clinicId");
+    })
+      .populate("userId")
+      .populate("clinicId");
     return result;
   } else {
-    const result = await Doctor_Model.find({ clinicId }).populate("userId").populate("clinicId");
+    const result = await Doctor_Model.find({ clinicId })
+      .populate("userId")
+      .populate("clinicId");
     return result;
   }
 };
@@ -361,6 +366,19 @@ const getAppoinmentTimeBasedOnDateForClinic = async (
   return appointments;
 };
 
+const getClinicPaymentData = async (clinicUserId: string) => {
+  const clinicMoney = await Wallet_Model.findOne({
+    ownerId: clinicUserId,
+    ownerType: "CLINIC",
+  });
+  const clinicPendingMoney = clinicMoney?.pendingBalance || 0;
+  const clinicBalance = clinicMoney?.balance || 0;
+
+  
+
+
+};
+
 export const ClinicService = {
   getAllClinics,
   getClinicById,
@@ -375,4 +393,5 @@ export const ClinicService = {
   addNewPaymentMethod,
   deleteClinic,
   getAppoinmentTimeBasedOnDateForClinic,
+  getClinicPaymentData,
 };

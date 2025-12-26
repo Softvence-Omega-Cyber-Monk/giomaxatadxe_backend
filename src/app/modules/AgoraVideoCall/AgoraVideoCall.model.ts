@@ -23,11 +23,16 @@ const callSchema = new Schema<ICall>(
       required: true,
       index: true,
     },
-    // pairKey: {
-    //   type: String,
-    //   unique: true,
-    //   index: true,
-    // },
+
+    // 🔑 Agora UIDs
+    callerUid: {
+      type: Number,
+      required: true,
+    },
+    receiverUid: {
+      type: Number,
+    },
+
     status: {
       type: String,
       enum: ["ringing", "accepted", "rejected", "ended", "missed"], // ✅ FIX

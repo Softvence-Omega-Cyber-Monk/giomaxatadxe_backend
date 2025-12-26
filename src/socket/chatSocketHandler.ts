@@ -54,8 +54,9 @@ export const chatSocketHandler = (io: any, socket: any) => {
     io.to(receiverId).emit("receive_message", newMsg);
 
     if (!isUserOnline(receiverId)) {
+      const receiver = await User_Model.findById(receiverId);
       await sendNotification(
-        receiverId,
+        receiver?.fullName as string,
         "New message",
         message || "📎 Attachment received"
       );
@@ -114,7 +115,12 @@ export const chatSocketHandler = (io: any, socket: any) => {
 
       // 🔔 Notify user if offline
       if (!isUserOnline(targetUserId)) {
-        await sendNotification(targetUserId, "Admin replied", message);
+        const user = await User_Model.findById(targetUserId);
+        await sendNotification(
+          user?.fullName as string,
+          "Admin replied",
+          message
+        );
       }
     }
   );
