@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import { WithdrowRequestService } from "./withdrowRequest.service";
 
-
-/**
- * Create withdraw request
- */
- const createWithdrawRequest = async (req: Request, res: Response) => {
+const createWithdrawRequest = async (req: Request, res: Response) => {
   try {
     const result = await WithdrowRequestService.createWithdrawRequest(req.body);
-    res.status(201).json({ success: true, data: result });
+    res.status(201).json({
+      success: true,
+      message: "Withdraw request sent successfully",
+      data: result,
+    });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -17,7 +17,7 @@ import { WithdrowRequestService } from "./withdrowRequest.service";
 /**
  * Get withdraw requests of logged-in user
  */
- const getMyWithdrawRequests = async (req: Request, res: Response) => {
+const getMyWithdrawRequests = async (req: Request, res: Response) => {
   try {
     const { ownerId } = req.query;
     const result = await WithdrowRequestService.getWithdrawRequestsByOwner(
@@ -32,7 +32,7 @@ import { WithdrowRequestService } from "./withdrowRequest.service";
 /**
  * Admin: get all withdraw requests
  */
- const getAllWithdrawRequests = async (_req: Request, res: Response) => {
+const getAllWithdrawRequests = async (_req: Request, res: Response) => {
   try {
     const result = await WithdrowRequestService.getAllWithdrawRequests();
     res.json({ success: true, data: result });
@@ -41,30 +41,31 @@ import { WithdrowRequestService } from "./withdrowRequest.service";
   }
 };
 
-/**
- * Admin: mark withdraw as PAID
- */
- const markWithdrawAsPaid = async (req: Request, res: Response) => {
+const markWithdrawAsPaid = async (req: Request, res: Response) => {
   try {
     const result = await WithdrowRequestService.markAsPaid(req.params.id);
-    res.json({ success: true, data: result });
+    res.json({
+      success: true,
+      message: "You received your money by cutting plaatfrom fee",
+      data: result,
+    });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
 
-/**
- * Admin: reject withdraw request
- */
- const rejectWithdrawRequest = async (req: Request, res: Response) => {
+const rejectWithdrawRequest = async (req: Request, res: Response) => {
   try {
     const result = await WithdrowRequestService.rejectWithdraw(req.params.id);
-    res.json({ success: true, data: result });
+    res.json({
+      success: true,
+      message: "Withdraw request rejected",
+      data: result,
+    });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-
 
 export const WithdrawRequestController = {
   createWithdrawRequest,
