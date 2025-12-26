@@ -16,7 +16,6 @@ const customOfferSchema = new mongoose.Schema(
 
     homeAddress: {
       type: String,
-  
     },
 
     preferenceDate: {
@@ -37,6 +36,10 @@ const customOfferSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0,
+    },
+    isAccept: {
+      type: Boolean,
+      default: null,
     },
   },
   { _id: false } // prevents extra _id inside chat

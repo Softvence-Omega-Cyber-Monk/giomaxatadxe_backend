@@ -23,24 +23,26 @@ export const chatSocketHandler = (io: any, socket: any) => {
     if (!message && !document && !customOffer) {
       throw new Error("Message, document, or custom offer is required");
     }
-
     const payload: any = {
       senderId: userId,
       receiverId,
       chatType,
     };
 
-
-
-
     // ✅ conditionally add fields
     if (message) payload.message = message;
     if (document) payload.document = document;
     if (customOffer) payload.customOffer = customOffer;
 
-    // console.log('custom offfter ', payload.customOffer);
-
     const newMsg = await ChatModel.create(payload);
+
+    socket.on("listen_custom_offer_status", async (data: any) => {
+      const { customOfferId, isAccept } = data;
+      await ChatModel.findOneAndUpdate(
+        { customOffer: customOfferId },
+        { $set: { "customOffer.isAccept": isAccept } }
+      );
+    });
 
     socket.emit("message_sent", newMsg);
     io.to(receiverId).emit("receive_message", newMsg);
@@ -53,8 +55,6 @@ export const chatSocketHandler = (io: any, socket: any) => {
     async ({ message }: { message: string }) => {
       const newMsg = await ChatModel.create({
         senderId: userId,
-        
-
 
         receiverType: "admin",
         chatType: "user_admin",
