@@ -68,11 +68,16 @@ export const SoloNurseController = {
     }
   },
 
-  addSingleSubService: async (req: Request, res: Response) => {
+  addSubServiceWithAutoMainService: async (req: Request, res: Response) => {
     try {
-      const result = await SoloNurseService.addSingleSubService(
+      const result = await SoloNurseService.addSubServiceWithAutoMainService(
         req.params.userId,
         req.params.serviceId,
+        req.params.serviceName as
+          | "Blood test & Sample collection"
+          | "Nurse care and infusion therapy"
+          | "Nurse Care & Elderly Support"
+          | "Medical massage & Physio therapy",
         req.body
       );
 

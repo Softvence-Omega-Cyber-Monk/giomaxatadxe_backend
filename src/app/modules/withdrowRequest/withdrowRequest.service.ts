@@ -6,7 +6,7 @@ import { WithdrawRequest_Model } from "./withdrowRequest.model";
  * Create withdraw request
  */
 const createWithdrawRequest = async (payload: any) => {
-  const { walletId, ownerId, ownerType, amount } = payload;
+  const { walletId, ownerId, ownerType, amount, cardNumber } = payload;
 
   // Set commission based on owner type
   const commissionRate =
@@ -35,6 +35,7 @@ const createWithdrawRequest = async (payload: any) => {
     ownerId,
     ownerType,
     amount,
+    cardNumber,
   });
 };
 

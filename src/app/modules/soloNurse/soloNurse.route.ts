@@ -19,8 +19,8 @@ router.put(
   SoloNurseController.professionalUpdate
 );
 router.put(
-  "/addSingleSubService/:userId/:serviceId",
-  SoloNurseController.addSingleSubService
+  "/addSingleSubService/:userId/:serviceId/:serviceName",
+  SoloNurseController.addSubServiceWithAutoMainService
 );
 router.put(
   "/deleteSingleSubService/:userId/:serviceId/:subServiceId",

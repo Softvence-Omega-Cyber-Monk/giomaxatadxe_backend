@@ -87,6 +87,17 @@ const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
   return { message: "Callback processed successfully" };
 };
 
+// const adminPaymentData = async () => {
+
+//   // const 
+
+
+//   const allPayment = await Payment_Model.find({ status: "PAID" })
+//   const totalPayoutAmout  = allPayment.reduce((acc, payment) => acc + payment.amount, 0);
+
+
+// };
+
 export const PaymentService = {
   createBoGOrder,
   handleBoGCallbackService,

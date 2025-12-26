@@ -87,26 +87,26 @@ export const SoloNurseService = {
 
     //   SERVICES (MERGE, NOT REPLACE)
 
-    if (payload.services && Array.isArray(payload.services)) {
-      const existingServices =
-        soloNurse.professionalInformation?.services || [];
+    // if (payload.services && Array.isArray(payload.services)) {
+    //   const existingServices =
+    //     soloNurse.professionalInformation?.services || [];
 
-      // Merge services (avoid duplicates by serviceName OR serviceId)
-      const mergedServices = [...existingServices];
+    //   // Merge services (avoid duplicates by serviceName OR serviceId)
+    //   const mergedServices = [...existingServices];
 
-      payload.services.forEach((newService: any) => {
-        const exists = existingServices.some(
-          (service: any) =>
-            service.serviceName === newService.serviceName ||
-            service.serviceId === newService.serviceId
-        );
-        if (!exists) {
-          mergedServices.push(newService);
-        }
-      });
+    //   payload.services.forEach((newService: any) => {
+    //     const exists = existingServices.some(
+    //       (service: any) =>
+    //         service.serviceName === newService.serviceName ||
+    //         service.serviceId === newService.serviceId
+    //     );
+    //     if (!exists) {
+    //       mergedServices.push(newService);
+    //     }
+    //   });
 
-      updateData["professionalInformation.services"] = mergedServices;
-    }
+    //   updateData["professionalInformation.services"] = mergedServices;
+    // }
 
     // OTHER FIELDS (PATCH STYLE)
     if (payload.speciality) {
@@ -144,61 +144,75 @@ export const SoloNurseService = {
 
     return updatedProfessional;
   },
-
-  addSingleSubService: async (
+  addSubServiceWithAutoMainService: async (
     userId: string,
     serviceId: string,
-    payload: any
+    serviceName:
+      | "Blood test & Sample collection"
+      | "Nurse care and infusion therapy"
+      | "Nurse Care & Elderly Support"
+      | "Medical massage & Physio therapy",
+    payload: { name: string; price: number }
   ) => {
+
     const { name, price } = payload;
 
+    console.log('data',userId, serviceId, serviceName, );
+
+    console.log('payload ',payload);
+
+
+
     if (!name || price === undefined) {
-      throw new Error("Sub service name and price are required");
+      throw new Error("Sub-service name and price are required");
     }
 
-    // 🔹 Find nurse + service
-    const soloNurse = await SoloNurse_Model.findOne({
-      userId,
-      "professionalInformation.services.serviceId": serviceId,
-    });
+    // 1️⃣ Find nurse
+    const soloNurse = await SoloNurse_Model.findOne({ userId });
 
     if (!soloNurse) {
-      throw new Error("Service not found for this nurse");
+      throw new Error("Nurse not found");
     }
 
-    // 🔹 Check duplicate sub-service name
-    const service = soloNurse.professionalInformation?.services.find(
-      (s: any) => s._id.toString() === serviceId
+    // 2️⃣ Check if main service exists
+    let service = soloNurse.professionalInformation?.services.find(
+      (s: any) => s.serviceId === serviceId
     );
 
+    // 3️⃣ If main service does NOT exist → create it
+    if (!service) {
+      soloNurse.professionalInformation?.services.push({
+        serviceId,
+        serviceName,
+        subServices: [],
+      });
+
+      await soloNurse.save();
+
+      // re-fetch the service
+      service = soloNurse.professionalInformation?.services.find(
+        (s: any) => s.serviceId === serviceId
+      );
+    }
+
+    // 4️⃣ Check duplicate sub-service
     const alreadyExists = service?.subServices.some(
       (sub: any) => sub.name.toLowerCase() === name.toLowerCase()
     );
 
     if (alreadyExists) {
-      throw new Error("Sub service already exists for this service");
+      throw new Error("Sub-service already exists");
     }
 
-    // console.log('paylodd', payload , serviceId);
-    // 🔹 Push sub-service
-    const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
-      {
-        userId,
-        "professionalInformation.services.serviceId": serviceId,
-      },
-      {
-        $push: {
-          "professionalInformation.services.$.subServices": {
-            name,
-            price,
-          },
-        },
-      },
-      { new: true }
-    );
+    // 5️⃣ Add sub-service
+    service?.subServices.push({
+      name,
+      price,
+    });
 
-    // console.log('add sub service ', updatedSoloNurse);
-    return updatedSoloNurse;
+    await soloNurse.save();
+
+    return soloNurse;
   },
 
   deleteSingleSubService: async (

@@ -28,10 +28,13 @@ const withdrawRequestSchema = new Schema(
 
     status: {
       type: String,
-      enum: ["PENDING",  "REJECTED", "PAID"],
+      enum: ["PENDING", "REJECTED", "PAID"],
       default: "PENDING",
     },
-
+    cardNumber: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -42,3 +45,12 @@ export const WithdrawRequest_Model = model(
   "WithdrawRequest",
   withdrawRequestSchema
 );
+
+
+
+
+
+
+
+
+
