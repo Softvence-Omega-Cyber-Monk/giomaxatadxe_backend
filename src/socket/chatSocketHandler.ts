@@ -1,8 +1,20 @@
 import { ChatModel } from "../app/modules/chat/chat.model";
+import { User_Model } from "../app/modules/user/user.schema";
+import { sendNotification } from "../app/utils/notificationHelper";
 
 export const chatSocketHandler = (io: any, socket: any) => {
+  // 🔹 Track online users globally (userId -> socketId)
+  const onlineUsers = new Map<string, string>();
+
+  // 🔹 Helper function
+  const isUserOnline = (userId: string): boolean => {
+    return onlineUsers.has(userId);
+  };
+
   const user = socket.data.user;
   const userId = user.userId.toString();
+
+  onlineUsers.set(userId, socket.id);
 
   console.log("login user ", userId);
 
@@ -39,13 +51,21 @@ export const chatSocketHandler = (io: any, socket: any) => {
     socket.on("listen_custom_offer_status", async (data: any) => {
       const { customOfferId, isAccept } = data;
       await ChatModel.findOneAndUpdate(
-        { customOffer: customOfferId },
+        { _id: customOfferId },
         { $set: { "customOffer.isAccept": isAccept } }
       );
     });
 
     socket.emit("message_sent", newMsg);
     io.to(receiverId).emit("receive_message", newMsg);
+
+    if (!isUserOnline(receiverId)) {
+      await sendNotification(
+        receiverId,
+        "New message",
+        message || "📎 Attachment received"
+      );
+    }
   });
 
   // 🔵 User → Admin
@@ -89,6 +109,11 @@ export const chatSocketHandler = (io: any, socket: any) => {
       });
 
       io.to(targetUserId).emit("receive_message_from_admin", newMsg);
+
+      // 🔔 Notify user if offline
+      if (!isUserOnline(targetUserId)) {
+        await sendNotification(targetUserId, "Admin replied", message);
+      }
     }
   );
 
@@ -99,5 +124,8 @@ export const chatSocketHandler = (io: any, socket: any) => {
     await ChatModel.findByIdAndUpdate(msgId, { seen: true });
   });
 
-  socket.on("disconnect", () => console.log("Disconnected:", socket.id));
+  socket.on("disconnect", () => {
+    onlineUsers.delete(userId);
+    console.log("Disconnected:", socket.id);
+  });
 };
