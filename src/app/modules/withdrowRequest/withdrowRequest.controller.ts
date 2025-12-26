@@ -29,9 +29,6 @@ const createWithdrawRequest = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Get withdraw requests of logged-in user
- */
 const getMyWithdrawRequests = async (req: Request, res: Response) => {
   try {
     const { ownerId } = req.query;
@@ -44,15 +41,23 @@ const getMyWithdrawRequests = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Admin: get all withdraw requests
- */
 const getAllWithdrawRequests = async (_req: Request, res: Response) => {
   try {
     const result = await WithdrowRequestService.getAllWithdrawRequests();
     res.json({ success: true, data: result });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+ const getSingleWithdrawRequest = async (req: Request, res: Response) => {
+  try {
+    const result = await WithdrowRequestService.getSingleWithdrawRequest(
+      req.params.withdrawId
+    );
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -88,6 +93,7 @@ export const WithdrawRequestController = {
   createWithdrawRequest,
   getMyWithdrawRequests,
   getAllWithdrawRequests,
+  getSingleWithdrawRequest,
   markWithdrawAsPaid,
   rejectWithdrawRequest,
 };

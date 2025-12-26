@@ -56,6 +56,10 @@ const getAllWithdrawRequests = async () => {
     .sort({ createdAt: -1 });
 };
 
+const getSingleWithdrawRequest = async (withdrawId: string) => {
+  return await WithdrawRequest_Model.findById(withdrawId);
+};
+
 /**
  * Admin: mark as PAID
  */
@@ -118,6 +122,7 @@ export const WithdrowRequestService = {
   createWithdrawRequest,
   getWithdrawRequestsByOwner,
   getAllWithdrawRequests,
+  getSingleWithdrawRequest,
   markAsPaid,
   rejectWithdraw,
 };

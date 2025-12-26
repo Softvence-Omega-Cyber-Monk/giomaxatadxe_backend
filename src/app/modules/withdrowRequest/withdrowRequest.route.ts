@@ -15,7 +15,9 @@ router.get(
 /**
  * Admin
  */
+
 router.get("/getAll/admin", WithdrawRequestController.getAllWithdrawRequests);
+router.get("/getSingle/:withdrawId", WithdrawRequestController.getSingleWithdrawRequest);
 router.patch(
   "/markAsPaid/:withdrawId",
   WithdrawRequestController.markWithdrawAsPaid
