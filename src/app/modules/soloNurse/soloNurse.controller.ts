@@ -279,4 +279,23 @@ export const SoloNurseController = {
       });
     }
   },
+
+  getSoloNurseDashboardOverview: async (req: Request, res: Response) => {
+    try {
+      const result = await SoloNurseService.getSoloNurseDashboardOverview(
+        req.query.soloNurseId as string
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Solo Nurse dashboard overview fetched successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Server error",
+      });
+    }
+  },
 };

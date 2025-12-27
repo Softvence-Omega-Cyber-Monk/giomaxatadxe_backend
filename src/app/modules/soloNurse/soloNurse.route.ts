@@ -48,11 +48,18 @@ router.delete(
   "/delete/:soloNurseUserId/:soloNurseId",
   SoloNurseController.deleteSoloNurse
 );
-router.get("/getSoloNursePaymentData/:soloNurseUserId", SoloNurseController.getSoloNursePaymentData);
+router.get(
+  "/getSoloNursePaymentData/:soloNurseUserId",
+  SoloNurseController.getSoloNursePaymentData
+);
 
 router.get(
   "/get/sub-services",
   SoloNurseController.getSubServicesByMainService
+);
+router.get(
+  "/getSoloNurseDashboardOverview/:soloNurseId",
+  SoloNurseController.getSoloNurseDashboardOverview
 );
 
 export const SoloNurseRoutes = router;

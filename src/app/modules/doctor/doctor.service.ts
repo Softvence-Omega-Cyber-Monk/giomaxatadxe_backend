@@ -3,6 +3,7 @@ import { TDoctor } from "./doctor.interface";
 import { Doctor_Model } from "./doctor.model";
 import { User_Model } from "../user/user.schema";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
+import { doctorAppointmentService } from "../doctorAppointment/doctorAppointment.service";
 
 export const DoctorService = {
   updateDoctor: async (doctorId: string, payload: any) => {
@@ -242,8 +243,35 @@ export const DoctorService = {
     return updated;
   },
 
-  deleteDoctor: async (doctorId: string, clinicId: string , doctorUserId: string) => {
+  deleteDoctor: async (
+    doctorId: string,
+    clinicId: string,
+    doctorUserId: string
+  ) => {
     const res = await User_Model.findOneAndDelete({ _id: doctorUserId });
     await Doctor_Model.findOneAndDelete({ _id: doctorId, clinicId });
+  },
+  getDoctorDashboardOverview: async (doctorId: string) => {
+    const patients = await DoctorService.getSingleDoctorPatientList(doctorId);
+    const totalPatients = patients?.length || 0;
+
+    const appointments =
+      await doctorAppointmentService.getSingleDoctorAppointment(doctorId);
+    const totalAppointments = appointments?.length || 0;
+
+    const totalPendingAppointments = appointments.filter(
+      (item: any) => item.status === "pending"
+    ).length;
+
+    const totalCompletedAppointments = appointments.filter(
+      (item: any) => item.status === "completed"
+    ).length;
+
+    return {
+      totalPatients,
+      totalAppointments,
+      totalPendingAppointments,
+      totalCompletedAppointments,
+    };
   },
 };

@@ -3,6 +3,7 @@ import { User_Model } from "../user/user.schema";
 import { SoloNurse_Model } from "./soloNurse.model";
 import { Wallet_Model } from "../wallet/wallet.model";
 import { WithdrawRequest_Model } from "../withdrowRequest/withdrowRequest.model";
+import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoinment.model";
 
 export const SoloNurseService = {
   getAllSoloNurses: async (serviceName?: string, sub_serviceName?: string) => {
@@ -421,5 +422,30 @@ export const SoloNurseService = {
     );
 
     return subServices;
+  },
+
+  getSoloNurseDashboardOverview: async (soloNurseId: string) => {
+    const allAppoinment = await soloNurseAppoinment_Model.find({});
+    const pendingAppointments = await soloNurseAppoinment_Model.find({
+      _id: soloNurseId,
+      status: { $in: ["pending", "confirmed"] },
+    });
+    const completedAppointments = await soloNurseAppoinment_Model.find({
+      _id: soloNurseId,
+      status: "completed",
+    });
+
+    const totalEarnings = await Wallet_Model.findOne({
+      ownerId: soloNurseId,
+      ownerType: "SOLO_NURSE",
+    });
+    console.log("total earning", totalEarnings);
+
+    return {
+      allAppoinment: allAppoinment.length,
+      pendingAppointments: pendingAppointments.length,
+      completedAppointments: completedAppointments.length,
+      totalEarnings: totalEarnings?.balance || 0,
+    };
   },
 };

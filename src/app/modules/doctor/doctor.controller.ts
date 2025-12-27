@@ -163,8 +163,21 @@ export const DoctorController = {
   deleteDoctor: async (req: Request, res: Response) => {
     try {
       const { doctorId, clinicId, doctorUserId } = req.body;
-      await DoctorService.deleteDoctor(doctorId, clinicId , doctorUserId);
+      await DoctorService.deleteDoctor(doctorId, clinicId, doctorUserId);
       res.json({ success: true, message: "Doctor deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
+  getDoctorDashboardOverview: async (req: Request, res: Response) => {
+    try {
+      const { doctorId } = req.params;
+      const result = await DoctorService.getDoctorDashboardOverview(doctorId);
+      res.json({
+        success: true,
+        message: "clinic data fetched successfully",
+        data: result,
+      });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
