@@ -9,18 +9,19 @@ const isUserOnline = (userId: string): boolean => {
   return onlineUsers.has(userId);
 };
 
-export const chatSocketHandler = (io: any, socket: any) => {
+export const chatSocketHandler = (
+  io: any,
+  socket: any,
+  user: any,
+  userId: string
+) => {
   // 🔹 Track online users globally (userId -> socketId)
-
-  const user = socket.data.user;
-  const userId = user.userId.toString();
 
   onlineUsers.set(userId, socket.id);
 
   console.log("login user ", userId);
 
   // Join personal room
-  socket.join(userId);
 
   // Admin joins special room
   if (user.role === "admin") {
@@ -120,7 +121,7 @@ export const chatSocketHandler = (io: any, socket: any) => {
         await sendNotification(
           user?.fullName as string,
           "Admin replied",
-          message ,
+          message,
           "message"
         );
       }
