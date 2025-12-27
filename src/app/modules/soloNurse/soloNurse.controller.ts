@@ -251,4 +251,31 @@ export const SoloNurseController = {
       });
     }
   },
+
+  getSubServicesByMainService: async (req: Request, res: Response) => {
+    try {
+      const { serviceName } = req.query;
+
+      if (!serviceName) {
+        return res.status(400).json({
+          success: false,
+          message: "serviceName query is required",
+        });
+      }
+
+      const result = await SoloNurseService.getSubServicesByMainService(
+        serviceName as string
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Server error",
+      });
+    }
+  },
 };

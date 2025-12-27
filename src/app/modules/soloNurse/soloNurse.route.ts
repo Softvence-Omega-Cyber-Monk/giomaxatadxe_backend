@@ -50,5 +50,9 @@ router.delete(
 );
 router.get("/getSoloNursePaymentData/:soloNurseUserId", SoloNurseController.getSoloNursePaymentData);
 
+router.get(
+  "/get/sub-services",
+  SoloNurseController.getSubServicesByMainService
+);
 
 export const SoloNurseRoutes = router;

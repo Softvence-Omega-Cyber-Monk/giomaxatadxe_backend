@@ -154,14 +154,11 @@ export const SoloNurseService = {
       | "Medical massage & Physio therapy",
     payload: { name: string; price: number }
   ) => {
-
     const { name, price } = payload;
 
-    console.log('data',userId, serviceId, serviceName, );
+    console.log("data", userId, serviceId, serviceName);
 
-    console.log('payload ',payload);
-
-
+    console.log("payload ", payload);
 
     if (!name || price === undefined) {
       throw new Error("Sub-service name and price are required");
@@ -397,5 +394,26 @@ export const SoloNurseService = {
       soloNurseTotalWithdrew,
       totalTransactions: soloNurseWithdrawRequests.length,
     };
+  },
+  getSubServicesByMainService: async (serviceName: string) => {
+    // 🔹 Find nurses having this service
+    const nurses = await SoloNurse_Model.find(
+      {
+        "professionalInformation.services.serviceName": serviceName,
+      },
+      {
+        "professionalInformation.services": 1,
+        userId: 1,
+      }
+    );
+
+    // 🔹 Extract only sub-services of that main service
+    const subServices = nurses.flatMap((nurse) =>
+      nurse?.professionalInformation?.services
+        .filter((service: any) => service.serviceName === serviceName)
+        .flatMap((service: any) => service.subServices)
+    );
+
+    return subServices;
   },
 };
