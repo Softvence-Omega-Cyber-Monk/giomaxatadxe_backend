@@ -138,6 +138,19 @@ const adminPaymentData = async (req: any, res: any) => {
     res.status(500).send("Something went wrong");
   }
 };
+const getAllTransation = async (req: any, res: any) => {
+  try {
+    const data = await PaymentService.getAllTransation();
+    return res.json({
+      success: true,
+      message: "GET All Transation data fetched successfully",
+      data,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Something went wrong");
+  }
+};
 
 export const PaymentController = {
   startClinicPayment,
@@ -147,4 +160,5 @@ export const PaymentController = {
   paymentSuccess,
   paymentFail,
   adminPaymentData,
+  getAllTransation
 };

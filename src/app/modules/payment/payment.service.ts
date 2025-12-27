@@ -109,9 +109,14 @@ const adminPaymentData = async () => {
     totalPayableAmount,
   };
 };
+const getAllTransation = async () => {
+  const allPayment = await Payment_Model.find();
+  return allPayment;
+};
 
 export const PaymentService = {
   createBoGOrder,
   handleBoGCallbackService,
-  adminPaymentData
+  adminPaymentData,
+  getAllTransation
 };
