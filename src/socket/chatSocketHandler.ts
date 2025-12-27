@@ -58,7 +58,8 @@ export const chatSocketHandler = (io: any, socket: any) => {
     await sendNotification(
       receiverId,
       receiver?.fullName as string,
-      message || "📎 Attachment received"
+      message || "📎 Attachment received",
+      "message"
     );
     // }
   });
@@ -119,7 +120,8 @@ export const chatSocketHandler = (io: any, socket: any) => {
         await sendNotification(
           user?.fullName as string,
           "Admin replied",
-          message
+          message ,
+          "message"
         );
       }
     }

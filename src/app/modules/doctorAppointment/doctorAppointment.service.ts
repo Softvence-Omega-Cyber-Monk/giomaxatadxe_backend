@@ -63,7 +63,9 @@ export const doctorAppointmentService = {
     await sendNotification(
       clinic.userId.toString(),
       "New Appointment Created for A Doctor",
-      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details. `
+      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details. `,
+      "notification"
+
     );
 
     return appointment;

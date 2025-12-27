@@ -19,6 +19,11 @@ const notificationSchema = new Schema<INotificationDocument>(
       type: String,
       required: true,
     },
+    notificationType: {
+      type: String,
+      required: true,
+      enum: ["notification","call", "messge"],
+    },
     userProfile: {
       type: String,
     },

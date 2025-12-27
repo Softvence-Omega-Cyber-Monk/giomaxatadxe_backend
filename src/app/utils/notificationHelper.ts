@@ -5,7 +5,8 @@ import { User_Model } from "../modules/user/user.schema";
 export const sendNotification = async (
   userId: string,
   title: string,
-  body: string
+  body: string,
+  notificationType: string
 ): Promise<void> => {
   try {
     console.log("User:", userId);
@@ -35,6 +36,7 @@ export const sendNotification = async (
       userId,
       title,
       body,
+      notificationType,
       userProfile: user.profileImage || "",
       timestamp: new Date(),
     });

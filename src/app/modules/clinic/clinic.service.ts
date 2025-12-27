@@ -430,5 +430,5 @@ export const ClinicService = {
   deleteClinic,
   getAppoinmentTimeBasedOnDateForClinic,
   getClinicPaymentData,
-  getClinicDashboardOverview
+  getClinicDashboardOverview,
 };

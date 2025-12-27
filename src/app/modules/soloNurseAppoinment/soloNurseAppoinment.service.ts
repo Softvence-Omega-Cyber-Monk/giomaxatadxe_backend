@@ -49,7 +49,8 @@ export const soloNurseAppointmentService = {
     await sendNotification(
       solo_nurse.userId.toString(),
       "New Appointment Added ",
-      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details.`
+      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details.`,
+      "notification"
     );
 
     return appointment;
@@ -267,7 +268,7 @@ export const soloNurseAppointmentService = {
           path: "userId",
           model: "user", // ensure correct model name
           select: "fullName role   ", // fields you want
-        }
+        },
       });
   },
   getSinlgePatientChatsForNurse: async (soloNurseId: string) => {
