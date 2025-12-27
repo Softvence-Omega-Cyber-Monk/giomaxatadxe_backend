@@ -23,7 +23,7 @@ export const doctorAppointmentService = {
     if (serviceType === "online") {
       const DortorFee = doctor.onlineConsultationFee;
       const clinicComission = (DortorFee * 9) / 100;
-      console.log('clinic + doctor feee', clinicComission , DortorFee);
+      console.log("clinic + doctor feee", clinicComission, DortorFee);
 
       appointmentFee = DortorFee + clinicComission;
     } else if (serviceType === "inClinic") {
@@ -305,9 +305,8 @@ export const doctorAppointmentService = {
     // Step 1: Get unique doctor IDs for this patient
     const doctorIds = await doctorAppointment_Model.distinct("doctorId", {
       patientId: patientId,
-      status: "confirmed",
+      status: { $in: ["confirmed", "completed"] },
     });
-
     // Step 2: Fetch doctor details using the IDs
     return await Doctor_Model.find({ _id: { $in: doctorIds } })
       .select(" userId professionalInformation.speciality")
@@ -321,7 +320,7 @@ export const doctorAppointmentService = {
     // Step 1: Get unique patient IDs for this doctor
     const patientIds = await doctorAppointment_Model.distinct("patientId", {
       doctorId: doctorId,
-      status: "confirmed",
+      status: { $in: ["confirmed", "completed"] },
     });
 
     // Step 2: Fetch patient details using the IDs
