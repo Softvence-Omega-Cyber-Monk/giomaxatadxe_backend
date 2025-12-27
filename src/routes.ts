@@ -13,6 +13,7 @@ import { PaymentRoutes } from "./app/modules/payment/payment.route";
 import { ChatRoutes } from "./app/modules/chat/chat.route";
 import { notificationRoutes } from "./app/modules/notifications/notification.route";
 import { WithdrawRequestRoutes } from "./app/modules/withdrowRequest/withdrowRequest.route";
+import { AdminRoutes } from "./app/modules/admin /admin.route";
 
 const appRouter = Router();
 
@@ -31,6 +32,7 @@ const moduleRoutes = [
   { path: "/chatHistory", route: ChatRoutes },
   { path: "/notification", route: notificationRoutes },
   { path: "/withdrawRequest", route: WithdrawRequestRoutes },
+  { path: "/admin", route: AdminRoutes },
 ];
 
 moduleRoutes.forEach((route) => appRouter.use(route.path, route.route));
