@@ -1,20 +1,29 @@
 import mongoose from "mongoose";
 import { User_Model } from "../user/user.schema";
 import { SoloNurse_Model } from "./soloNurse.model";
+import { Wallet_Model } from "../wallet/wallet.model";
+import { WithdrawRequest_Model } from "../withdrowRequest/withdrowRequest.model";
+import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoinment.model";
 
 export const SoloNurseService = {
-  getAllSoloNurses: async (serviceName?: string) => {
+  getAllSoloNurses: async (serviceName?: string, sub_serviceName?: string) => {
     const query: any = {};
 
     if (serviceName) {
       query["professionalInformation.services.serviceName"] = serviceName;
     }
 
+    if (serviceName && sub_serviceName) {
+      query["professionalInformation.services.subServices.name"] = {
+        $regex: sub_serviceName.trim(),
+        $options: "i",
+      };
+    }
+
     return SoloNurse_Model.find(query)
       .populate("userId")
-      .sort({ createdAt: -1 }); // optional: latest first
+      .sort({ createdAt: -1 });
   },
-
   getSoloNurseById: async (userId: string) => {
     return SoloNurse_Model.findOne({ userId }).populate("userId");
   },
@@ -85,26 +94,26 @@ export const SoloNurseService = {
 
     //   SERVICES (MERGE, NOT REPLACE)
 
-    if (payload.services && Array.isArray(payload.services)) {
-      const existingServices =
-        soloNurse.professionalInformation?.services || [];
+    // if (payload.services && Array.isArray(payload.services)) {
+    //   const existingServices =
+    //     soloNurse.professionalInformation?.services || [];
 
-      // Merge services (avoid duplicates by serviceName OR serviceId)
-      const mergedServices = [...existingServices];
+    //   // Merge services (avoid duplicates by serviceName OR serviceId)
+    //   const mergedServices = [...existingServices];
 
-      payload.services.forEach((newService: any) => {
-        const exists = existingServices.some(
-          (service: any) =>
-            service.serviceName === newService.serviceName ||
-            service.serviceId === newService.serviceId
-        );
-        if (!exists) {
-          mergedServices.push(newService);
-        }
-      });
+    //   payload.services.forEach((newService: any) => {
+    //     const exists = existingServices.some(
+    //       (service: any) =>
+    //         service.serviceName === newService.serviceName ||
+    //         service.serviceId === newService.serviceId
+    //     );
+    //     if (!exists) {
+    //       mergedServices.push(newService);
+    //     }
+    //   });
 
-      updateData["professionalInformation.services"] = mergedServices;
-    }
+    //   updateData["professionalInformation.services"] = mergedServices;
+    // }
 
     // OTHER FIELDS (PATCH STYLE)
     if (payload.speciality) {
@@ -142,61 +151,72 @@ export const SoloNurseService = {
 
     return updatedProfessional;
   },
-
-  addSingleSubService: async (
+  addSubServiceWithAutoMainService: async (
     userId: string,
     serviceId: string,
-    payload: any
+    serviceName:
+      | "Blood test & Sample collection"
+      | "Nurse care and infusion therapy"
+      | "Nurse Care & Elderly Support"
+      | "Medical massage & Physio therapy",
+    payload: { name: string; price: number }
   ) => {
     const { name, price } = payload;
 
+    console.log("data", userId, serviceId, serviceName);
+
+    console.log("payload ", payload);
+
     if (!name || price === undefined) {
-      throw new Error("Sub service name and price are required");
+      throw new Error("Sub-service name and price are required");
     }
 
-    // 🔹 Find nurse + service
-    const soloNurse = await SoloNurse_Model.findOne({
-      userId,
-      "professionalInformation.services.serviceId": serviceId,
-    });
+    // 1️⃣ Find nurse
+    const soloNurse = await SoloNurse_Model.findOne({ userId });
 
     if (!soloNurse) {
-      throw new Error("Service not found for this nurse");
+      throw new Error("Nurse not found");
     }
 
-    // 🔹 Check duplicate sub-service name
-    const service = soloNurse.professionalInformation?.services.find(
-      (s: any) => s._id.toString() === serviceId
+    // 2️⃣ Check if main service exists
+    let service = soloNurse.professionalInformation?.services.find(
+      (s: any) => s.serviceId === serviceId
     );
 
+    // 3️⃣ If main service does NOT exist → create it
+    if (!service) {
+      soloNurse.professionalInformation?.services.push({
+        serviceId,
+        serviceName,
+        subServices: [],
+      });
+
+      await soloNurse.save();
+
+      // re-fetch the service
+      service = soloNurse.professionalInformation?.services.find(
+        (s: any) => s.serviceId === serviceId
+      );
+    }
+
+    // 4️⃣ Check duplicate sub-service
     const alreadyExists = service?.subServices.some(
       (sub: any) => sub.name.toLowerCase() === name.toLowerCase()
     );
 
     if (alreadyExists) {
-      throw new Error("Sub service already exists for this service");
+      throw new Error("Sub-service already exists");
     }
 
-    // console.log('paylodd', payload , serviceId);
-    // 🔹 Push sub-service
-    const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
-      {
-        userId,
-        "professionalInformation.services.serviceId": serviceId,
-      },
-      {
-        $push: {
-          "professionalInformation.services.$.subServices": {
-            name,
-            price,
-          },
-        },
-      },
-      { new: true }
-    );
+    // 5️⃣ Add sub-service
+    service?.subServices.push({
+      name,
+      price,
+    });
 
-    // console.log('add sub service ', updatedSoloNurse);
-    return updatedSoloNurse;
+    await soloNurse.save();
+
+    return soloNurse;
   },
 
   deleteSingleSubService: async (
@@ -349,7 +369,83 @@ export const SoloNurseService = {
     return soloNurse;
   },
 
-  deleteSoloNurse: async (id: string) => {
-    return SoloNurse_Model.findByIdAndDelete(id);
+  deleteSoloNurse: async (soloNurseId: string, soloNurseUserId: string) => {
+    const res = await User_Model.findOneAndDelete({ _id: soloNurseUserId });
+    await SoloNurse_Model.findOneAndDelete({
+      _id: soloNurseId,
+    });
+  },
+
+  getSoloNursePaymentData: async (soloNurseUserId: string) => {
+    const soloNurseMoney = await Wallet_Model.findOne({
+      ownerId: soloNurseUserId,
+      ownerType: "SOLO_NURSE",
+    });
+    const soloNursePendingMoney = soloNurseMoney?.pendingBalance || 0;
+
+    const soloNurseWithdrawRequests = await WithdrawRequest_Model.find({
+      ownerId: soloNurseUserId,
+      ownerType: "SOLO_NURSE",
+      status: "PAID",
+    });
+
+    const soloNurseTotalWithdrew = soloNurseWithdrawRequests.reduce(
+      (total, request) => {
+        return total + request.amount;
+      },
+      0
+    );
+
+    return {
+      soloNursePendingMoney,
+      soloNurseTotalWithdrew,
+      totalTransactions: soloNurseWithdrawRequests.length,
+    };
+  },
+  getSubServicesByMainService: async (serviceName: string) => {
+    // 🔹 Find nurses having this service
+    const nurses = await SoloNurse_Model.find(
+      {
+        "professionalInformation.services.serviceName": serviceName,
+      },
+      {
+        "professionalInformation.services": 1,
+        userId: 1,
+      }
+    );
+
+    // 🔹 Extract only sub-services of that main service
+    const subServices = nurses.flatMap((nurse) =>
+      nurse?.professionalInformation?.services
+        .filter((service: any) => service.serviceName === serviceName)
+        .flatMap((service: any) => service.subServices)
+    );
+
+    return subServices;
+  },
+
+  getSoloNurseDashboardOverview: async (soloNurseId: string) => {
+    const allAppoinment = await soloNurseAppoinment_Model.find({});
+    const pendingAppointments = await soloNurseAppoinment_Model.find({
+      _id: soloNurseId,
+      status: { $in: ["pending", "confirmed"] },
+    });
+    const completedAppointments = await soloNurseAppoinment_Model.find({
+      _id: soloNurseId,
+      status: "completed",
+    });
+
+    const totalEarnings = await Wallet_Model.findOne({
+      ownerId: soloNurseId,
+      ownerType: "SOLO_NURSE",
+    });
+    console.log("total earning", totalEarnings);
+
+    return {
+      allAppoinment: allAppoinment.length,
+      pendingAppointments: pendingAppointments.length,
+      completedAppointments: completedAppointments.length,
+      totalEarnings: totalEarnings?.balance || 0,
+    };
   },
 };

@@ -6,7 +6,6 @@ const walletSchema = new Schema(
       type: Schema.Types.ObjectId,
       required: true,
     },
-
     ownerType: {
       type: String,
       enum: ["CLINIC", "SOLO_NURSE"],
@@ -17,7 +16,6 @@ const walletSchema = new Schema(
       type: Number,
       default: 0,
     },
-
     pendingBalance: {
       type: Number,
       default: 0,

@@ -298,9 +298,15 @@ const createDoctor = async (payload: any) => {
   }
 };
 
+const getAdmin = async () => {
+  const admin = await User_Model.findOne({ role: "admin" });
+  return admin;
+};
+
 export const UserService = {
   createPatient,
   createSoloNurse,
   createClinic,
   createDoctor,
+  getAdmin
 };

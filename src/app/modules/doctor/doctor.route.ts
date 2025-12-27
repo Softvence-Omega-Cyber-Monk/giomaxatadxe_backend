@@ -34,6 +34,10 @@ router.delete(
   DoctorController.deleteCertificate
 );
 
-router.put("/delete-doctor",  DoctorController.deleteDoctor);
+router.put("/delete-doctor", DoctorController.deleteDoctor);
+router.get(
+  "/getDoctorDashboardOverview/:doctorId",
+  DoctorController.getDoctorDashboardOverview
+);
 
 export const DoctorRoutes = router;

@@ -3,41 +3,49 @@ import { generateAgoraToken } from "../../utils/agoraToken";
 import { ICall } from "./AgoraVideoCall.interface";
 import { videoCall_model } from "./AgoraVideoCall.model";
 import { io } from "../../../socket/initSocket";
+import { User_Model } from "../user/user.schema";
+
+const generateAgoraUid = () => {
+  return Math.floor(Math.random() * 1000000000) + 1;
+};
 
 const startCallService = async (callerId: string, receiverId: string) => {
   if (callerId === receiverId) {
     throw new Error("Caller and receiver cannot be same");
   }
+  const channelName = `call_${callerId}_${receiverId}`;
 
-  const channelName = `call_${callerId}_${receiverId}_${Date.now()}`;
-  console.log("channel name", channelName);
   const callId = uuidv4();
 
-  const token = generateAgoraToken(channelName);
-  console.log("agora access token ", token);
+  const callerUid = generateAgoraUid();
+  const callerToken = generateAgoraToken(channelName, callerUid);
+
+  console.log("token ", callerToken);
 
   const call: ICall = await videoCall_model.create({
     callId,
     channelName,
     callerId,
     receiverId,
+    callerUid,
     status: "ringing",
   });
 
-  if (!call) {
-    throw new Error("Call not created");
-  }
+  const callerUser = await User_Model.findOne({ _id: callerId });
 
   io.to(receiverId).emit("incoming_call", {
-    callId: call.callId,
-    channelName: call.channelName,
+    callId,
+    channelName,
     callerId,
+    callerName: callerUser?.fullName,
+    callerPicture: callerUser?.profileImage,
   });
 
   return {
-    callId: call.callId,
-    channelName: call.channelName,
-    token,
+    callId,
+    channelName,
+    token: callerToken,
+    uid: callerUid,
   };
 };
 
@@ -48,20 +56,24 @@ const acceptCallService = async (callId: string, receiverId: string) => {
     throw new Error("Call not found");
   }
 
+  const receiverUid = generateAgoraUid();
+  const receiverToken = generateAgoraToken(call.channelName, receiverUid);
+
   call.status = "accepted";
   call.startedAt = new Date();
+  call.receiverUid = receiverUid;
   await call.save();
-
-  const token = generateAgoraToken(call.channelName);
 
   io.to(call.callerId).emit("call_accepted", {
     channelName: call.channelName,
-    token,
+    token: receiverToken,
+    uid: receiverUid,
   });
 
   return {
     channelName: call.channelName,
-    token,
+    token: receiverToken,
+    uid: receiverUid,
   };
 };
 

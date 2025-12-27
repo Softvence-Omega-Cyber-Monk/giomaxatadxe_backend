@@ -1,7 +1,7 @@
-import axios from "axios";
+import axios, { all } from "axios";
 import { getAccessToken } from "../../utils/BankAccessToken";
 import { Payment_Model } from "./payment.model";
-import { Wallet_Model } from "./wallet.model";
+import { Wallet_Model } from "../wallet/wallet.model";
 
 interface BoGCallbackPayload {
   external_order_id: string;
@@ -48,13 +48,11 @@ const createBoGOrder = async (payment: any) => {
   return res.data;
 };
 
-
-
-
- const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
+const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
   const { external_order_id, status } = payload;
 
   const payment = await Payment_Model.findById(external_order_id);
+  console.log("payment ", payment);
 
   if (!payment) {
     throw new Error("Payment not found");
@@ -69,7 +67,7 @@ const createBoGOrder = async (payment: any) => {
     payment.status = "PAID";
 
     // Move money to pending balance (admin holds money)
-    await Wallet_Model.findOneAndUpdate(
+    const res = await Wallet_Model.findOneAndUpdate(
       {
         ownerId: payment.receiverId,
         ownerType: payment.receiverType,
@@ -79,6 +77,7 @@ const createBoGOrder = async (payment: any) => {
       },
       { upsert: true, new: true }
     );
+    console.log("response wallet", res);
   } else {
     payment.status = "FAILED";
   }
@@ -88,7 +87,36 @@ const createBoGOrder = async (payment: any) => {
   return { message: "Callback processed successfully" };
 };
 
+const adminPaymentData = async () => {
+  const allPayment = await Payment_Model.find();
+  const paymentsWithoutPaid = await Payment_Model.find({
+    status: { $in: ["INITIATED"] },
+  });
+  const totalPayableAmount = paymentsWithoutPaid.reduce(
+    (acc, payment) => acc + payment.amount,
+    0
+  );
+
+  const paymentsWithPaid = await Payment_Model.find({ status: "PAID" });
+  const totalPayoutAmout = paymentsWithPaid.reduce(
+    (acc, payment) => acc + payment.amount,
+    0
+  );
+
+  return {
+    allPaymentTransactions: allPayment.length,
+    totalPaidAmount: totalPayoutAmout,
+    totalPayableAmount,
+  };
+};
+const getAllTransation = async () => {
+  const allPayment = await Payment_Model.find();
+  return allPayment;
+};
+
 export const PaymentService = {
   createBoGOrder,
   handleBoGCallbackService,
+  adminPaymentData,
+  getAllTransation
 };

@@ -3,7 +3,7 @@ import { jwtHelpers } from "../app/utils/JWT";
 import { configs } from "../app/configs";
 import { chatSocketHandler } from "./chatSocketHandler";
 
-let io: Server; 
+let io: Server;
 
 export const initSocket = (server: any) => {
   io = new Server(server, {
@@ -37,7 +37,13 @@ export const initSocket = (server: any) => {
 
   io.on("connection", (socket) => {
     console.log("✅ User connected:", socket.id);
-    chatSocketHandler(io, socket);
+
+    const user = socket.data.user;
+    const userId = user.userId.toString();
+
+    socket.join(userId);
+
+    chatSocketHandler(io, socket ,user , userId );
   });
 
   return io;

@@ -69,7 +69,7 @@ const getClinicDoctors = async (req: Request, res: Response) => {
   try {
     const result = await ClinicService.getClinicDoctors(
       req.params.clinicId,
-      req.query.appointmentType as any 
+      req.query.appointmentType as any
     );
 
     if (!result) {
@@ -271,6 +271,43 @@ const getAppoinmentTimeBasedOnDateForClinic = async (
   }
 };
 
+const getClinicPaymentData = async (req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.getClinicPaymentData(
+      req.params.clinicUserId
+    );
+
+    res.json({
+      success: true,
+      message: "Clinic payment data fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const getClinicDashboardOverview = async (req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.getClinicDashboardOverview(
+      req.params.clinicId
+    );
+
+    res.json({
+      success: true,
+      message: "Clinic payment data fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const ClinicController = {
   getAllClinics,
   getClinicById,
@@ -285,4 +322,6 @@ export const ClinicController = {
   addNewPaymentMethod,
   deleteClinic,
   getAppoinmentTimeBasedOnDateForClinic,
+  getClinicPaymentData,
+  getClinicDashboardOverview,
 };

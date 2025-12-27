@@ -19,7 +19,7 @@ const appointmentSchema = new Schema(
     },
     serviceType: {
       type: String,
-      enum: ["inClinic", "online",],
+      enum: ["inClinic", "online"],
       required: true,
     },
     visitingType: {

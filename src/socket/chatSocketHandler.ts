@@ -1,13 +1,27 @@
 import { ChatModel } from "../app/modules/chat/chat.model";
+import { User_Model } from "../app/modules/user/user.schema";
+import { sendNotification } from "../app/utils/notificationHelper";
 
-export const chatSocketHandler = (io: any, socket: any) => {
-  const user = socket.data.user;
-  const userId = user.userId.toString();
+const onlineUsers = new Map<string, string>();
+
+// 🔹 Helper function
+const isUserOnline = (userId: string): boolean => {
+  return onlineUsers.has(userId);
+};
+
+export const chatSocketHandler = (
+  io: any,
+  socket: any,
+  user: any,
+  userId: string
+) => {
+  // 🔹 Track online users globally (userId -> socketId)
+
+  onlineUsers.set(userId, socket.id);
 
   console.log("login user ", userId);
 
   // Join personal room
-  socket.join(userId);
 
   // Admin joins special room
   if (user.role === "admin") {
@@ -18,34 +32,66 @@ export const chatSocketHandler = (io: any, socket: any) => {
   // 🔵 Send normal message (user ↔ user)
 
   socket.on("send_message", async (data: any) => {
-    const { receiverId, message, chatType } = data;
+    const { receiverId, message, chatType, document, customOffer } = data;
 
-    const newMsg = await ChatModel.create({
+    if (!message && !document && !customOffer) {
+      return console.log("Message, document, or custom offer is required");
+    }
+
+    const payload: any = {
       senderId: userId,
       receiverId,
       chatType,
-      message,
-    });
+    };
+
+    // ✅ conditionally add fields
+    if (message) payload.message = message;
+    if (document) payload.document = document;
+    if (customOffer) payload.customOffer = customOffer;
+
+    const newMsg = await ChatModel.create(payload);
 
     socket.emit("message_sent", newMsg);
     io.to(receiverId).emit("receive_message", newMsg);
+
+    // if (!isUserOnline(receiverId)) {
+    const receiver = await User_Model.findById(receiverId);
+    await sendNotification(
+      receiverId,
+      receiver?.fullName as string,
+      message || "📎 Attachment received",
+      "message"
+    );
+    // }
+  });
+
+  socket.on("listen_custom_offer_status", async (data: any) => {
+    const { customOfferId, isAccept } = data;
+    await ChatModel.findOneAndUpdate(
+      { _id: customOfferId },
+      { $set: { "customOffer.isAccept": isAccept } }
+    );
   });
 
   // 🔵 User → Admin
 
-  socket.on("message_to_admin", async ({ message }: { message: string }) => {
-    const newMsg = await ChatModel.create({
-      senderId: userId,
-      receiverType: "admin",
-      chatType: "user_admin",
-      message,
-    });
+  socket.on(
+    "send_message_to_admin",
+    async ({ message }: { message: string }) => {
+      const newMsg = await ChatModel.create({
+        senderId: userId,
 
-    // Notify admin
-    io.to("ADMIN_ROOM").emit("receive_from_user", newMsg);
+        receiverType: "admin",
+        chatType: "user_admin",
+        message,
+      });
 
-    socket.emit("message_sent", newMsg);
-  });
+      // Notify admin
+      io.to("ADMIN_ROOM").emit("receive_from_user", newMsg);
+
+      socket.emit("message_sent", newMsg);
+    }
+  );
 
   // -------------------------
   // 🔵 Admin → User
@@ -67,8 +113,19 @@ export const chatSocketHandler = (io: any, socket: any) => {
         message,
       });
 
-      io.to(targetUserId).emit("admin_message", newMsg);
-    }
+      io.to(targetUserId).emit("receive_message_from_admin", newMsg);
+
+      // 🔔 Notify user if offline
+      // if (!isUserOnline(targetUserId)) {
+        const user = await User_Model.findById(targetUserId);
+        await sendNotification(
+          user?.fullName as string,
+          "Admin replied",
+          message,
+          "message"
+        );
+      }
+    // }
   );
 
   // -------------------------
@@ -78,5 +135,8 @@ export const chatSocketHandler = (io: any, socket: any) => {
     await ChatModel.findByIdAndUpdate(msgId, { seen: true });
   });
 
-  socket.on("disconnect", () => console.log("Disconnected:", socket.id));
+  socket.on("disconnect", () => {
+    onlineUsers.delete(userId);
+    console.log("Disconnected:", socket.id);
+  });
 };
