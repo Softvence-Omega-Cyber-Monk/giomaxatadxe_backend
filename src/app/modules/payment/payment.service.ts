@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { all } from "axios";
 import { getAccessToken } from "../../utils/BankAccessToken";
 import { Payment_Model } from "./payment.model";
 import { Wallet_Model } from "../wallet/wallet.model";
@@ -87,18 +87,31 @@ const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
   return { message: "Callback processed successfully" };
 };
 
-// const adminPaymentData = async () => {
+const adminPaymentData = async () => {
+  const allPayment = await Payment_Model.find();
+  const paymentsWithoutPaid = await Payment_Model.find({
+    status: { $in: ["INITIATED"] },
+  });
+  const totalPayableAmount = paymentsWithoutPaid.reduce(
+    (acc, payment) => acc + payment.amount,
+    0
+  );
 
-//   // const 
+  const paymentsWithPaid = await Payment_Model.find({ status: "PAID" });
+  const totalPayoutAmout = paymentsWithPaid.reduce(
+    (acc, payment) => acc + payment.amount,
+    0
+  );
 
-
-//   const allPayment = await Payment_Model.find({ status: "PAID" })
-//   const totalPayoutAmout  = allPayment.reduce((acc, payment) => acc + payment.amount, 0);
-
-
-// };
+  return {
+    allPaymentTransactions: allPayment.length,
+    totalPaidAmount: totalPayoutAmout,
+    totalPayableAmount,
+  };
+};
 
 export const PaymentService = {
   createBoGOrder,
   handleBoGCallbackService,
+  adminPaymentData
 };

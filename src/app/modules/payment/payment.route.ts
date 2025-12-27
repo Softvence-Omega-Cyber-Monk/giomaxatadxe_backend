@@ -12,6 +12,6 @@ router.get("/success", PaymentController.paymentSuccess);
 router.get("/fail", PaymentController.paymentFail);
 
 // admin
-// router.post("/admin/release-payout", releasePayout);
+router.get("/admin/payment-data", PaymentController.adminPaymentData);
 
 export const PaymentRoutes = router;

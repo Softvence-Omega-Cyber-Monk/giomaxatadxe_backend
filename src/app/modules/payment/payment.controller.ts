@@ -61,10 +61,12 @@ export const bogCallbackController = async (req: any, res: any) => {
   try {
     console.log("BoG Webhook Payload:", req.body);
 
-   const callbackResult =  await PaymentService.handleBoGCallbackService(req.body);
+    const callbackResult = await PaymentService.handleBoGCallbackService(
+      req.body
+    );
 
     // BoG requires 200 OK always
-    res.json({ success: true , data: callbackResult});
+    res.json({ success: true, data: callbackResult });
   } catch (error: any) {
     console.error("BoG Callback Error:", error.message);
 
@@ -73,9 +75,7 @@ export const bogCallbackController = async (req: any, res: any) => {
   }
 };
 
-
-
- const paymentSuccess = async (req: any, res: any) => {
+const paymentSuccess = async (req: any, res: any) => {
   try {
     const { paymentId } = req.query;
 
@@ -101,7 +101,7 @@ export const bogCallbackController = async (req: any, res: any) => {
   }
 };
 
- const paymentFail = async (req: any, res: any) => {
+const paymentFail = async (req: any, res: any) => {
   try {
     const { paymentId } = req.query;
 
@@ -125,7 +125,19 @@ export const bogCallbackController = async (req: any, res: any) => {
     res.status(500).send("Something went wrong");
   }
 };
-
+const adminPaymentData = async (req: any, res: any) => {
+  try {
+    const data = await PaymentService.adminPaymentData();
+    return res.json({
+      success: true,
+      message: "Payment data fetched successfully",
+      data,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Something went wrong");
+  }
+};
 
 export const PaymentController = {
   startClinicPayment,
@@ -133,5 +145,6 @@ export const PaymentController = {
   bogCallbackController,
 
   paymentSuccess,
-  paymentFail
+  paymentFail,
+  adminPaymentData,
 };
