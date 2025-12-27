@@ -23,7 +23,7 @@ export const doctorAppointmentService = {
     if (serviceType === "online") {
       const DortorFee = doctor.onlineConsultationFee;
       const clinicComission = (DortorFee * 9) / 100;
-      console.log("clinic + doctor feee", clinicComission, DortorFee);
+      // console.log("clinic + doctor feee", clinicComission, DortorFee);
 
       appointmentFee = DortorFee + clinicComission;
     } else if (serviceType === "inClinic") {

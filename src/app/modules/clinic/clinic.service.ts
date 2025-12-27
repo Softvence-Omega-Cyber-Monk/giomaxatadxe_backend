@@ -101,7 +101,7 @@ const getClinicAppointments = async (clinicId: string, status?: string) => {
   return appointments;
 };
 
-const getClinicDoctors = async (clinicId: string, appointmentType: any) => {
+const getClinicDoctors = async (clinicId: string, appointmentType?: any) => {
   console.log("clinti id 0", clinicId);
   if (appointmentType) {
     const result = await Doctor_Model.find({
@@ -393,6 +393,27 @@ const getClinicPaymentData = async (clinicUserId: string) => {
     totalTransactions: clinicWithdrawRequests.length,
   };
 };
+const getClinicDashboardOverview = async (clinicId: string) => {
+  const clinicPatient = getClinicPatients(clinicId);
+  const clinicPatientsLength = (await clinicPatient).length;
+
+  const clinicAppointments = getClinicAppointments(clinicId);
+  const clinicAppointmentsLength = (await clinicAppointments).length;
+
+  const clinicDoctors = getClinicDoctors(clinicId);
+  const clinicDoctorsLength = (await clinicDoctors).length;
+
+  const clinicRating = await Clinic_Model.findOne({
+    _id: clinicId,
+  }).select("avarageRating");
+
+  return {
+    clinicPatientsLength,
+    clinicAppointmentsLength,
+    clinicDoctorsLength,
+    clinicRating,
+  };
+};
 
 export const ClinicService = {
   getAllClinics,
@@ -409,4 +430,5 @@ export const ClinicService = {
   deleteClinic,
   getAppoinmentTimeBasedOnDateForClinic,
   getClinicPaymentData,
+  getClinicDashboardOverview
 };

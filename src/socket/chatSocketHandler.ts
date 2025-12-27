@@ -53,14 +53,14 @@ export const chatSocketHandler = (io: any, socket: any) => {
     socket.emit("message_sent", newMsg);
     io.to(receiverId).emit("receive_message", newMsg);
 
-    if (!isUserOnline(receiverId)) {
-      const receiver = await User_Model.findById(receiverId);
-      await sendNotification(
-        receiver?.fullName as string,
-        "New message",
-        message || "📎 Attachment received"
-      );
-    }
+    // if (!isUserOnline(receiverId)) {
+    const receiver = await User_Model.findById(receiverId);
+    await sendNotification(
+      receiverId,
+      receiver?.fullName as string,
+      message || "📎 Attachment received"
+    );
+    // }
   });
 
   socket.on("listen_custom_offer_status", async (data: any) => {

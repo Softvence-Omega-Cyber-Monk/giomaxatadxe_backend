@@ -42,5 +42,6 @@ router.post(
   ClinicController.getAppoinmentTimeBasedOnDateForClinic
 );
 router.get("/getClinicPaymentData/:clinicUserId", ClinicController.getClinicPaymentData);
+router.get("/getClinicDashboardOverview/:clinicId", ClinicController.getClinicDashboardOverview);
 
 export const ClinicRoutes = router;
