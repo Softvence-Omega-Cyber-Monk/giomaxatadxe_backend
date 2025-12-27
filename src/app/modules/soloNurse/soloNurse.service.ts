@@ -5,18 +5,24 @@ import { Wallet_Model } from "../wallet/wallet.model";
 import { WithdrawRequest_Model } from "../withdrowRequest/withdrowRequest.model";
 
 export const SoloNurseService = {
-  getAllSoloNurses: async (serviceName?: string) => {
+  getAllSoloNurses: async (serviceName?: string, sub_serviceName?: string) => {
     const query: any = {};
 
     if (serviceName) {
       query["professionalInformation.services.serviceName"] = serviceName;
     }
 
+    if (serviceName && sub_serviceName) {
+      query["professionalInformation.services.subServices.name"] = {
+        $regex: sub_serviceName.trim(),
+        $options: "i",
+      };
+    }
+
     return SoloNurse_Model.find(query)
       .populate("userId")
-      .sort({ createdAt: -1 }); // optional: latest first
+      .sort({ createdAt: -1 });
   },
-
   getSoloNurseById: async (userId: string) => {
     return SoloNurse_Model.findOne({ userId }).populate("userId");
   },

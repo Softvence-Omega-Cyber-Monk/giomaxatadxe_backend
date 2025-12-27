@@ -6,7 +6,8 @@ export const SoloNurseController = {
   getAllSoloNurses: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.getAllSoloNurses(
-        req.query.serviceName as string
+        req.query.serviceName as string,
+        req.query.sub_serviceName as string
       );
       res.json({ success: true, data: result });
     } catch (error: any) {
