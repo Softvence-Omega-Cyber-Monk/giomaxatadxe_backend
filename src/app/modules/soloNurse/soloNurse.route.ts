@@ -5,19 +5,22 @@ import { createUploader } from "../../utils/cloudinary";
 const nurseCertificate = createUploader("nurseCertificates");
 const soloNurseProfileImage = createUploader("soloNurseProfileImage");
 
-
 const router = Router();
 
 router.get("/getAll", SoloNurseController.getAllSoloNurses);
 router.get("/getSingle/:userId", SoloNurseController.getSoloNurseById);
-router.put("/update-basic/:userId", soloNurseProfileImage.single("profileImage"), SoloNurseController.updateSoloNurseBasic);
+router.put(
+  "/update-basic/:userId",
+  soloNurseProfileImage.single("profileImage"),
+  SoloNurseController.updateSoloNurseBasic
+);
 router.put(
   "/update-professional/:userId/",
   SoloNurseController.professionalUpdate
 );
 router.put(
-  "/addSingleSubService/:userId/:serviceId",
-  SoloNurseController.addSingleSubService
+  "/addSingleSubService/:userId/:serviceId/:serviceName",
+  SoloNurseController.addSubServiceWithAutoMainService
 );
 router.put(
   "/deleteSingleSubService/:userId/:serviceId/:subServiceId",
@@ -29,7 +32,10 @@ router.put(
   SoloNurseController.uploadCertificate
 );
 
-router.delete("/delete-certificate/:userId/:certificateId", SoloNurseController.deleteCertificate);
+router.delete(
+  "/delete-certificate/:userId/:certificateId",
+  SoloNurseController.deleteCertificate
+);
 
 router.put("/availability/:userId", SoloNurseController.availabilitySettings);
 router.put(
@@ -38,6 +44,22 @@ router.put(
 );
 router.put("/addReviews/:userId", SoloNurseController.addReviews);
 
-router.delete("/:id", SoloNurseController.deleteSoloNurse);
+router.delete(
+  "/delete/:soloNurseUserId/:soloNurseId",
+  SoloNurseController.deleteSoloNurse
+);
+router.get(
+  "/getSoloNursePaymentData/:soloNurseUserId",
+  SoloNurseController.getSoloNursePaymentData
+);
+
+router.get(
+  "/get/sub-services",
+  SoloNurseController.getSubServicesByMainService
+);
+router.get(
+  "/getSoloNurseDashboardOverview/:soloNurseId",
+  SoloNurseController.getSoloNurseDashboardOverview
+);
 
 export const SoloNurseRoutes = router;

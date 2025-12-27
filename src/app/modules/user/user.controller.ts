@@ -236,9 +236,19 @@ const createDoctor = async (req: Request, res: Response) => {
   }
 };
 
+const getAdmin = async (req: Request, res: Response) => {
+  try {
+    const result = await UserService.getAdmin();
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 export const user_controllers = {
   createPatient,
   createSoloNurse,
   createClinic,
   createDoctor,
+  getAdmin
 };

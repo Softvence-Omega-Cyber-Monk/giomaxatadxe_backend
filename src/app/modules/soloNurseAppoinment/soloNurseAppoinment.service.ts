@@ -49,7 +49,8 @@ export const soloNurseAppointmentService = {
     await sendNotification(
       solo_nurse.userId.toString(),
       "New Appointment Added ",
-      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details.`
+      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details.`,
+      "notification"
     );
 
     return appointment;
@@ -263,6 +264,11 @@ export const soloNurseAppointmentService = {
       .populate({
         path: "soloNurseId",
         select: "_id userId",
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName role   ", // fields you want
+        },
       });
   },
   getSinlgePatientChatsForNurse: async (soloNurseId: string) => {
@@ -301,5 +307,9 @@ export const soloNurseAppointmentService = {
         model: "user",
         select: "fullName role profileImage",
       });
+  },
+
+  deleteAppointment: async (id: string) => {
+    return await soloNurseAppoinment_Model.findByIdAndDelete(id);
   },
 };

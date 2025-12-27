@@ -5,7 +5,10 @@ import { de } from "zod/v4/locales";
 export const SoloNurseController = {
   getAllSoloNurses: async (req: Request, res: Response) => {
     try {
-      const result = await SoloNurseService.getAllSoloNurses(req.query.serviceName as string);
+      const result = await SoloNurseService.getAllSoloNurses(
+        req.query.serviceName as string,
+        req.query.sub_serviceName as string
+      );
       res.json({ success: true, data: result });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
@@ -66,11 +69,16 @@ export const SoloNurseController = {
     }
   },
 
-  addSingleSubService: async (req: Request, res: Response) => {
+  addSubServiceWithAutoMainService: async (req: Request, res: Response) => {
     try {
-      const result = await SoloNurseService.addSingleSubService(
+      const result = await SoloNurseService.addSubServiceWithAutoMainService(
         req.params.userId,
         req.params.serviceId,
+        req.params.serviceName as
+          | "Blood test & Sample collection"
+          | "Nurse care and infusion therapy"
+          | "Nurse Care & Elderly Support"
+          | "Medical massage & Physio therapy",
         req.body
       );
 
@@ -216,13 +224,78 @@ export const SoloNurseController = {
   },
   deleteSoloNurse: async (req: Request, res: Response) => {
     try {
-      await SoloNurseService.deleteSoloNurse(req.params.id);
+      const { soloNurseId, soloNurseUserId } = req.params;
+      await SoloNurseService.deleteSoloNurse(soloNurseId, soloNurseUserId);
       res.json({
         success: true,
         message: "Solo Nurse deleted successfully",
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
+    }
+  },
+  getSoloNursePaymentData: async (req: Request, res: Response) => {
+    try {
+      const result = await SoloNurseService.getSoloNursePaymentData(
+        req.params.soloNurseUserId
+      );
+
+      res.json({
+        success: true,
+        message: "Solo Nurse payment data fetched successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
+
+  getSubServicesByMainService: async (req: Request, res: Response) => {
+    try {
+      const { serviceName } = req.query;
+
+      if (!serviceName) {
+        return res.status(400).json({
+          success: false,
+          message: "serviceName query is required",
+        });
+      }
+
+      const result = await SoloNurseService.getSubServicesByMainService(
+        serviceName as string
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Server error",
+      });
+    }
+  },
+
+  getSoloNurseDashboardOverview: async (req: Request, res: Response) => {
+    try {
+      const result = await SoloNurseService.getSoloNurseDashboardOverview(
+        req.query.soloNurseId as string
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Solo Nurse dashboard overview fetched successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Server error",
+      });
     }
   },
 };

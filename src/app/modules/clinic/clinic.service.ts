@@ -6,6 +6,8 @@ import { Doctor_Model } from "../doctor/doctor.model";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
 import { Patient_Model } from "../patient/patient.model";
 import app from "../../../app";
+import { Wallet_Model } from "../wallet/wallet.model";
+import { WithdrawRequest_Model } from "../withdrowRequest/withdrowRequest.model";
 
 const getAllClinics = async () => {
   const result = await Clinic_Model.find()
@@ -99,16 +101,20 @@ const getClinicAppointments = async (clinicId: string, status?: string) => {
   return appointments;
 };
 
-const getClinicDoctors = async (clinicId: string, appointmentType: any) => {
+const getClinicDoctors = async (clinicId: string, appointmentType?: any) => {
   console.log("clinti id 0", clinicId);
   if (appointmentType) {
     const result = await Doctor_Model.find({
       clinicId,
       appointmentType: appointmentType,
-    }).populate("userId").populate("clinicId");
+    })
+      .populate("userId")
+      .populate("clinicId");
     return result;
   } else {
-    const result = await Doctor_Model.find({ clinicId }).populate("userId").populate("clinicId");
+    const result = await Doctor_Model.find({ clinicId })
+      .populate("userId")
+      .populate("clinicId");
     return result;
   }
 };
@@ -121,11 +127,11 @@ const getClinicPatients = async (clinicId: string) => {
     })
     .populate({
       path: "patientId",
-      select: "_id userId",
+      select: "_id userId age bloodGroup gender",
       populate: {
         path: "userId",
         model: "user", // ensure correct model name
-        select: "fullName role", // fields you want
+        select: "fullName role email profileImage ", // fields you want
       },
     })
     .populate({
@@ -361,6 +367,54 @@ const getAppoinmentTimeBasedOnDateForClinic = async (
   return appointments;
 };
 
+const getClinicPaymentData = async (clinicUserId: string) => {
+  const clinicMoney = await Wallet_Model.findOne({
+    ownerId: clinicUserId,
+    ownerType: "CLINIC",
+  });
+  const clinicPendingMoney = clinicMoney?.pendingBalance || 0;
+
+  const clinicWithdrawRequests = await WithdrawRequest_Model.find({
+    ownerId: clinicUserId,
+    ownerType: "CLINIC",
+    status: "PAID",
+  });
+
+  const clinicTotalWithdrew = clinicWithdrawRequests.reduce(
+    (total, request) => {
+      return total + request.amount;
+    },
+    0
+  );
+
+  return {
+    clinicPendingMoney,
+    clinicTotalWithdrew,
+    totalTransactions: clinicWithdrawRequests.length,
+  };
+};
+const getClinicDashboardOverview = async (clinicId: string) => {
+  const clinicPatient = getClinicPatients(clinicId);
+  const clinicPatientsLength = (await clinicPatient).length;
+
+  const clinicAppointments = getClinicAppointments(clinicId);
+  const clinicAppointmentsLength = (await clinicAppointments).length;
+
+  const clinicDoctors = getClinicDoctors(clinicId);
+  const clinicDoctorsLength = (await clinicDoctors).length;
+
+  const clinicRating = await Clinic_Model.findOne({
+    _id: clinicId,
+  }).select("avarageRating");
+
+  return {
+    clinicPatientsLength,
+    clinicAppointmentsLength,
+    clinicDoctorsLength,
+    clinicRating,
+  };
+};
+
 export const ClinicService = {
   getAllClinics,
   getClinicById,
@@ -375,4 +429,6 @@ export const ClinicService = {
   addNewPaymentMethod,
   deleteClinic,
   getAppoinmentTimeBasedOnDateForClinic,
+  getClinicPaymentData,
+  getClinicDashboardOverview,
 };

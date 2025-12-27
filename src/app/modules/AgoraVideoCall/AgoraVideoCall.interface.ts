@@ -13,6 +13,8 @@ export interface ICall extends Document {
   callerId: string;
   receiverId: string;
   // pairKey: string;
+  callerUid?: number;
+  receiverUid?: number;
   status: CallStatus;
   startedAt?: Date;
   endedAt?: Date;

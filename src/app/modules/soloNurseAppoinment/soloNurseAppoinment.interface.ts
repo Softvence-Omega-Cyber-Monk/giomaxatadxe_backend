@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 export type TSoloNurseAppoinment = {
   patientId: Types.ObjectId;
   soloNurseId: Types.ObjectId;
-  homeAddress: string;
+  homeAddress?: string;
   visitingType: "fristVisit" | "followUp";
   followUpDetails?: string;
   reasonForVisit?: string;

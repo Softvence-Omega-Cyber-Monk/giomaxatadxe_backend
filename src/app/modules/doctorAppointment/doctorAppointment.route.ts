@@ -47,6 +47,6 @@ router.post(
   doctorAppointmentController.getAppoinmentTimeBasedOnDate
 );
 
-router.delete("/delete/:id", doctorAppointmentController.delete);
+router.delete("/delete/:appoinmentId", doctorAppointmentController.delete);
 
 export const DoctorAppointmentRoutes = router;

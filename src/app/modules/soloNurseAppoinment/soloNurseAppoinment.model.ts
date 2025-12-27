@@ -14,7 +14,6 @@ const soloNurseAppoinmentSchema = new Schema(
     },
     homeAddress: {
       type: String,
-      required: true,
     },
     visitingType: {
       type: String,

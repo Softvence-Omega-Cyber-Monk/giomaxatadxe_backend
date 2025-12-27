@@ -20,6 +20,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:5173",
       "http://localhost:5174",
+      "*"
     ],
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     credentials: true,

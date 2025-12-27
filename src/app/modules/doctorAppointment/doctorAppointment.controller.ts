@@ -218,7 +218,7 @@ export const doctorAppointmentController = {
 
   delete: async (req: Request, res: Response) => {
     try {
-      await doctorAppointmentService.deleteAppointment(req.params.id);
+      await doctorAppointmentService.deleteAppointment(req.params.appoinmentId);
       res.json({
         success: true,
         message: "Appointment deleted",

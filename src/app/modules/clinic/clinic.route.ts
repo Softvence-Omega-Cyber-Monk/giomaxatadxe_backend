@@ -9,10 +9,17 @@ const router = Router();
 
 router.get("/getAll", ClinicController.getAllClinics);
 router.get("/getSingle/:userId", ClinicController.getClinicById);
-router.get("/getClinicAppointments/:clinicId", ClinicController.getClinicAppointments);
+router.get(
+  "/getClinicAppointments/:clinicId",
+  ClinicController.getClinicAppointments
+);
 router.get("/getClinicDoctors/:clinicId", ClinicController.getClinicDoctors);
 router.get("/getClinicPatients/:clinicId", ClinicController.getClinicPatients);
-router.put("/update-basic/:userId", clinicProfileImage.single("profileImage"), ClinicController.updateClinicBasic);
+router.put(
+  "/update-basic/:userId",
+  clinicProfileImage.single("profileImage"),
+  ClinicController.updateClinicBasic
+);
 router.put(
   "/upload-certificate/:userId",
   clinicCertificate.single("uploadCertificates"),
@@ -34,5 +41,7 @@ router.post(
   "/getAppoinmentTimeBasedOnDateForClinic/:id",
   ClinicController.getAppoinmentTimeBasedOnDateForClinic
 );
+router.get("/getClinicPaymentData/:clinicUserId", ClinicController.getClinicPaymentData);
+router.get("/getClinicDashboardOverview/:clinicId", ClinicController.getClinicDashboardOverview);
 
 export const ClinicRoutes = router;
