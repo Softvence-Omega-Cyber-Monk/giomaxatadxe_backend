@@ -3,6 +3,7 @@ import { Doctor_Model } from "../doctor/doctor.model";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
 import { Patient_Model } from "../patient/patient.model";
 import { Payment_Model } from "../payment/payment.model";
+import { User_Model } from "../user/user.schema";
 
 const getDashboardOverview = async () => {
   const [
@@ -25,7 +26,7 @@ const getDashboardOverview = async () => {
   let adminEarnings = 0;
 
   for (const payment of paidPayments) {
-    console.log('payment ', payment);
+    console.log("payment ", payment);
     const amount = payment.amount || 0;
     totalEarnings += amount;
 
@@ -49,6 +50,27 @@ const getDashboardOverview = async () => {
   };
 };
 
+const udpateAdmin = async (
+  adminId: string,
+  payload: any,
+  profileImageUrl: string
+) => {
+
+  console.log(adminId,payload,profileImageUrl);
+  const admin = await User_Model.findOneAndUpdate(
+    { _id: adminId },
+    {
+      $set: {
+        fullName: payload?.fullName,
+        profileImage: profileImageUrl,
+      },
+    }
+  );
+
+  return admin;
+};
+
 export const DashboardService = {
   getDashboardOverview,
+  udpateAdmin,
 };

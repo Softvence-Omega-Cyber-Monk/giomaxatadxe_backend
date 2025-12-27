@@ -116,7 +116,7 @@ export const chatSocketHandler = (
       io.to(targetUserId).emit("receive_message_from_admin", newMsg);
 
       // 🔔 Notify user if offline
-      if (!isUserOnline(targetUserId)) {
+      // if (!isUserOnline(targetUserId)) {
         const user = await User_Model.findById(targetUserId);
         await sendNotification(
           user?.fullName as string,
@@ -125,7 +125,7 @@ export const chatSocketHandler = (
           "message"
         );
       }
-    }
+    // }
   );
 
   // -------------------------
