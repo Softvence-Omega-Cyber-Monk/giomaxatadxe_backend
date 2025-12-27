@@ -127,11 +127,11 @@ const getClinicPatients = async (clinicId: string) => {
     })
     .populate({
       path: "patientId",
-      select: "_id userId",
+      select: "_id userId age bloodGroup gender",
       populate: {
         path: "userId",
         model: "user", // ensure correct model name
-        select: "fullName role", // fields you want
+        select: "fullName role email profileImage ", // fields you want
       },
     })
     .populate({

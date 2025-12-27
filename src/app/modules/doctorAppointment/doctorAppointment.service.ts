@@ -109,7 +109,6 @@ export const doctorAppointmentService = {
 
     return updatedAppointment;
   },
-
   // Get all appointments
   getAllAppointments: async (status?: string, doctorId?: string) => {
     const filter: any = {};
