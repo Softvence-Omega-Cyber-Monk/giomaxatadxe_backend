@@ -16,3 +16,4 @@ router.get("/admin/payment-data", PaymentController.adminPaymentData);
 router.get("/admin/get-all-transation", PaymentController.getAllTransation);
 
 export const PaymentRoutes = router;
+

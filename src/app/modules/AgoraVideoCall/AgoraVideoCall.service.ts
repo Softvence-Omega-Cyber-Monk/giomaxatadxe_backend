@@ -3,6 +3,7 @@ import { generateAgoraToken } from "../../utils/agoraToken";
 import { ICall } from "./AgoraVideoCall.interface";
 import { videoCall_model } from "./AgoraVideoCall.model";
 import { io } from "../../../socket/initSocket";
+import { User_Model } from "../user/user.schema";
 
 const generateAgoraUid = () => {
   return Math.floor(Math.random() * 1000000000) + 1;
@@ -19,7 +20,7 @@ const startCallService = async (callerId: string, receiverId: string) => {
   const callerUid = generateAgoraUid();
   const callerToken = generateAgoraToken(channelName, callerUid);
 
-  console.log('token ', callerToken);
+  console.log("token ", callerToken);
 
   const call: ICall = await videoCall_model.create({
     callId,
@@ -30,10 +31,14 @@ const startCallService = async (callerId: string, receiverId: string) => {
     status: "ringing",
   });
 
+  const callerUser = await User_Model.findOne({ _id: callerId });
+
   io.to(receiverId).emit("incoming_call", {
     callId,
     channelName,
     callerId,
+    callerName: callerUser?.fullName,
+    callerPicture: callerUser?.profileImage,
   });
 
   return {
