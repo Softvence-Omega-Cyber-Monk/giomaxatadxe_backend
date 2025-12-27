@@ -20,6 +20,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:5173",
       "http://localhost:5174",
+      "https://medconnect.com.ge",
       "*"
     ],
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
@@ -207,3 +208,4 @@ app.use(globalErrorHandler);
 app.use(notFound);
 
 export default app;
+
