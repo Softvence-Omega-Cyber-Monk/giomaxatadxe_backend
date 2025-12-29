@@ -15,128 +15,137 @@ export const chatSocketHandler = (
   user: any,
   userId: string
 ) => {
-  // 🔹 Track online users globally (userId -> socketId)
+  try {
+    // 🔹 Track online users globally (userId -> socketId)
+    onlineUsers.set(userId, socket.id);
+    console.log("login user ", userId);
 
-  onlineUsers.set(userId, socket.id);
-
-  console.log("login user ", userId);
-
-  // Join personal room
-
-  // Admin joins special room
-  if (user.role === "admin") {
-    socket.join("ADMIN_ROOM");
-    console.log("Admin joined room");
-  }
-
-  // 🔵 Send normal message (user ↔ user)
-
-  socket.on("send_message", async (data: any) => {
-    const { receiverId, message, chatType, document, customOffer } = data;
-
-    if (!message && !document && !customOffer) {
-      return console.log("Message, document, or custom offer is required");
+    // Admin joins special room
+    if (user.role === "admin") {
+      socket.join("ADMIN_ROOM");
+      console.log("Admin joined room");
     }
 
-    const payload: any = {
-      senderId: userId,
-      receiverId,
-      chatType,
-    };
+    // 🔵 Send normal message (user ↔ user)
+    socket.on("send_message", async (data: any) => {
+      try {
+        const { receiverId, message, chatType, document, customOffer } = data;
 
-    // ✅ conditionally add fields
-    if (message) payload.message = message;
-    if (document) payload.document = document;
-    if (customOffer) payload.customOffer = customOffer;
+        if (!message && !document && !customOffer) {
+          return console.log("Message, document, or custom offer is required");
+        }
 
-    const newMsg = await ChatModel.create(payload);
+        const payload: any = {
+          senderId: userId,
+          receiverId,
+          chatType,
+        };
 
-    socket.emit("message_sent", newMsg);
-    io.to(receiverId).emit("receive_message", newMsg);
+        if (message) payload.message = message;
+        if (document) payload.document = document;
+        if (customOffer) payload.customOffer = customOffer;
 
-    // if (!isUserOnline(receiverId)) {
-    const receiver = await User_Model.findById(receiverId);
-    await sendNotification(
-      receiverId,
-      receiver?.fullName as string,
-      message || "📎 Attachment received",
-      "message"
-    );
-    // }
-  });
+        const newMsg = await ChatModel.create(payload);
 
-  socket.on("listen_custom_offer_status", async (data: any) => {
-    const { customOfferId, isAccept } = data;
-    await ChatModel.findOneAndUpdate(
-      { _id: customOfferId },
-      { $set: { "customOffer.isAccept": isAccept } }
-    );
-  });
+        socket.emit("message_sent", newMsg);
+        io.to(receiverId).emit("receive_message", newMsg);
 
-  // 🔵 User → Admin
-
-  socket.on(
-    "send_message_to_admin",
-    async ({ message }: { message: string }) => {
-      const newMsg = await ChatModel.create({
-        senderId: userId,
-
-        receiverType: "admin",
-        chatType: "user_admin",
-        message,
-      });
-
-      // Notify admin
-      io.to("ADMIN_ROOM").emit("receive_from_user", newMsg);
-
-      socket.emit("message_sent", newMsg);
-    }
-  );
-
-  // -------------------------
-  // 🔵 Admin → User
-  // -------------------------
-
-  socket.on(
-    "admin_reply",
-    async ({
-      userId: targetUserId,
-      message,
-    }: {
-      userId: string;
-      message: string;
-    }) => {
-      const newMsg = await ChatModel.create({
-        senderId: userId,
-        receiverId: targetUserId,
-        chatType: "user_admin",
-        message,
-      });
-
-      io.to(targetUserId).emit("receive_message_from_admin", newMsg);
-
-      // 🔔 Notify user if offline
-      // if (!isUserOnline(targetUserId)) {
-        const user = await User_Model.findById(targetUserId);
+        const receiver = await User_Model.findById(receiverId);
         await sendNotification(
-          user?.fullName as string,
-          "Admin replied",
-          message,
+          receiverId,
+          receiver?.fullName as string,
+          message || "📎 Attachment received",
           "message"
         );
+      } catch (error) {
+        console.error("send_message error:", error);
       }
-    // }
-  );
+    });
 
-  // -------------------------
-  // Mark message as seen
-  // -------------------------
-  socket.on("mark_seen", async ({ msgId }: { msgId: string }) => {
-    await ChatModel.findByIdAndUpdate(msgId, { seen: true });
-  });
+    socket.on("listen_custom_offer_status", async (data: any) => {
+      try {
+        const { customOfferId, isAccept } = data;
 
-  socket.on("disconnect", () => {
-    onlineUsers.delete(userId);
-    console.log("Disconnected:", socket.id);
-  });
+        await ChatModel.findOneAndUpdate(
+          { _id: customOfferId },
+          { $set: { "customOffer.isAccept": isAccept } }
+        );
+      } catch (error) {
+        console.error("listen_custom_offer_status error:", error);
+      }
+    });
+
+    // 🔵 User → Admin
+    socket.on(
+      "send_message_to_admin",
+      async ({ message }: { message: string }) => {
+        try {
+          const newMsg = await ChatModel.create({
+            senderId: userId,
+            receiverType: "admin",
+            chatType: "user_admin",
+            message,
+          });
+
+          io.to("ADMIN_ROOM").emit("receive_from_user", newMsg);
+          socket.emit("message_sent", newMsg);
+        } catch (error) {
+          console.error("send_message_to_admin error:", error);
+        }
+      }
+    );
+
+    // 🔵 Admin → User
+    socket.on(
+      "admin_reply",
+      async ({
+        userId: targetUserId,
+        message,
+      }: {
+        userId: string;
+        message: string;
+      }) => {
+        try {
+          const newMsg = await ChatModel.create({
+            senderId: userId,
+            receiverId: targetUserId,
+            chatType: "user_admin",
+            message,
+          });
+
+          io.to(targetUserId).emit("receive_message_from_admin", newMsg);
+
+          const user = await User_Model.findById(targetUserId);
+          await sendNotification(
+            user?.fullName as string,
+            "Admin replied",
+            message,
+            "message"
+          );
+        } catch (error) {
+          console.error("admin_reply error:", error);
+        }
+      }
+    );
+
+    // 🔵 Mark message as seen
+    socket.on("mark_seen", async ({ msgId }: { msgId: string }) => {
+      try {
+        await ChatModel.findByIdAndUpdate(msgId, { seen: true });
+      } catch (error) {
+        console.error("mark_seen error:", error);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      try {
+        onlineUsers.delete(userId);
+        console.log("Disconnected:", socket.id);
+      } catch (error) {
+        console.error("disconnect error:", error);
+      }
+    });
+  } catch (error) {
+    console.error("chatSocketHandler init error:", error);
+  }
 };

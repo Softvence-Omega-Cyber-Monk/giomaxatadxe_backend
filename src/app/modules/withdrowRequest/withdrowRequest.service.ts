@@ -74,6 +74,7 @@ const markAsPaid = async (withdrawId: string) => {
 
   const user = withdraw?.ownerId.toString() || "";
 
+  
 
   if (withdraw?.ownerType === "CLINIC") {
     const userId = await Clinic_Model.findById(withdraw.ownerId).select("_id userId")
