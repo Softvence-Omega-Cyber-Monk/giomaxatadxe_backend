@@ -26,6 +26,7 @@ export const sendNotification = async (
       },
       data: {
         userId: userId.toString(),
+        notificationType,
       },
     };
 
