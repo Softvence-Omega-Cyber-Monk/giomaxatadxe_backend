@@ -6,49 +6,63 @@ import { chatSocketHandler } from "./chatSocketHandler";
 let io: Server;
 
 export const initSocket = (server: any) => {
-  io = new Server(server, {
-    cors: {
-      origin: [
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "https://medconnect.com.ge",
-        "*",
-      ],
-      credentials: true,
-    },
-  });
+  try {
+    io = new Server(server, {
+      cors: {
+        origin: [
+          "http://localhost:3000",
+          "http://localhost:5173",
+          "http://localhost:5174",
+          "https://medconnect.com.ge",
+          "*",
+        ],
+        credentials: true,
+      },
+    });
 
-  io.use((socket, next) => {
-    const token =
-      socket.handshake.auth?.token || socket.handshake.headers?.authorization;
-    if (!token) {
-      return next(new Error("Unauthorized"));
-    }
-    try {
-      const user = jwtHelpers.verifyToken(
-        token,
-        configs.jwt.accessToken_secret as string
-      );
-      socket.data.user = user;
-      next();
-    } catch (err) {
-      next(new Error("Unauthorized"));
-    }
-  });
+    io.use((socket, next) => {
+      try {
+        const token =
+          socket.handshake.auth?.token ||
+          socket.handshake.headers?.authorization;
 
-  io.on("connection", (socket) => {
-    console.log("✅ User connected:", socket.id);
+        if (!token) {
+          return next(new Error("Unauthorized"));
+        }
 
-    const user = socket.data.user;
-    const userId = user.userId.toString();
+        const user = jwtHelpers.verifyToken(
+          token,
+          configs.jwt.accessToken_secret as string
+        );
 
-    socket.join(userId);
+        socket.data.user = user;
+        next();
+      } catch (err) {
+        console.error("Socket auth error:", err);
+        next(new Error("Unauthorized"));
+      }
+    });
 
-    chatSocketHandler(io, socket ,user , userId );
-  });
+    io.on("connection", (socket) => {
+      try {
+        console.log("✅ User connected:", socket.id);
 
-  return io;
+        const user = socket.data.user;
+        const userId = user.userId.toString();
+
+        socket.join(userId);
+
+        chatSocketHandler(io, socket, user, userId);
+      } catch (err) {
+        console.error("Socket connection error:", err);
+      }
+    });
+
+    return io;
+  } catch (error) {
+    console.error("initSocket error:", error);
+    throw error;
+  }
 };
 
 // ✅ Export io separately
