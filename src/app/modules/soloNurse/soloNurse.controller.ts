@@ -283,7 +283,7 @@ export const SoloNurseController = {
   getSoloNurseDashboardOverview: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.getSoloNurseDashboardOverview(
-        req.query.soloNurseId as string
+        req.params.soloNurseId as string
       );
 
       return res.status(200).json({

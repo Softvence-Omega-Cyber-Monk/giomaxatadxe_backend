@@ -425,6 +425,7 @@ export const SoloNurseService = {
   },
 
   getSoloNurseDashboardOverview: async (soloNurseId: string) => {
+    console.log("soloNurseId", soloNurseId);
     const allAppoinment = await soloNurseAppoinment_Model.find({});
     const pendingAppointments = await soloNurseAppoinment_Model.find({
       _id: soloNurseId,
@@ -437,9 +438,9 @@ export const SoloNurseService = {
 
     const totalEarnings = await Wallet_Model.findOne({
       ownerId: soloNurseId,
-      ownerType: "SOLO_NURSE",
+      // ownerType: "SOLO_NURSE",
     });
-    console.log("total earning", totalEarnings);
+    // console.log("total earning", totalEarnings);
 
     return {
       allAppoinment: allAppoinment.length,
