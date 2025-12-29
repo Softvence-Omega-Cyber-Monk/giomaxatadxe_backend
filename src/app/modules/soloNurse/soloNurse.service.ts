@@ -438,7 +438,7 @@ export const SoloNurseService = {
 
     const totalEarnings = await Wallet_Model.findOne({
       ownerId: soloNurseId,
-      // ownerType: "SOLO_NURSE",
+      ownerType: "SOLO_NURSE",
     });
     // console.log("total earning", totalEarnings);
 
