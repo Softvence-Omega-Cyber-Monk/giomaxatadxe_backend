@@ -445,7 +445,7 @@ export const SoloNurseService = {
       allAppoinment: allAppoinment.length,
       pendingAppointments: pendingAppointments.length,
       completedAppointments: completedAppointments.length,
-      totalEarnings: totalEarnings?.balance || 0,
+      totalEarnings: totalEarnings?.pendingBalance || 0,
     };
   },
 };
