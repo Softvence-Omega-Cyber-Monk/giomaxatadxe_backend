@@ -6,7 +6,8 @@ export const sendNotification = async (
   userId: string,
   title: string,
   body: string,
-  notificationType: string
+  notificationType: string,
+  chatType?: string
 ): Promise<void> => {
   try {
     console.log("User:", userId);
@@ -27,6 +28,7 @@ export const sendNotification = async (
       data: {
         userId: userId.toString(),
         notificationType,
+        chatType: chatType || "",
       },
     };
 

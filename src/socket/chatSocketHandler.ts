@@ -55,7 +55,8 @@ export const chatSocketHandler = (
           receiverId,
           receiver?.fullName as string,
           message || "📎 Attachment received",
-          "message"
+          "message",
+          chatType
         );
       } catch (error) {
         console.error("send_message error:", error);
@@ -120,7 +121,8 @@ export const chatSocketHandler = (
             user?.fullName as string,
             "Admin replied",
             message,
-            "message"
+            "message",
+            "user_admin"
           );
         } catch (error) {
           console.error("admin_reply error:", error);
