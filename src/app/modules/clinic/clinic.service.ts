@@ -407,11 +407,16 @@ const getClinicDashboardOverview = async (clinicId: string) => {
     _id: clinicId,
   }).select("avarageRating");
 
+  const clinicEarning = await getClinicPaymentData(clinicId);
+  const clinicPendingMoney = clinicEarning.clinicPendingMoney;
+
+
   return {
     clinicPatientsLength,
     clinicAppointmentsLength,
     clinicDoctorsLength,
     clinicRating,
+    clinicPendingMoney 
   };
 };
 
