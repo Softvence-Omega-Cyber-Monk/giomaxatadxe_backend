@@ -71,37 +71,33 @@ const getSingleWithdrawRequest = async (withdrawId: string) => {
 const markAsPaid = async (withdrawId: string) => {
   const withdraw = await WithdrawRequest_Model.findById(withdrawId);
 
+  if (!withdraw) throw new Error("Withdraw request not found");
+  if (withdraw.status !== "PENDING") {
+    throw new Error("Withdraw already processed");
+  }
 
   if (withdraw?.ownerType === "CLINIC") {
     const userId = await Clinic_Model.findById(withdraw.ownerId)
-      .select("_id userId")
+      .select("userId")
       .populate("userId");
-    console.log("userId ", userId);
+    console.log("userId ", userId?.userId._id);
     await sendNotification(
-      userId?.userId?.toString() || "",
+      userId?.userId?._id?.toString() || "",
       "Withdraw Request",
-      "Withdraw request approved",
-      "WITHDRAW_REQUEST_APPROVED"
+      `$${withdraw.amount} withdraw request approved`,
+      "notification"
     );
   } else if (withdraw?.ownerType === "SOLO_NURSE") {
     const userId = await SoloNurse_Model.findById(withdraw.ownerId)
-      .select("_id userId")
+      .select("userId")
       .populate("userId");
-    console.log("userId ", userId);
+    console.log("userId ", userId?.userId._id);
     await sendNotification(
-      userId?.userId?.toString() || "",
+      userId?.userId?._id?.toString() || "",
       "Withdraw Request",
-      "Withdraw request approved",
-      "WITHDRAW_REQUEST_APPROVED"
+      `$${withdraw.amount} withdraw request approved`,
+      "notification"
     );
-  }
-  
-
-
-  if (!withdraw) throw new Error("Withdraw request not found");
-
-  if (withdraw.status !== "PENDING") {
-    throw new Error("Withdraw already processed");
   }
 
   withdraw.status = "PAID";
