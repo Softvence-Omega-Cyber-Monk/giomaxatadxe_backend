@@ -249,7 +249,7 @@ const verifyUser = async (req: Request, res: Response) => {
   const code = req.params.code;
   try {
     const result = await UserService.verifyUser(userId, code);
-    res.json({ success: true, data: result });
+    res.json({ success: true, message: "User verified successfully", data: result });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
   }
