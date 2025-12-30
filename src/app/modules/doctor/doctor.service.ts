@@ -72,10 +72,21 @@ export const DoctorService = {
   },
 
   getDoctorById: async (userId: string) => {
-    return Doctor_Model.findOne({ userId }).populate("userId").populate({
-      path: "clinicId",
-      select: "_id ", // only fetch _id and name
-    });
+    return Doctor_Model.findOne({ userId })
+      .populate("userId")
+      .populate({
+        path: "clinicId",
+        select: "_id ", // only fetch _id and name
+      })
+      .populate({
+        path: "reviews.patientId",
+        select: "userId", // select patient.userId
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName profileImage", // fields you want
+        },
+      });
   },
 
   getSingleDoctorPatientList: async (doctorId: string) => {
