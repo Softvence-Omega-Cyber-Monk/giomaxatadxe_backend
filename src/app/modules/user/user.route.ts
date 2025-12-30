@@ -29,5 +29,6 @@ router.post(
 );
 router.get("/get-admin", user_controllers.getAdmin);
 router.put("/verify-user/:userId/:code", user_controllers.verifyUser);
+router.put("/add-admin-approval/:userId", user_controllers.addAdminApproval);
 
 export const user_routes = router;
