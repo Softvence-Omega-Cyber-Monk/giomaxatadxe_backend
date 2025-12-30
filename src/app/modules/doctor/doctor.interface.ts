@@ -32,4 +32,11 @@ export type TDoctor = {
     certificateType: string;
     certificateName: string;
   }[];
+  avarageRating?: number;
+   reviews?: {
+    patientId: Types.ObjectId;
+    rating: number;
+    comment: string;
+    createdAt: Date;
+  }[];
 };

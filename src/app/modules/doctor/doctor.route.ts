@@ -40,4 +40,6 @@ router.get(
   DoctorController.getDoctorDashboardOverview
 );
 
+router.put("/addReviews/:userId", DoctorController.addReviews);
+
 export const DoctorRoutes = router;
