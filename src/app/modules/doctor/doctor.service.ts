@@ -274,4 +274,20 @@ export const DoctorService = {
       totalCompletedAppointments,
     };
   },
+  addReviews: async (userId: string, payload: any) => {
+    const doctor: any = await Doctor_Model.findOne({ userId });
+    if (!doctor) {
+      throw new Error("Doctor not found for this user");
+    }
+
+    doctor.reviews.push(payload);
+    const totalRatings = doctor.reviews.reduce(
+      (sum: any, review: { rating: any }) => sum + (review.rating || 0),
+      0
+    );
+    doctor.avarageRating = totalRatings / doctor.reviews.length;
+
+    await doctor.save();
+    return doctor;
+  },
 };

@@ -40,6 +40,15 @@ const DoctorSchema = new Schema<TDoctor>(
 
     certificates: [CertificateSchema],
     appointmentType: { type: String, required: true },
+    avarageRating : { type: Number, default: 0 },
+    reviews: [
+      {
+        patientId: { type: Schema.Types.ObjectId, ref: "Patient" },
+        rating: { type: Number },
+        comment: { type: String },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );

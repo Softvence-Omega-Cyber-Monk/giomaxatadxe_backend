@@ -140,7 +140,7 @@ const createSoloNurse = async (payload: any) => {
   session.startTransaction();
 
   const verificationCode = generateRandomCodeForSoloNurse();
-  console.log('nurse code ', verificationCode);
+  console.log("nurse code ", verificationCode);
   try {
     const { fullName, email, password, comfirmPassword, ...nursePayload } =
       payload;
