@@ -9,17 +9,26 @@ cloudinary.config({
 });
 
 export const createUploader = (folder: string) => {
-  // console.log("folder", folder);
   const storage = new CloudinaryStorage({
     cloudinary,
-    params: async () => ({
-      folder: folder,
-      allowed_formats: ["jpg", "jpeg", "png", "webp", "pdf"],
-    }),
+    params: async (req, file) => {
+      const isPdf = file.mimetype === "application/pdf";
+
+      // Clean file name: remove extension, trim spaces, replace spaces with _
+      const fileName = file.originalname
+        .replace(/\.[^/.]+$/, "")
+        .trim()
+        .replace(/\s+/g, "_");
+
+      return {
+        folder,
+        resource_type: isPdf ? "raw" : "image",
+        public_id: fileName,
+        format: isPdf ? "pdf" : undefined, // <-- this is the key
+        allowed_formats: ["jpg", "jpeg", "png", "webp", "pdf"],
+      };
+    },
   });
 
   return multer({ storage });
 };
-
-
-

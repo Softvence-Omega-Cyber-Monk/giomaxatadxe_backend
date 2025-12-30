@@ -28,5 +28,6 @@ router.post(
   user_controllers.createDoctor
 );
 router.get("/get-admin", user_controllers.getAdmin);
+router.put("/verify-user/:userId/:code", user_controllers.verifyUser);
 
 export const user_routes = router;

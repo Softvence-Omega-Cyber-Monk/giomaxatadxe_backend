@@ -34,7 +34,7 @@ router.get(
 );
 
 router.get(
-  "/getSinlgePatientChatsWithClinic/:patientId",
+  "/getSinlgePatientChatsWithClinic/:patientUserId",
   doctorAppointmentController.getSinglePatientChatsWithClinic
 );
 router.patch("/update-status/:id", doctorAppointmentController.updateStatus);
