@@ -21,7 +21,7 @@ const login_user_from_db = async (payload: TLoginPayload) => {
     email: payload?.email,
   });
 
-  if (isExistAccount.isVerified === false) {
+  if (isExistAccount.isVerified === false && isExistAccount.role !== 'doctor') {
     throw new AppError("Account not verified", httpStatus.UNAUTHORIZED);
   }
 
