@@ -9,17 +9,21 @@ import { JwtPayload, Secret } from "jsonwebtoken";
 
 import { passwordResetModel } from "./auth.schema";
 import { sendEmail } from "../../utils/sendEmail";
-import { de } from "zod/v4/locales";
+import { de, fa } from "zod/v4/locales";
 
 // login user
 const login_user_from_db = async (payload: TLoginPayload) => {
   // check account info
 
-  console.log("payload", payload);
+  // console.log("payload", payload);
 
   const isExistAccount: any = await User_Model.findOne({
     email: payload?.email,
   });
+
+  if (isExistAccount.isVerified === false) {
+    throw new AppError("Account not verified", httpStatus.UNAUTHORIZED);
+  }
 
   const isPasswordMatch = await bcrypt.compare(
     payload.password,

@@ -10,6 +10,15 @@ import crypto from "crypto";
 import { Doctor_Model } from "../doctor/doctor.model";
 import { sendEmail } from "../../utils/sendEmail";
 
+const generateRandomCodeForPatient = () => {
+  return crypto.randomBytes(3).toString("hex"); // 6 chars
+};
+const generateRandomCodeForSoloNurse = () => {
+  return crypto.randomBytes(3).toString("hex"); // 6 chars
+};
+const generateRandomCodeForClinic = () => {
+  return crypto.randomBytes(3).toString("hex"); // 6 chars
+};
 const generateRandomPassword = () => {
   return crypto.randomBytes(6).toString("base64"); // ~8–10 chars
 };
@@ -18,6 +27,7 @@ export const createPatient = async (payload: any) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
+  const verificationCode = generateRandomCodeForPatient();
   // console.log("from service", payload);
   if (payload.dateOfBirth) {
     const dob = new Date(payload.dateOfBirth);
@@ -47,7 +57,6 @@ export const createPatient = async (payload: any) => {
     }
 
     payload.age = age; // store or use age
-
   }
 
   try {
@@ -88,22 +97,34 @@ export const createPatient = async (payload: any) => {
       password: hashedPassword,
       comfirmPassword: hashedPassword,
       role: "patient",
+      verificationCode,
     };
 
     // 5. Create User with session
-    const newUser = await User_Model.create([newUserData], { session });
+    const newUser = await User_Model.create([newUserData ], { session });
     const createdUser = newUser[0];
     console.log("new user", createdUser);
 
     // 6. Create Patient using new userId
     const newPatient = await Patient_Model.create(
-      [{ ...patientPayload, age : payload.age, userId: createdUser._id }],
+      [{ ...patientPayload, age: payload.age, userId: createdUser._id }],
       { session }
     );
 
     // 7. Commit the transaction
     await session.commitTransaction();
     session.endSession();
+
+    await sendEmail({
+      to: email,
+      subject: "Your Patient Account Verification Code",
+      html: `
+        <h2>Welcome, ${fullName}</h2>
+        <p>Your account has been created successfully.</p>
+        <p><strong>Verification Code:</strong> ${verificationCode}</p>
+        <p>Please use this code to verify your account.</p>
+      `,
+    });
 
     return newPatient[0];
   } catch (error) {
@@ -303,10 +324,28 @@ const getAdmin = async () => {
   return admin;
 };
 
+const verifyUser = async (userId: string, code: string) => {
+  const user = await User_Model.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (user.verificationCode !== code) {
+    throw new Error("Invalid verification code");
+  }
+
+  user.isVerified = true;
+  user.verificationCode = undefined; // Clear the code after verification
+  await user.save();
+
+  return user;
+}
+
 export const UserService = {
   createPatient,
   createSoloNurse,
   createClinic,
   createDoctor,
-  getAdmin
+  getAdmin,
+  verifyUser
 };
