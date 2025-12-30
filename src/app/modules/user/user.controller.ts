@@ -244,11 +244,22 @@ const getAdmin = async (req: Request, res: Response) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+const verifyUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const code = req.params.code;
+  try {
+    const result = await UserService.verifyUser(userId, code);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
 
 export const user_controllers = {
   createPatient,
   createSoloNurse,
   createClinic,
   createDoctor,
-  getAdmin
+  getAdmin,
+  verifyUser,
 };

@@ -153,9 +153,9 @@ export const doctorAppointmentController = {
   },
   getSinglePatientChatsWithClinic: async (req: Request, res: Response) => {
     try {
-      const patientId = req.params.patientId;
+      const patientUserId = req.params.patientUserId;
       const result = await doctorAppointmentService.getSinglePatientChatsWithClinic(
-        patientId
+        patientUserId
       );
       res.json({
         success: true,
