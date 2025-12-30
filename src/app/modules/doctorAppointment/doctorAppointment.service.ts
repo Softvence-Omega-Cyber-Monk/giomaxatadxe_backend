@@ -1,8 +1,10 @@
+import mongoose from "mongoose";
 import { sendNotification } from "../../utils/notificationHelper";
 import { Clinic_Model } from "../clinic/clinic.model";
 import { Doctor_Model } from "../doctor/doctor.model";
 import { Patient_Model } from "../patient/patient.model";
 import { doctorAppointment_Model } from "./doctorAppointment.model";
+import { ChatModel } from "../chat/chat.model";
 
 export const doctorAppointmentService = {
   // Create Appointment
@@ -65,7 +67,6 @@ export const doctorAppointmentService = {
       "New Appointment Created for A Doctor",
       ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details. `,
       "notification"
-
     );
 
     return appointment;
@@ -334,38 +335,108 @@ export const doctorAppointmentService = {
       });
   },
   getSinlgeClinicChats: async (clinicId: string) => {
-    // Step 1: Get unique patient IDs for this doctor
-    const patientIds = await doctorAppointment_Model.distinct("patientId", {
-      clinicId: clinicId,
-    });
+    const clinicObjectId = new mongoose.Types.ObjectId(clinicId);
 
-    // Step 2: Fetch patient details using the IDs
-    return await Patient_Model.find({ _id: { $in: patientIds } })
-      .select("userId")
-      .populate({
-        path: "userId",
-        model: "user",
-        select: "fullName role profileImage",
-      });
+    const patients = await ChatModel.aggregate([
+      // 1️⃣ Only patient → clinic chats
+      {
+        $match: {
+          chatType: "patient_clinic",
+          receiverId: clinicObjectId,
+        },
+      },
+
+      // 2️⃣ Unique patients
+      {
+        $group: {
+          _id: "$senderId", // patient userId
+        },
+      },
+
+      // 3️⃣ Join users
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+
+      // 4️⃣ Ensure only patients
+      {
+        $match: {
+          "user.role": "patient",
+        },
+      },
+
+      // 5️⃣ Final output
+      {
+        $project: {
+          _id: 0,
+          userId: "$user._id",
+          fullName: "$user.fullName",
+          profileImage: "$user.profileImage",
+          role: "$user.role",
+          email: "$user.email",
+        },
+      },
+    ]);
+
+    return patients;
   },
   getSinglePatientChatsWithClinic: async (patientId: string) => {
-    // Step 1: Get unique clinic IDs for this patient
-    const clinicIds = await doctorAppointment_Model.distinct("clinicId", {
-      patientId,
-    });
+    const patientObjectId = new mongoose.Types.ObjectId(patientId);
 
-    console.log("clinic", clinicIds);
+    const clinics = await ChatModel.aggregate([
+      // 1️⃣ Only patient → clinic chats
+      {
+        $match: {
+          chatType: "patient_clinic",
+          senderId: patientObjectId,
+        },
+      },
 
-    if (!clinicIds.length) return [];
+      // 2️⃣ Unique clinics
+      {
+        $group: {
+          _id: "$receiverId", // clinic userId
+        },
+      },
 
-    // Step 2: Fetch clinic user details
-    return Clinic_Model.find({ _id: { $in: clinicIds } })
-      .select("userId")
-      .populate({
-        path: "userId",
-        model: "user",
-        select: "fullName role profileImage",
-      });
+      // 3️⃣ Join users
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "clinic",
+        },
+      },
+      { $unwind: "$clinic" },
+
+      // 4️⃣ Ensure role is clinic
+      {
+        $match: {
+          "clinic.role": "clinic",
+        },
+      },
+
+      // 5️⃣ Final output
+      {
+        $project: {
+          _id: 0,
+          clinicId: "$clinic._id",
+          fullName: "$clinic.fullName",
+          profileImage: "$clinic.profileImage",
+          role: "$clinic.role",
+          email: "$clinic.email",
+        },
+      },
+    ]);
+
+    return clinics;
   },
 
   // Update status (approve/reject)
