@@ -431,6 +431,7 @@ export const doctorAppointmentService = {
       // 5️⃣ Final output
       {
         $project: {
+          
           _id: 0,
           userId: "$clinic._id",
           fullName: "$clinic.fullName",
