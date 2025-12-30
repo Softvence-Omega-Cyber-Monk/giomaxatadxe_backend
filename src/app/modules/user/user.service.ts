@@ -387,6 +387,18 @@ const verifyUser = async (userId: string, code: string) => {
   user.verificationCode = undefined; // Clear the code after verification
   await user.save();
 
+  if (user.role !== "patient") {
+    await sendEmail({
+      to: user.email,
+      subject: "Your Account Has Been Verified, Now wait for admin approval",
+      html: `
+      <h2>Hello, ${user.fullName}</h2>
+      <p>Your account has been verified successfully.</p>
+      <p>Please wait for admin approval to access all features.</p>
+    `,
+    });
+  }
+
   return user;
 };
 
