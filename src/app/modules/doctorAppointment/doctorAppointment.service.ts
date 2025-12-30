@@ -334,8 +334,8 @@ export const doctorAppointmentService = {
         select: "fullName role profileImage",
       });
   },
-  getSinlgeClinicChats: async (clinicId: string) => {
-    const clinicObjectId = new mongoose.Types.ObjectId(clinicId);
+  getSinlgeClinicChats: async (clinicUserId: string) => {
+    const clinicObjectId = new mongoose.Types.ObjectId(clinicUserId);
 
     const patients = await ChatModel.aggregate([
       // 1️⃣ Only patient → clinic chats
@@ -387,7 +387,12 @@ export const doctorAppointmentService = {
     return patients;
   },
   getSinglePatientChatsWithClinic: async (patientId: string) => {
+    console.log("patient id ", patientId);
+
+ 
+
     const patientObjectId = new mongoose.Types.ObjectId(patientId);
+    console.log("patient object id ", patientObjectId);
 
     const clinics = await ChatModel.aggregate([
       // 1️⃣ Only patient → clinic chats
@@ -427,9 +432,9 @@ export const doctorAppointmentService = {
       {
         $project: {
           _id: 0,
-          clinicId: "$clinic._id",
+          userId: "$clinic._id",
           fullName: "$clinic.fullName",
-          profileImage: "$clinic.profileImage",
+          profileImage: "$clinic.profileImage" ,
           role: "$clinic.role",
           email: "$clinic.email",
         },

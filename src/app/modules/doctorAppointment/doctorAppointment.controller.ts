@@ -139,7 +139,7 @@ export const doctorAppointmentController = {
   getSinlgeClinicChats: async (req: Request, res: Response) => {
     try {
       const result = await doctorAppointmentService.getSinlgeClinicChats(
-        req.params.clinicId
+        req.params.clinicUserId
       );
       res.json({
         success: true,
