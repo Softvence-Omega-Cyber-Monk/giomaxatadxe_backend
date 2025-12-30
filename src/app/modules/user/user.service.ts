@@ -63,12 +63,18 @@ export const createPatient = async (payload: any) => {
     // 1. Check if email already exists
     const existingEmail = await User_Model.findOne(
       { email: payload.email },
+
       null,
       { session }
     );
 
-    if (existingEmail) {
+    if (existingEmail && existingEmail.isVerified === true) {
       throw new Error("The provided email is already registered.");
+    }
+
+    if (existingEmail && existingEmail.isVerified === false) {
+      await Patient_Model.deleteOne({ userId: existingEmail._id }, { session });
+      await User_Model.deleteOne({ email: payload.email }, { session });
     }
 
     // Extract
@@ -149,7 +155,16 @@ const createSoloNurse = async (payload: any) => {
     const existingEmail = await User_Model.findOne({ email }, null, {
       session,
     });
-    if (existingEmail) {
+
+    if (existingEmail && existingEmail.isVerified === false) {
+      await SoloNurse_Model.deleteOne(
+        { userId: existingEmail._id },
+        { session }
+      );
+      await User_Model.deleteOne({ email: payload.email }, { session });
+    }
+
+    if (existingEmail && existingEmail.isVerified === true) {
       throw new Error("Email already exists.");
     }
 
@@ -218,7 +233,13 @@ const createClinic = async (payload: any) => {
     const existingEmail = await User_Model.findOne({ email }, null, {
       session,
     });
-    if (existingEmail) {
+
+    if (existingEmail && existingEmail.isVerified === false) {
+      await Clinic_Model.deleteOne({ userId: existingEmail._id }, { session });
+      await User_Model.deleteOne({ email: payload.email }, { session });
+    }
+
+    if (existingEmail && existingEmail.isVerified === true) {
       throw new Error("Email already exists.");
     }
 
