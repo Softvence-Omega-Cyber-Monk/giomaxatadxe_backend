@@ -15,14 +15,16 @@ import { de, fa } from "zod/v4/locales";
 const login_user_from_db = async (payload: TLoginPayload) => {
   // check account info
 
-  // console.log("payload", payload);
 
   const isExistAccount: any = await User_Model.findOne({
     email: payload?.email,
   });
 
-  if (isExistAccount.isVerified === false && isExistAccount.role !== 'doctor') {
+  if (isExistAccount.isVerified === false && isExistAccount.role !== 'doctor' && isExistAccount.role !== 'admin') {
     throw new AppError("Account not verified", httpStatus.UNAUTHORIZED);
+  }
+  if (isExistAccount.role !== "patient" && isExistAccount.role !== "admin" && isExistAccount.role !== "doctor" && isExistAccount.isAdminVerified === false) {
+    throw new AppError("Require admin approval", httpStatus.UNAUTHORIZED);
   }
 
   const isPasswordMatch = await bcrypt.compare(

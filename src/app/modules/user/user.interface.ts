@@ -12,4 +12,5 @@ export type TUser = {
   fcmToken?: string,
   isVerified?: boolean,
   verificationCode?: string,
+  isAdminVerified?: boolean
 };
