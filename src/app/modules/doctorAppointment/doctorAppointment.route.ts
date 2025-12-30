@@ -29,7 +29,7 @@ router.get(
   doctorAppointmentController.getSingleDoctorChats
 );
 router.get(
-  "/getSingleClinicChats/:clinicId",
+  "/getSingleClinicChats/:clinicUserId",
   doctorAppointmentController.getSinlgeClinicChats
 );
 
