@@ -401,6 +401,16 @@ const verifyUser = async (userId: string, code: string) => {
 
   return user;
 };
+const addAdminApproval = async (userId: string) => {
+  const user  = await User_Model.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.isAdminVerified = true;
+  await user.save();
+  return user;
+};
 
 export const UserService = {
   createPatient,
@@ -409,4 +419,5 @@ export const UserService = {
   createDoctor,
   getAdmin,
   verifyUser,
+  addAdminApproval
 };

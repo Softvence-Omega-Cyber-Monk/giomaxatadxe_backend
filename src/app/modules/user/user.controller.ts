@@ -254,6 +254,16 @@ const verifyUser = async (req: Request, res: Response) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+const addAdminApproval = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    const result = await UserService.addAdminApproval(userId);
+    res.json({ success: true, message: "Admin approval added successfully", data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
 
 export const user_controllers = {
   createPatient,
@@ -262,4 +272,5 @@ export const user_controllers = {
   createDoctor,
   getAdmin,
   verifyUser,
+  addAdminApproval
 };
