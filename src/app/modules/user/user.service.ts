@@ -101,7 +101,7 @@ export const createPatient = async (payload: any) => {
     };
 
     // 5. Create User with session
-    const newUser = await User_Model.create([newUserData ], { session });
+    const newUser = await User_Model.create([newUserData], { session });
     const createdUser = newUser[0];
     console.log("new user", createdUser);
 
@@ -139,6 +139,7 @@ const createSoloNurse = async (payload: any) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
+  const verificationCode = generateRandomCodeForSoloNurse();
   try {
     const { fullName, email, password, comfirmPassword, ...nursePayload } =
       payload;
@@ -181,6 +182,17 @@ const createSoloNurse = async (payload: any) => {
     await session.commitTransaction();
     session.endSession();
 
+    await sendEmail({
+      to: email,
+      subject: "Your Solo Nurse Account Verification Code",
+      html: `
+        <h2>Welcome, ${fullName}</h2>
+        <p>Your account has been created successfully.</p>
+        <p><strong>Verification Code:</strong> ${verificationCode}</p>
+        <p>Please use this code to verify your account.</p>
+      `,
+    });
+
     return createdNurse[0];
   } catch (error) {
     await session.abortTransaction();
@@ -193,6 +205,8 @@ const createClinic = async (payload: any) => {
   // console.log('from service',payload);
   const session = await mongoose.startSession();
   session.startTransaction();
+
+  const verificationCode = generateRandomCodeForClinic();
 
   try {
     const { fullName, email, password, comfirmPassword, ...clinicpayload } =
@@ -235,6 +249,17 @@ const createClinic = async (payload: any) => {
 
     await session.commitTransaction();
     session.endSession();
+
+    await sendEmail({
+      to: email,
+      subject: "Your Clinic Account Verification Code",
+      html: `
+        <h2>Welcome, ${fullName}</h2>
+        <p>Your account has been created successfully.</p>
+        <p><strong>Verification Code:</strong> ${verificationCode}</p>
+        <p>Please use this code to verify your account.</p>
+      `,
+    });
 
     return createClinic[0];
   } catch (error) {
@@ -339,7 +364,7 @@ const verifyUser = async (userId: string, code: string) => {
   await user.save();
 
   return user;
-}
+};
 
 export const UserService = {
   createPatient,
@@ -347,5 +372,5 @@ export const UserService = {
   createClinic,
   createDoctor,
   getAdmin,
-  verifyUser
+  verifyUser,
 };
