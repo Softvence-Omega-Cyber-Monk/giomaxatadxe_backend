@@ -370,10 +370,39 @@ export const SoloNurseService = {
   },
 
   deleteSoloNurse: async (soloNurseId: string, soloNurseUserId: string) => {
-    const res = await User_Model.findOneAndDelete({ _id: soloNurseUserId });
-    await SoloNurse_Model.findOneAndDelete({
-      _id: soloNurseId,
-    });
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const user = await User_Model.findOneAndDelete(
+        { _id: soloNurseUserId },
+        { session }
+      );
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const soloNurse = await SoloNurse_Model.findOneAndDelete(
+        { _id: soloNurseId },
+        { session }
+      );
+
+      if (!soloNurse) {
+        throw new Error("Solo nurse not found");
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return {
+        message: "Solo nurse deleted successfully",
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   },
 
   getSoloNursePaymentData: async (soloNurseUserId: string) => {

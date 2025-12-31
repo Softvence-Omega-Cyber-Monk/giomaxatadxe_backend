@@ -233,11 +233,12 @@ export const soloNurseAppointmentService = {
     return appointments;
   },
   getSinglePaintentAppointmentForNurse: async (patientId: string) => {
+    console.log('pait4ent id ', patientId);
     return await soloNurseAppoinment_Model
       .find({ patientId: patientId })
       .populate({
         path: "patientId",
-        select: "_id",
+        // select: "_id",
       })
       .populate({
         path: "soloNurseId",
