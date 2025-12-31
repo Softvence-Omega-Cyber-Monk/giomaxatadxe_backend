@@ -114,8 +114,12 @@ export const doctorAppointmentService = {
   getAllAppointments: async (status?: string, doctorId?: string) => {
     const filter: any = {};
 
+    // ✅ Status handling
     if (status && status !== "all") {
-      filter.status = status; // status: "pending", "approved", "completed", etc.
+      filter.status = status; // approved, completed, etc.
+    } else {
+      // ❌ exclude pending when no status or status === "all"
+      filter.status = { $ne: "pending" };
     }
 
     if (doctorId) {
@@ -287,7 +291,10 @@ export const doctorAppointmentService = {
 
   getSingleDoctorAppointment: async (doctorId: string) => {
     return await doctorAppointment_Model
-      .find({ doctorId: doctorId , status : { $in: ["confirmed", "completed", "rejected"] }})
+      .find({
+        doctorId: doctorId,
+        status: { $in: ["confirmed", "completed", "rejected"] },
+      })
       .populate({
         path: "patientId",
         select: "_id userId age gender bloodGroup",
