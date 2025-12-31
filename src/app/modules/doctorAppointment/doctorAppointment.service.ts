@@ -287,7 +287,7 @@ export const doctorAppointmentService = {
 
   getSingleDoctorAppointment: async (doctorId: string) => {
     return await doctorAppointment_Model
-      .find({ doctorId: doctorId })
+      .find({ doctorId: doctorId , status : { $in: ["confirmed", "completed", "rejected"] }})
       .populate({
         path: "patientId",
         select: "_id userId age gender bloodGroup",
