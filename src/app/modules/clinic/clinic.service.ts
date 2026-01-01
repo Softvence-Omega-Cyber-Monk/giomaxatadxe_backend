@@ -420,6 +420,7 @@ const getClinicDashboardOverview = async (clinicId: string) => {
     clinicPendingMoney 
   };
 };
+
 const getAllClinicName = async () => {
   const clinics = await Clinic_Model.find()
     .populate({
