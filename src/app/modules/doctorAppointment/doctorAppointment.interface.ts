@@ -12,7 +12,7 @@ export type TDoctorAppointment = {
   prefarenceDate: Date;
   prefarenceTime: string;
   appoinmentFee: number;
-  isRefunded: 'refund-requested'  | 'refunded' | 'no-refund';
+  isRefunded: 'refund-requested'  | 'refunded' | 'no-refund' | 'refund-rejected';
 };
 
 
