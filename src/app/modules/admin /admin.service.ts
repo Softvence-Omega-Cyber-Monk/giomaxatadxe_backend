@@ -3,6 +3,7 @@ import { Doctor_Model } from "../doctor/doctor.model";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
 import { Patient_Model } from "../patient/patient.model";
 import { Payment_Model } from "../payment/payment.model";
+import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoinment.model";
 import { User_Model } from "../user/user.schema";
 
 const getDashboardOverview = async () => {
@@ -10,13 +11,15 @@ const getDashboardOverview = async () => {
     totalPatients,
     totalDoctors,
     totalClinics,
-    totalAppointments,
+    doctorAppointments,
+    soloNurseAppointments,
     paidPayments,
   ] = await Promise.all([
     Patient_Model.countDocuments(),
     Doctor_Model.countDocuments(),
     Clinic_Model.countDocuments(),
     doctorAppointment_Model.countDocuments(),
+    soloNurseAppoinment_Model.countDocuments(),
     Payment_Model.find({
       status: "PAID",
     }),
@@ -39,6 +42,7 @@ const getDashboardOverview = async () => {
       adminEarnings += amount * 0.09; // 9%
     }
   }
+  const totalAppointments = doctorAppointments + soloNurseAppointments;
 
   return {
     totalPatients,
@@ -55,8 +59,7 @@ const udpateAdmin = async (
   payload: any,
   profileImageUrl: string
 ) => {
-
-  console.log(adminId,payload,profileImageUrl);
+  console.log(adminId, payload, profileImageUrl);
   const admin = await User_Model.findOneAndUpdate(
     { _id: adminId },
     {
