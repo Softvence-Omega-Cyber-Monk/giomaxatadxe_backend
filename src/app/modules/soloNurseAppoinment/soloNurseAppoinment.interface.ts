@@ -12,5 +12,5 @@ export type TSoloNurseAppoinment = {
   prefarenceTime: string;
   subService: string;
   appointmentFee: number;
-  isRefunded: 'refund-requested' |'refunded' | 'no-refund';
+  isRefunded: 'refund-requested' |'refunded' | 'no-refund' | 'refund-rejected';
 };

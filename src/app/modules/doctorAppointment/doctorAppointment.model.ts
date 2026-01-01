@@ -54,7 +54,7 @@ const appointmentSchema = new Schema(
     },
     isRefunded: {
       type: String,
-      enum: ['refund-requested', 'refunded', 'no-refund'],
+      enum: ['refund-requested', 'refunded', 'no-refund', 'refund-rejected'],
       default: 'no-refund',
     },
   },
