@@ -75,7 +75,7 @@ const acceptOrRejectRefund = async (
   }
 
   if (appointment) {
-    appointment.isRefunded = status === "approved" ? "refunded" : "no-refund";
+    appointment.isRefunded = status === "approved" ? "refunded" : "refund-rejected";
     await appointment.save();
   }
 
