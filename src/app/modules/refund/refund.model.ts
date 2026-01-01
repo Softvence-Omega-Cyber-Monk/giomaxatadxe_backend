@@ -17,6 +17,11 @@ const refundSchema = new Schema<TRefund>(
       enum: ["doctor", "soloNurse"],
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
     cardNumber: {
       type: String,
       required: true,
