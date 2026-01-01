@@ -5,12 +5,13 @@ import { Refund } from "./refund.model";
 import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoinment.model";
 
 const createRefund = async (payload: TRefund) => {
-  console.log("payload", payload);
+  // console.log("payload", payload);
   let appointment: any = null;
 
   if (payload.appointmentType === "doctor") {
     appointment = await doctorAppointment_Model.findOne({
       _id: payload.appointmentId,
+      serviceType: "online",
     });
   }
 
@@ -46,8 +47,44 @@ const getRefundByUserId = async (userId: string) => {
   return await Refund.find({ userId });
 };
 
+const acceptOrRejectRefund = async (
+  refundId: string,
+  status: "pending" | "approved" | "rejected"
+) => {
+  const refund = await Refund.findById(refundId);
+  if (!refund) {
+    throw new Error("Refund request not found");
+  }
+
+  refund.status = status;
+  await refund.save();
+
+  // Update appointment refund status accordingly
+  let appointment: any = null;
+
+  if (refund.appointmentType === "doctor") {
+    appointment = await doctorAppointment_Model.findOne({
+      _id: refund.appointmentId,
+    });
+  }
+
+  if (refund.appointmentType === "soloNurse") {
+    appointment = await soloNurseAppoinment_Model.findOne({
+      _id: refund.appointmentId,
+    });
+  }
+
+  if (appointment) {
+    appointment.isRefunded = status === "approved" ? "refunded" : "no-refund";
+    await appointment.save();
+  }
+
+  return refund;
+};
+
 export const RefundService = {
   createRefund,
   getAllRefunds,
   getRefundByUserId,
+  acceptOrRejectRefund,
 };
