@@ -11,6 +11,7 @@ const createRefund = async (payload: TRefund) => {
   if (payload.appointmentType === "doctor") {
     appointment = await doctorAppointment_Model.findOne({
       _id: payload.appointmentId,
+      serviceType: "online",
     });
   }
 
@@ -74,8 +75,7 @@ const acceptOrRejectRefund = async (
   }
 
   if (appointment) {
-    appointment.isRefunded =
-      status === "approved" ? "refunded" : "no-refund";
+    appointment.isRefunded = status === "approved" ? "refunded" : "no-refund";
     await appointment.save();
   }
 
@@ -86,5 +86,5 @@ export const RefundService = {
   createRefund,
   getAllRefunds,
   getRefundByUserId,
-  acceptOrRejectRefund
+  acceptOrRejectRefund,
 };

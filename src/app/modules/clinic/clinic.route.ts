@@ -45,4 +45,9 @@ router.get("/getClinicPaymentData/:clinicUserId", ClinicController.getClinicPaym
 router.get("/getClinicDashboardOverview/:clinicId", ClinicController.getClinicDashboardOverview);
 router.get("/getAllClinicName", ClinicController.getAllClinicName);
 
+
+
 export const ClinicRoutes = router;
+
+
+
