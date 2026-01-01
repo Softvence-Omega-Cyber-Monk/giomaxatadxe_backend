@@ -30,7 +30,7 @@ const soloNurseAppoinmentSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "completed", "rejected"],
+      enum: ["pending", "confirmed", "completed", "rejected",'cancelled'],
       default: "pending",
     },
     prefarenceDate: {
@@ -48,6 +48,11 @@ const soloNurseAppoinmentSchema = new Schema(
     appointmentFee: {
       type: Number,
       required: true,
+    },
+    isRefunded: {
+      type: String,
+      enum: ['refund-requested', 'refunded', 'no-refund'],
+      default: 'no-refund',
     },
   },
   {
