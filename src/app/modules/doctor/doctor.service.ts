@@ -259,8 +259,44 @@ export const DoctorService = {
     clinicId: string,
     doctorUserId: string
   ) => {
-    const res = await User_Model.findOneAndDelete({ _id: doctorUserId });
-    await Doctor_Model.findOneAndDelete({ _id: doctorId, clinicId });
+    const session = await mongoose.startSession();
+
+    try {
+      session.startTransaction();
+
+      // 1️⃣ Delete doctor user
+      const user = await User_Model.findOneAndDelete(
+        { _id: doctorUserId },
+        { session }
+      );
+
+      if (!user) {
+        throw new Error("Doctor user not found");
+      }
+
+      // 2️⃣ Delete doctor profile
+      const doctor = await Doctor_Model.findOneAndDelete(
+        { _id: doctorId, clinicId },
+        { session }
+      );
+
+      if (!doctor) {
+        throw new Error("Doctor not found in this clinic");
+      }
+
+      // 3️⃣ Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      return {
+        message: "Doctor deleted successfully",
+      };
+    } catch (error) {
+      // ❌ Rollback on error
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   },
   getDoctorDashboardOverview: async (doctorId: string) => {
     const patients = await DoctorService.getSingleDoctorPatientList(doctorId);

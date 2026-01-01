@@ -9,5 +9,10 @@ router.get(
   "/getSingleUser/refund-requests/:userId",
   RefundController.getRefundByUserId
 );
+router.get("/getAll", RefundController.getAllRefunds);
+router.get(
+  "/acceptOrReject/refund-requests/:userId",
+  RefundController.acceptOrRejectRefund
+);
 
 export const RefundRoutes = router;
