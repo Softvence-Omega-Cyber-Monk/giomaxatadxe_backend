@@ -3,6 +3,7 @@ import { Doctor_Model } from "../doctor/doctor.model";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
 import { Patient_Model } from "../patient/patient.model";
 import { Payment_Model } from "../payment/payment.model";
+import { SoloNurse_Model } from "../soloNurse/soloNurse.model";
 import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoinment.model";
 import { User_Model } from "../user/user.schema";
 
@@ -11,6 +12,7 @@ const getDashboardOverview = async () => {
     totalPatients,
     totalDoctors,
     totalClinics,
+    totalSoloNurse,
     doctorAppointments,
     soloNurseAppointments,
     paidPayments,
@@ -18,6 +20,7 @@ const getDashboardOverview = async () => {
     Patient_Model.countDocuments(),
     Doctor_Model.countDocuments(),
     Clinic_Model.countDocuments(),
+    SoloNurse_Model.countDocuments(),
     doctorAppointment_Model.countDocuments(),
     soloNurseAppoinment_Model.countDocuments(),
     Payment_Model.find({
@@ -48,6 +51,7 @@ const getDashboardOverview = async () => {
     totalPatients,
     totalDoctors,
     totalClinics,
+    totalSoloNurse,
     totalAppointments,
     totalEarnings,
     adminEarnings,

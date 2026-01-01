@@ -1,0 +1,53 @@
+import { is } from "zod/v4/locales";
+import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
+import { TRefund } from "./refund.interface";
+import { Refund } from "./refund.model";
+import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoinment.model";
+
+const createRefund = async (payload: TRefund) => {
+  console.log("payload", payload);
+  let appointment: any = null;
+
+  if (payload.appointmentType === "doctor") {
+    appointment = await doctorAppointment_Model.findOne({
+      _id: payload.appointmentId,
+    });
+  }
+
+  if (payload.appointmentType === "soloNurse") {
+    appointment = await soloNurseAppoinment_Model.findOne({
+      _id: payload.appointmentId,
+    });
+  }
+
+  if (!appointment) {
+    throw new Error("Appointment not found");
+  }
+
+  if (appointment.isRefunded !== "no-refund") {
+    throw new Error("Refund already requested or processed");
+  }
+
+  // Create refund
+  const refund = await Refund.create(payload);
+
+  //  Update appointment refund status
+  appointment.isRefunded = "refund-requested";
+  await appointment.save();
+
+  return refund;
+};
+
+const getAllRefunds = async () => {
+  return await Refund.find().sort({ createdAt: -1 });
+};
+
+const getRefundByUserId = async (userId: string) => {
+  return await Refund.find({ userId });
+};
+
+export const RefundService = {
+  createRefund,
+  getAllRefunds,
+  getRefundByUserId,
+};

@@ -15,6 +15,7 @@ import { notificationRoutes } from "./app/modules/notifications/notification.rou
 import { WithdrawRequestRoutes } from "./app/modules/withdrowRequest/withdrowRequest.route";
 import { AdminRoutes } from "./app/modules/admin /admin.route";
 import { WalletRoutes } from "./app/modules/wallet/wallet.route";
+import { RefundRoutes } from "./app/modules/refund/refund.route";
 
 const appRouter = Router();
 
@@ -35,6 +36,7 @@ const moduleRoutes = [
   { path: "/withdrawRequest", route: WithdrawRequestRoutes },
   { path: "/admin", route: AdminRoutes },
   { path: "/wallet", route: WalletRoutes },
+  { path: "/refund", route: RefundRoutes },
 ];
 
 moduleRoutes.forEach((route) => appRouter.use(route.path, route.route));
