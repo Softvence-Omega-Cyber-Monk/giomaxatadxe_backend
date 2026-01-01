@@ -307,6 +307,22 @@ const getClinicDashboardOverview = async (req: Request, res: Response) => {
     });
   }
 };
+const getAllClinicName = async (req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.getAllClinicName();
+
+    res.json({
+      success: true,
+      message: "clinic names fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const ClinicController = {
   getAllClinics,
@@ -324,4 +340,5 @@ export const ClinicController = {
   getAppoinmentTimeBasedOnDateForClinic,
   getClinicPaymentData,
   getClinicDashboardOverview,
+  getAllClinicName
 };

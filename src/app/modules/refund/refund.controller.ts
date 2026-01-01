@@ -24,7 +24,7 @@ const getAllRefunds = async (_req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-        message: "Refund requests retrieved successfully",
+      message: "Refund requests retrieved successfully",
       data: result,
     });
   } catch (error: any) {
@@ -38,11 +38,29 @@ const getAllRefunds = async (_req: Request, res: Response) => {
 const getRefundByUserId = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const result =
-      await RefundService.getRefundByUserId(userId);
+    const result = await RefundService.getRefundByUserId(userId);
     res.status(200).json({
       success: true,
       message: "single user Refund request get successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const acceptOrRejectRefund = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const result = await RefundService.acceptOrRejectRefund(
+      userId,
+      req.body.status
+    );
+    res.status(200).json({
+      success: true,
+      message: "Refund request status updated successfully",
       data: result,
     });
   } catch (error: any) {
@@ -57,4 +75,5 @@ export const RefundController = {
   createRefund,
   getAllRefunds,
   getRefundByUserId,
+  acceptOrRejectRefund
 };

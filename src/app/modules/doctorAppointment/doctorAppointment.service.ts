@@ -111,7 +111,7 @@ export const doctorAppointmentService = {
     return updatedAppointment;
   },
   // Get all appointments
-  getAllAppointments: async (status?: string, doctorId?: string) => {
+  getAllAppointments: async (status?: string, doctorId?: string, clinicId?: string) => {
     const filter: any = {};
 
     // ✅ Status handling
@@ -122,8 +122,13 @@ export const doctorAppointmentService = {
       filter.status = { $ne: "pending" };
     }
 
+
     if (doctorId) {
       filter.doctorId = doctorId;
+    }
+
+    if (clinicId) {
+      filter.clinicId = clinicId;
     }
 
     const appointments = await doctorAppointment_Model

@@ -30,9 +30,11 @@ export const doctorAppointmentController = {
   getAll: async (req: Request, res: Response) => {
     try {
       const status = req.query.status as string | undefined;
+      const clinicId = req.query.clinicId as string | undefined;
       const result = await doctorAppointmentService.getAllAppointments(
         status,
-        req.query.doctorId as string | undefined
+        req.query.doctorId as string | undefined,
+        clinicId as string | undefined
       );
       res.json({
         success: true,
@@ -154,9 +156,10 @@ export const doctorAppointmentController = {
   getSinglePatientChatsWithClinic: async (req: Request, res: Response) => {
     try {
       const patientUserId = req.params.patientUserId;
-      const result = await doctorAppointmentService.getSinglePatientChatsWithClinic(
-        patientUserId
-      );
+      const result =
+        await doctorAppointmentService.getSinglePatientChatsWithClinic(
+          patientUserId
+        );
       res.json({
         success: true,
         message: "chats profile   fetched successfully",
