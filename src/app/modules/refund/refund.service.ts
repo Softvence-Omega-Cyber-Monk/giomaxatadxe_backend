@@ -5,7 +5,7 @@ import { Refund } from "./refund.model";
 import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoinment.model";
 
 const createRefund = async (payload: TRefund) => {
-  console.log("payload", payload);
+  // console.log("payload", payload);
   let appointment: any = null;
 
   if (payload.appointmentType === "doctor") {
@@ -75,7 +75,7 @@ const acceptOrRejectRefund = async (
 
   if (appointment) {
     appointment.isRefunded =
-      status === "approved" ? "refund-approved" : "no-refund";
+      status === "approved" ? "refunded" : "no-refund";
     await appointment.save();
   }
 

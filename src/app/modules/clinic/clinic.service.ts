@@ -8,6 +8,7 @@ import { Patient_Model } from "../patient/patient.model";
 import app from "../../../app";
 import { Wallet_Model } from "../wallet/wallet.model";
 import { WithdrawRequest_Model } from "../withdrowRequest/withdrowRequest.model";
+import { populate } from "dotenv";
 
 const getAllClinics = async () => {
   const result = await Clinic_Model.find()
@@ -419,6 +420,18 @@ const getClinicDashboardOverview = async (clinicId: string) => {
     clinicPendingMoney 
   };
 };
+const getAllClinicName = async () => {
+  const clinics = await Clinic_Model.find()
+    .populate({
+      path: "userId",
+      model: "user", // must match model name exactly
+      select: "fullName profileImage",
+    })
+    .select("clinicName userId"); // optional: return only needed fields
+
+  return clinics;
+};
+
 
 export const ClinicService = {
   getAllClinics,
@@ -436,4 +449,5 @@ export const ClinicService = {
   getAppoinmentTimeBasedOnDateForClinic,
   getClinicPaymentData,
   getClinicDashboardOverview,
+  getAllClinicName
 };
