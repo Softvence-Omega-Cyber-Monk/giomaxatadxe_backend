@@ -1,3 +1,4 @@
+import { sendEmail } from "../../utils/sendEmail";
 import { Clinic_Model } from "../clinic/clinic.model";
 import { Doctor_Model } from "../doctor/doctor.model";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
@@ -77,7 +78,66 @@ const udpateAdmin = async (
   return admin;
 };
 
+const AdminEmailSupport = async (payload: {
+  userEmail: string; // user email
+  subject: string;
+  message: string;
+}) => {
+  const { userEmail, subject, message } = payload;
+  await sendEmail({
+    to: process.env.ADMIN_EMAIL!, // admin email
+    subject: `[User Support] ${subject}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+          <title>${subject}</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; padding: 24px; border-radius: 6px;">
+                  <tr>
+                    <td>
+                      <h2 style="margin-top: 0; color: #333;">
+                        New Support Message from User
+                      </h2>
+
+                      <p style="color: #555; line-height: 1.6;">
+                        <strong>From:</strong> ${userEmail}
+                      </p>
+
+                      <p style="color: #555; line-height: 1.6;">
+                        <strong>Subject:</strong> ${subject}
+                      </p>
+
+                      <hr style="margin: 20px 0;" />
+
+                      <p style="color: #555; line-height: 1.6; white-space: pre-line;">
+                        ${message}
+                      </p>
+
+                      <hr style="margin: 24px 0;" />
+
+                      <p style="font-size: 12px; color: #999;">
+                        This message was sent from the user support form.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `,
+  });
+};
+
 export const DashboardService = {
   getDashboardOverview,
   udpateAdmin,
+  AdminEmailSupport,
 };
