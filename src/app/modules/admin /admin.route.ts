@@ -13,6 +13,12 @@ router.get(
   DashboardController.getDashboardOverview
 );
 
-router.post("/update/:adminId", auth("admin"),  patientProfileImage.single("profileImage"), DashboardController.udpateAdmin);
+router.post(
+  "/update/:adminId",
+  auth("admin"),
+  patientProfileImage.single("profileImage"),
+  DashboardController.udpateAdmin
+);
+router.post("/email-support", DashboardController.AdminEmailSupport);
 
 export const AdminRoutes = router;
