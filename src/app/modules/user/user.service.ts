@@ -11,16 +11,19 @@ import { Doctor_Model } from "../doctor/doctor.model";
 import { sendEmail } from "../../utils/sendEmail";
 
 const generateRandomCodeForPatient = () => {
-  return crypto.randomBytes(3).toString("hex"); // 6 chars
+  return Array.from({ length: 6 }, () => crypto.randomInt(0, 10)).join("");
 };
+
 const generateRandomCodeForSoloNurse = () => {
-  return crypto.randomBytes(3).toString("hex"); // 6 chars
+  return Array.from({ length: 6 }, () => crypto.randomInt(0, 10)).join("");
 };
+
 const generateRandomCodeForClinic = () => {
-  return crypto.randomBytes(3).toString("hex"); // 6 chars
+  return Array.from({ length: 6 }, () => crypto.randomInt(0, 10)).join("");
 };
+
 const generateRandomPassword = () => {
-  return crypto.randomBytes(6).toString("base64"); // ~8–10 chars
+  return Array.from({ length: 8 }, () => crypto.randomInt(0, 10)).join("");
 };
 
 export const createPatient = async (payload: any) => {
@@ -402,7 +405,7 @@ const verifyUser = async (userId: string, code: string) => {
   return user;
 };
 const addAdminApproval = async (userId: string) => {
-  const user  = await User_Model.findById(userId);
+  const user = await User_Model.findById(userId);
   if (!user) {
     throw new Error("User not found");
   }
@@ -419,5 +422,5 @@ export const UserService = {
   createDoctor,
   getAdmin,
   verifyUser,
-  addAdminApproval
+  addAdminApproval,
 };
