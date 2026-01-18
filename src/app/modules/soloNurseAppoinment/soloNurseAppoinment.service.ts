@@ -251,7 +251,6 @@ export const soloNurseAppointmentService = {
       });
   },
   getSingleNurseAppointment: async (soloNurseId: string) => {
-    console.log("soloNurse", soloNurseId);
     return await soloNurseAppoinment_Model
       .find({ soloNurseId: soloNurseId })
       .populate({
