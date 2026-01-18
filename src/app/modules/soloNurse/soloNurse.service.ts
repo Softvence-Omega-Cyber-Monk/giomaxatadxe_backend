@@ -455,7 +455,7 @@ export const SoloNurseService = {
 
   getSoloNurseDashboardOverview: async (soloNurseId: string) => {
     console.log("soloNurseId", soloNurseId);
-    const allAppoinment = await soloNurseAppoinment_Model.find({});
+    const allAppoinment = await soloNurseAppoinment_Model.find({ soloNurseId : soloNurseId});
     const pendingAppointments = await soloNurseAppoinment_Model.find({
       _id: soloNurseId,
       status: { $in: ["pending", "confirmed"] },
