@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 export type TPatient = {
   userId: Types.ObjectId;
   phoneNumber?: string;
+  nationalIdNumber?: string;
   gender?: "male" | "female";
   bloodGroup?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
   dateOfBirth?: string;

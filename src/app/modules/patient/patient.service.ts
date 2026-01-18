@@ -20,7 +20,7 @@ export const patientService = {
     payload: any,
     profileImageUrl: string
   ) => {
-    const { fullName, phoneNumber, dateOfBirth, gender, bloodGroup } = payload;
+    const { fullName, phoneNumber, dateOfBirth, gender, bloodGroup ,nationalIdNumber } = payload;
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -48,6 +48,7 @@ export const patientService = {
         { userId },
         {
           phoneNumber,
+          nationalIdNumber,
           dateOfBirth,
           gender,
           bloodGroup,

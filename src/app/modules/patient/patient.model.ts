@@ -5,6 +5,11 @@ const patientSchema = new Schema<TPatient>(
   {
     userId: { type: Schema.Types.ObjectId, required: true, ref: "user" },
     phoneNumber: { type: String, required: false },
+    
+    nationalIdNumber: {
+      type: String,
+      required: false,
+    },
     gender: {
       type: String,
       enum: ["male", "female"],
