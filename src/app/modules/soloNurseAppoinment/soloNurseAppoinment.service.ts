@@ -28,7 +28,7 @@ export const soloNurseAppointmentService = {
 
       if (bookedDate === formattedDate) {
         throw new Error(
-          "This date and time are already booked. Please choose another slot."
+          "This date and time are already booked. Please choose another slot.",
         );
       }
     }
@@ -39,7 +39,7 @@ export const soloNurseAppointmentService = {
     });
 
     const solo_nurse: any = await SoloNurse_Model.findById(
-      appointment.soloNurseId
+      appointment.soloNurseId,
     );
     // console.log("clinic", clinic);
     if (!solo_nurse) {
@@ -50,7 +50,7 @@ export const soloNurseAppointmentService = {
       solo_nurse.userId.toString(),
       "New Appointment Added ",
       ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details.`,
-      "notification"
+      "notification",
     );
 
     return appointment;
@@ -78,7 +78,7 @@ export const soloNurseAppointmentService = {
         booked._id.toString() === appointmentId
       ) {
         throw new Error(
-          "This date and time are already booked. Please choose another slot."
+          "This date and time are already booked. Please choose another slot.",
         );
       }
     }
@@ -91,7 +91,7 @@ export const soloNurseAppointmentService = {
           prefarenceDate: new Date(prefarenceDate),
           prefarenceTime,
         },
-        { new: true }
+        { new: true },
       );
 
     return updatedAppointment;
@@ -133,7 +133,7 @@ export const soloNurseAppointmentService = {
 
         // Build full datetime
         const apptDateTime = new Date(
-          `${date.toISOString().split("T")[0]} ${time}`
+          `${date.toISOString().split("T")[0]} ${time}`,
         );
 
         return apptDateTime > now;
@@ -142,10 +142,10 @@ export const soloNurseAppointmentService = {
       // Sort upcoming: nearest first
       appointments.sort((a: any, b: any) => {
         const ad = new Date(
-          `${a.prefarenceDate.toISOString().split("T")[0]} ${a.prefarenceTime}`
+          `${a.prefarenceDate.toISOString().split("T")[0]} ${a.prefarenceTime}`,
         );
         const bd = new Date(
-          `${b.prefarenceDate.toISOString().split("T")[0]} ${b.prefarenceTime}`
+          `${b.prefarenceDate.toISOString().split("T")[0]} ${b.prefarenceTime}`,
         );
         return ad.getTime() - bd.getTime();
       });
@@ -176,7 +176,7 @@ export const soloNurseAppointmentService = {
       },
       {
         new: true,
-      }
+      },
     );
   },
   getSelectedDateAndTime: async (id: string) => {
@@ -233,7 +233,7 @@ export const soloNurseAppointmentService = {
     return appointments;
   },
   getSinglePaintentAppointmentForNurse: async (patientId: string) => {
-    console.log('pait4ent id ', patientId);
+    console.log("pait4ent id ", patientId);
     return await soloNurseAppoinment_Model
       .find({ patientId: patientId })
       .populate({
@@ -259,7 +259,7 @@ export const soloNurseAppointmentService = {
         populate: {
           path: "userId",
           model: "user", // ensure correct model name
-          select: "fullName role  ", // fields you want
+          select: "fullName role profileImage  ", // fields you want
         },
       })
       .populate({
@@ -268,7 +268,7 @@ export const soloNurseAppointmentService = {
         populate: {
           path: "userId",
           model: "user", // ensure correct model name
-          select: "fullName role   ", // fields you want
+          select: "fullName role  profileImage ", // fields you want
         },
       });
   },
@@ -297,7 +297,7 @@ export const soloNurseAppointmentService = {
       {
         patientId: patientId,
         status: "confirmed",
-      }
+      },
     );
 
     // Step 2: Fetch patient details using the IDs
