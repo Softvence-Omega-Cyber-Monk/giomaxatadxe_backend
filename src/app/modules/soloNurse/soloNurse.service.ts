@@ -25,13 +25,24 @@ export const SoloNurseService = {
       .sort({ createdAt: -1 });
   },
   getSoloNurseById: async (userId: string) => {
-    return SoloNurse_Model.findOne({ userId }).populate("userId");
+    
+    return SoloNurse_Model.findOne({ userId })
+      .populate("userId")
+      .populate({
+        path: "reviews.patientId",
+        select: "userId", // select patient.userId
+        populate: {
+          path: "userId",
+          model: "user", // ensure correct model name
+          select: "fullName profileImage", // fields you want
+        },
+      });
   },
 
   updateSoloNurseBasic: async (
     userId: string,
     payload: any,
-    profileImageUrl: string
+    profileImageUrl: string,
   ) => {
     const { fullName, phoneNumber, dateOfBirth, gender } = payload;
 
@@ -48,7 +59,7 @@ export const SoloNurseService = {
       const updatedUser = await User_Model.findByIdAndUpdate(
         userId,
         updateData,
-        { new: true, session }
+        { new: true, session },
       );
 
       if (!updatedUser) {
@@ -63,7 +74,7 @@ export const SoloNurseService = {
           dateOfBirth,
           gender,
         },
-        { new: true, session }
+        { new: true, session },
       ).populate("userId");
 
       if (!updatedClinic) {
@@ -146,7 +157,7 @@ export const SoloNurseService = {
     const updatedProfessional = await SoloNurse_Model.findOneAndUpdate(
       { userId },
       { $set: updateData },
-      { new: true }
+      { new: true },
     );
 
     return updatedProfessional;
@@ -159,7 +170,7 @@ export const SoloNurseService = {
       | "Nurse care and infusion therapy"
       | "Nurse Care & Elderly Support"
       | "Medical massage & Physio therapy",
-    payload: { name: string; price: number }
+    payload: { name: string; price: number },
   ) => {
     const { name, price } = payload;
 
@@ -180,7 +191,7 @@ export const SoloNurseService = {
 
     // 2️⃣ Check if main service exists
     let service = soloNurse.professionalInformation?.services.find(
-      (s: any) => s.serviceId === serviceId
+      (s: any) => s.serviceId === serviceId,
     );
 
     // 3️⃣ If main service does NOT exist → create it
@@ -195,13 +206,13 @@ export const SoloNurseService = {
 
       // re-fetch the service
       service = soloNurse.professionalInformation?.services.find(
-        (s: any) => s.serviceId === serviceId
+        (s: any) => s.serviceId === serviceId,
       );
     }
 
     // 4️⃣ Check duplicate sub-service
     const alreadyExists = service?.subServices.some(
-      (sub: any) => sub.name.toLowerCase() === name.toLowerCase()
+      (sub: any) => sub.name.toLowerCase() === name.toLowerCase(),
     );
 
     if (alreadyExists) {
@@ -222,7 +233,7 @@ export const SoloNurseService = {
   deleteSingleSubService: async (
     userId: string,
     serviceId: string,
-    subServiceId: string
+    subServiceId: string,
   ) => {
     const soloNurse = await SoloNurse_Model.findOne({ userId });
 
@@ -243,7 +254,7 @@ export const SoloNurseService = {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     // console.log('deleted ', updatedSoloNurse);
@@ -273,7 +284,7 @@ export const SoloNurseService = {
       {
         $push: { certificates: newCertificate },
       },
-      { new: true }
+      { new: true },
     );
     return updatedCertificates;
   },
@@ -294,7 +305,7 @@ export const SoloNurseService = {
           certificates: { _id: certificateId },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     return updated;
@@ -320,7 +331,7 @@ export const SoloNurseService = {
       {
         $set: { availability },
       },
-      { new: true }
+      { new: true },
     );
     return updatedCertificates;
   },
@@ -347,7 +358,7 @@ export const SoloNurseService = {
       {
         $push: { "paymentAndEarnings.withdrawalMethods": newMethod },
       },
-      { new: true }
+      { new: true },
     );
 
     return updatedClinic;
@@ -361,7 +372,7 @@ export const SoloNurseService = {
     soloNurse.reviews.push(payload);
     const totalRatings = soloNurse.reviews.reduce(
       (sum: any, review: { rating: any }) => sum + (review.rating || 0),
-      0
+      0,
     );
     soloNurse.avarageRating = totalRatings / soloNurse.reviews.length;
 
@@ -376,7 +387,7 @@ export const SoloNurseService = {
     try {
       const user = await User_Model.findOneAndDelete(
         { _id: soloNurseUserId },
-        { session }
+        { session },
       );
 
       if (!user) {
@@ -385,7 +396,7 @@ export const SoloNurseService = {
 
       const soloNurse = await SoloNurse_Model.findOneAndDelete(
         { _id: soloNurseId },
-        { session }
+        { session },
       );
 
       if (!soloNurse) {
@@ -422,7 +433,7 @@ export const SoloNurseService = {
       (total, request) => {
         return total + request.amount;
       },
-      0
+      0,
     );
 
     return {
@@ -440,14 +451,14 @@ export const SoloNurseService = {
       {
         "professionalInformation.services": 1,
         userId: 1,
-      }
+      },
     );
 
     // 🔹 Extract only sub-services of that main service
     const subServices = nurses.flatMap((nurse) =>
       nurse?.professionalInformation?.services
         .filter((service: any) => service.serviceName === serviceName)
-        .flatMap((service: any) => service.subServices)
+        .flatMap((service: any) => service.subServices),
     );
 
     return subServices;
@@ -455,7 +466,9 @@ export const SoloNurseService = {
 
   getSoloNurseDashboardOverview: async (soloNurseId: string) => {
     console.log("soloNurseId", soloNurseId);
-    const allAppoinment = await soloNurseAppoinment_Model.find({ soloNurseId : soloNurseId});
+    const allAppoinment = await soloNurseAppoinment_Model.find({
+      soloNurseId: soloNurseId,
+    });
     const pendingAppointments = await soloNurseAppoinment_Model.find({
       _id: soloNurseId,
       status: { $in: ["pending", "confirmed"] },
