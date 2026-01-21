@@ -64,9 +64,25 @@ const soloNurseSchema = new Schema<TSoloNurse>(
       },
     ],
     availability: {
-      startTime: { type: String },
-      endTime: { type: String },
-      workingDays: { type: [String] },
+      type: [
+        {
+          day: { type: String },
+          startTime: { type: String },
+          endTime: { type: String },
+          isEnabled: { type: Boolean, default: true },
+        },
+      ],
+      default: [],
+    },
+
+    blockedDates: {
+      type: [
+        {
+          date: { type: Date, required: true },
+          reason: { type: String },
+        },
+      ],
+      default: [],
     },
 
     paymentAndEarnings: {
@@ -98,7 +114,7 @@ const soloNurseSchema = new Schema<TSoloNurse>(
       default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const SoloNurse_Model = model<TSoloNurse>("soloNurse", soloNurseSchema);

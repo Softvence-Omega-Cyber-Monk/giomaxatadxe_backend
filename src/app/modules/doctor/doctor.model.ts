@@ -24,12 +24,34 @@ const DoctorSchema = new Schema<TDoctor>(
     licenseNumber: { type: String, required: true },
 
     serviceType: { type: String, required: true },
-    workingHour: {
-      startTime: { type: String, required: true },
-      endTime: { type: String, required: true },
+    // workingHour: {
+    //   startTime: { type: String, required: true },
+    //   endTime: { type: String, required: true },
+    // },
+
+    // availabilityScheduleDays: [{ type: String, required: true }],
+
+    availability: {
+      type: [
+        {
+          day: { type: String },
+          startTime: { type: String },
+          endTime: { type: String },
+          isEnabled: { type: Boolean, default: true },
+        },
+      ],
+      default: [],
     },
 
-    availabilityScheduleDays: [{ type: String, required: true }],
+    blockedDates: {
+      type: [
+        {
+          date: { type: Date, required: true },
+          reason: { type: String },
+        },
+      ],
+      default: [],
+    },
 
     dateOfBirth: { type: String },
     gender: { type: String, enum: ["male", "female"] },
@@ -40,7 +62,7 @@ const DoctorSchema = new Schema<TDoctor>(
 
     certificates: [CertificateSchema],
     appointmentType: { type: String, required: true },
-    avarageRating : { type: Number, default: 0 },
+    avarageRating: { type: Number, default: 0 },
     reviews: [
       {
         patientId: { type: Schema.Types.ObjectId, ref: "Patient" },
@@ -50,7 +72,7 @@ const DoctorSchema = new Schema<TDoctor>(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Doctor_Model = model<TDoctor>("Doctor", DoctorSchema);

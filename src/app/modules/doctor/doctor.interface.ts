@@ -9,11 +9,24 @@ export type TDoctor = {
   serviceType: string; // dropdown
   appointmentType: "inClinic" | "online" | "both";
 
-  workingHour: {
-    startTime: string; // "09:00 AM"
-    endTime: string; // "06:00 PM"
-  };
-  availabilityScheduleDays: string[]; // comma-separated (e.g. Monday, Tuesday)
+  // workingHour: {
+  //   startTime: string; // "09:00 AM"
+  //   endTime: string; // "06:00 PM"
+  // };
+  // availabilityScheduleDays: string[]; // comma-separated (e.g. Monday, Tuesday)
+
+  availability?: {
+    day: string; // Saturday, Sunday
+    startTime: string; // 09:00
+    endTime: string; // 17:00
+    isEnabled: boolean;
+  }[];
+
+  /** ✅ DATE-BASED BLOCKING */
+  blockedDates?: {
+    date: Date; // YYYY-MM-DD
+  }[];
+
   dateOfBirth?: string;
   gender?: "male" | "female";
   professionalInformation?: {
@@ -33,7 +46,7 @@ export type TDoctor = {
     certificateName: string;
   }[];
   avarageRating?: number;
-   reviews?: {
+  reviews?: {
     patientId: Types.ObjectId;
     rating: number;
     comment: string;

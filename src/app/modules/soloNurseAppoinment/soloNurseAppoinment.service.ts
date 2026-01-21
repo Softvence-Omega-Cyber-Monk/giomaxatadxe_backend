@@ -16,6 +16,30 @@ export const soloNurseAppointmentService = {
     // Normalize date (only YYYY-MM-DD)
     const formattedDate = new Date(prefarenceDate).toISOString().split("T")[0];
 
+    const isBlocked = soloNurse.blockedDates.some(
+      (d: any) =>
+        new Date(d.date).toISOString().split("T")[0] === formattedDate,
+    );
+    if (isBlocked) {
+      throw new Error(
+        `The nurse has not been available on ${formattedDate}. Please choose another date.`,
+      );
+    }
+
+    // 2️⃣ Check if the nurse has disabled availability on this day
+    const dayOfWeek = new Date(prefarenceDate)
+      .toLocaleDateString("en-US", { weekday: "long" })
+      .trim();
+    const availabilityForDay = soloNurse.availability.find(
+      (a: any) => a.day?.trim().toLowerCase() === dayOfWeek.toLowerCase(),
+    );
+
+    if (!availabilityForDay || !availabilityForDay.isEnabled) {
+      throw new Error(
+        `The nurse is not available on ${dayOfWeek}. Please choose another date.`,
+      );
+    }
+
     // Check if same date + same time already exists
     const booked = await soloNurseAppoinment_Model.findOne({
       soloNurseId,
@@ -179,14 +203,49 @@ export const soloNurseAppointmentService = {
       },
     );
   },
-  getSelectedDateAndTime: async (id: string) => {
-    const singleDoctorAppointments = await soloNurseAppoinment_Model.find({
+  getSelectedDateAndTime: async (id: string, date?: string) => {
+    const soloNurse = await SoloNurse_Model.findById(id);
+    if (!soloNurse) throw new Error("Solo nurse not found");
+
+    // Get all appointments for this nurse
+    const allAppointments = await soloNurseAppoinment_Model.find({
       soloNurseId: id,
     });
 
+    // 1️⃣ If a specific date is provided
+    if (date) {
+      const selectedDateStr = new Date(date).toISOString().split("T")[0];
+
+      const day = new Date(date).toLocaleDateString("en-US", {
+        weekday: "long",
+      });
+      const availabilityForDay = soloNurse.availability?.find(
+        (availability) => availability.day === day,
+      );
+      const selectedDateStartTimes = availabilityForDay?.startTime;
+      const selectedDateEndTimes = availabilityForDay?.endTime;
+
+      const appointmentsForDate = allAppointments
+        .filter(
+          (appointment) =>
+            new Date(appointment.prefarenceDate).toISOString().split("T")[0] ===
+            selectedDateStr,
+        )
+        .map((appointment) => ({
+          date: selectedDateStr,
+          time: appointment.prefarenceTime,
+        }));
+
+      return {
+        appointmentsForDate,
+        selectedDateTimeSlot: { selectedDateStartTimes, selectedDateEndTimes },
+      }; // only appointments for that date
+    }
+
+    // 2️⃣ If no date is provided, return all appointments grouped
     const grouped: any = {};
 
-    singleDoctorAppointments.forEach((appointment) => {
+    allAppointments.forEach((appointment) => {
       const dateObj = appointment.prefarenceDate;
       const formattedDate = dateObj.toISOString().split("T")[0];
 
@@ -202,8 +261,14 @@ export const soloNurseAppointmentService = {
       });
     });
 
-    return grouped;
+    return {
+      grouped,
+      blockedDates: soloNurse.blockedDates?.map(
+        (d: any) => new Date(d.date).toISOString().split("T")[0],
+      ),
+    };
   },
+
   getAppoinmentTimeBasedOnDate: async (date: Date, id: string) => {
     console.log("date and id ", date, id);
     const appointments = await soloNurseAppoinment_Model
