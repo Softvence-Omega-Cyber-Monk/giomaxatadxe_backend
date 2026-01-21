@@ -88,7 +88,8 @@ export const soloNurseAppointmentController = {
   getSelectedDateAndTime: async (req: Request, res: Response) => {
     try {
       const result = await soloNurseAppointmentService.getSelectedDateAndTime(
-        req.params.id
+        req.params.id,
+        req.query.date as string
       );
       res.json({
         success: true,
