@@ -25,7 +25,6 @@ export const SoloNurseService = {
       .sort({ createdAt: -1 });
   },
   getSoloNurseById: async (userId: string) => {
-    
     return SoloNurse_Model.findOne({ userId })
       .populate("userId")
       .populate({
@@ -312,28 +311,78 @@ export const SoloNurseService = {
   },
 
   availabilitySettings: async (userId: string, payload: any) => {
-    console.log("payload from service ", payload);
-
-    const availability = {
-      startTime: payload?.startTime,
-      endTime: payload?.endTime,
-      workingDays: payload?.workingDays,
-    };
-
     const clinic = await SoloNurse_Model.findOne({ userId });
 
     if (!clinic) {
       throw new Error("Clinic not found for this user");
     }
 
-    const updatedCertificates = await SoloNurse_Model.findOneAndUpdate(
-      { userId },
-      {
-        $set: { availability },
-      },
-      { new: true },
-    );
-    return updatedCertificates;
+    /** -------------------------------
+   * 1️⃣ HANDLE AVAILABILITY (MERGE)
+   --------------------------------*/
+    if (Array.isArray(payload?.availability)) {
+      payload.availability.forEach((incomingDay: any) => {
+        const existingDay = clinic.availability?.find(
+          (d: any) => d.day === incomingDay.day,
+        );
+
+        if (existingDay) {
+          // ✅ Update only provided fields
+          if (incomingDay.startTime !== undefined)
+            existingDay.startTime = incomingDay.startTime;
+
+          if (incomingDay.endTime !== undefined)
+            existingDay.endTime = incomingDay.endTime;
+
+          if (incomingDay.isEnabled !== undefined)
+            existingDay.isEnabled = incomingDay.isEnabled;
+        } else {
+          // ✅ Add new day safely
+          clinic?.availability?.push({
+            day: incomingDay.day,
+            startTime: incomingDay.startTime || "09:00",
+            endTime: incomingDay.endTime || "17:00",
+            isEnabled: incomingDay.isEnabled ?? true,
+          });
+        }
+      });
+    }
+
+    /** -------------------------------
+   * 2️⃣ HANDLE BLOCKED DATES
+   --------------------------------*/
+    if (Array.isArray(payload?.blockedDates)) {
+      // Make sure clinic.blockedDates is initialized
+      clinic.blockedDates = clinic.blockedDates || [];
+
+      // Convert existing dates to strings for easy comparison
+      const existingDates = clinic.blockedDates.map((d: any) =>
+        d.date.toDateString(),
+      );
+
+      payload.blockedDates.forEach((incoming: any) => {
+        const dateStr = new Date(incoming.date).toDateString();
+
+        if (incoming.action === "add") {
+          // Add date if it doesn't exist
+          if (!existingDates.includes(dateStr)) {
+            clinic.blockedDates?.push({ date: new Date(incoming.date) });
+          }
+        } else if (incoming.action === "remove") {
+          // Remove date if it exists
+          clinic.blockedDates = clinic.blockedDates?.filter(
+            (d: any) => d.date.toDateString() !== dateStr,
+          );
+        }
+      });
+    }
+
+    /** -------------------------------
+   * 3️⃣ SAVE (ATOMIC & SAFE)
+   --------------------------------*/
+    await clinic.save();
+
+    return clinic;
   },
 
   addNewPaymentMethod: async (userId: string, payload: any) => {
@@ -463,7 +512,6 @@ export const SoloNurseService = {
 
     return subServices;
   },
-
   getSoloNurseDashboardOverview: async (soloNurseId: string) => {
     console.log("soloNurseId", soloNurseId);
     const allAppoinment = await soloNurseAppoinment_Model.find({

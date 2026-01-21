@@ -68,7 +68,7 @@ export const createPatient = async (payload: any) => {
       { email: payload.email },
 
       null,
-      { session }
+      { session },
     );
 
     if (existingEmail && existingEmail.isVerified === true) {
@@ -93,7 +93,7 @@ export const createPatient = async (payload: any) => {
     const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
     if (isNaN(saltRounds)) {
       throw new Error(
-        "Invalid bcrypt salt round value in environment variable."
+        "Invalid bcrypt salt round value in environment variable.",
       );
     }
 
@@ -117,7 +117,7 @@ export const createPatient = async (payload: any) => {
     // 6. Create Patient using new userId
     const newPatient = await Patient_Model.create(
       [{ ...patientPayload, age: payload.age, userId: createdUser._id }],
-      { session }
+      { session },
     );
 
     // 7. Commit the transaction
@@ -145,6 +145,7 @@ export const createPatient = async (payload: any) => {
 };
 
 const createSoloNurse = async (payload: any) => {
+  console.log("solo nurse datra ", payload);
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -162,7 +163,7 @@ const createSoloNurse = async (payload: any) => {
     if (existingEmail && existingEmail.isVerified === false) {
       await SoloNurse_Model.deleteOne(
         { userId: existingEmail._id },
-        { session }
+        { session },
       );
       await User_Model.deleteOne({ email: payload.email }, { session });
     }
@@ -191,12 +192,12 @@ const createSoloNurse = async (payload: any) => {
           verificationCode,
         },
       ],
-      { session }
+      { session },
     );
 
     const createdNurse = await SoloNurse_Model.create(
-      [{ ...nursePayload, userId: newUser[0]._id }],
-      { session }
+      [{ ...nursePayload, availability: [], userId: newUser[0]._id }],
+      { session },
     );
 
     await session.commitTransaction();
@@ -266,12 +267,12 @@ const createClinic = async (payload: any) => {
           verificationCode,
         },
       ],
-      { session }
+      { session },
     );
 
     const createClinic = await Clinic_Model.create(
       [{ ...clinicpayload, userId: newUser[0]._id }],
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
@@ -339,12 +340,12 @@ const createDoctor = async (payload: any) => {
           role: "doctor",
         },
       ],
-      { session }
+      { session },
     );
 
     const createClinic = await Doctor_Model.create(
       [{ ...doctorPayload, workingHour, userId: newUser[0]._id, clinicId }],
-      { session }
+      { session },
     );
 
     // -------- 5. Send Email With Credentials --------
@@ -424,4 +425,3 @@ export const UserService = {
   verifyUser,
   addAdminApproval,
 };
-

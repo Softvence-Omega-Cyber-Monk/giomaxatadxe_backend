@@ -36,11 +36,19 @@ export type TSoloNurse = {
     certificateType: string;
     certificateName: string;
   }[];
+  /** ✅ UPDATED AVAILABILITY LOGIC */
   availability?: {
-    startTime: string;
-    endTime: string;
-    workingDays: string[];
-  };
+    day: string; // Saturday, Sunday
+    startTime: string; // 09:00
+    endTime: string; // 17:00
+    isEnabled: boolean;
+  }[];
+
+  /** ✅ DATE-BASED BLOCKING */
+  blockedDates?: {
+    date: Date; // YYYY-MM-DD
+  }[];
+
   paymentAndEarnings?: {
     totalEarnings: {
       totalThisMonth: number;
