@@ -14,47 +14,108 @@ export const DoctorService = {
       const {
         fullName,
         email,
-        workingHour,
         professionalInformation,
         phoneNumber,
+        availability,
+        blockedDates,
         ...rest
       } = payload;
-      // console.log('payload ,', payload);
 
-      // 1. Find doctor
-      const doctor = await Doctor_Model.findById(doctorId, null, { session });
+      // 1️⃣ Find doctor
+      const doctor = await Doctor_Model.findById(doctorId).session(session);
       if (!doctor) throw new Error("Doctor not found");
 
-      // 2. Update user info if needed
+      // 2️⃣ Update user info
       if (fullName || email) {
         const userUpdate: any = {};
+
         if (fullName) userUpdate.fullName = fullName;
+
         if (email) {
-          // Check email uniqueness
           const existingEmail = await User_Model.findOne(
             { email, _id: { $ne: doctor.userId } },
             null,
-            { session }
+            { session },
           );
           if (existingEmail) throw new Error("Email already exists");
           userUpdate.email = email;
         }
+
         await User_Model.findByIdAndUpdate(doctor.userId, userUpdate, {
           session,
         });
       }
 
-      // 3. Update doctor info
+      // 3️⃣ Parse & validate availability (same as create)
+      let parsedAvailability: any[] | undefined;
+
+      if (availability !== undefined) {
+        parsedAvailability = [];
+
+        if (Array.isArray(availability)) {
+          parsedAvailability = availability.map((item: any) =>
+            typeof item === "string" ? JSON.parse(item) : item,
+          );
+        } else if (typeof availability === "string") {
+          parsedAvailability = [JSON.parse(availability)];
+        }
+
+        // 🔒 Prevent duplicate days
+        const days = parsedAvailability.map((a) => a.day.toLowerCase());
+        if (new Set(days).size !== days.length) {
+          throw new Error("Duplicate availability day is not allowed");
+        }
+      }
+
+      // 4️⃣ Handle blocked dates (ADD / REMOVE)
+      let updatedBlockedDates = doctor.blockedDates || [];
+
+      if (Array.isArray(blockedDates)) {
+        blockedDates.forEach((item: any) => {
+          const dateStr = new Date(item.date).toDateString();
+
+          if (item.action === "add") {
+            const exists = updatedBlockedDates.some(
+              (d: any) => d.date.toDateString() === dateStr,
+            );
+            if (!exists) {
+              updatedBlockedDates.push({
+                date: new Date(item.date),
+              });
+            }
+          }
+
+          if (item.action === "remove") {
+            updatedBlockedDates = updatedBlockedDates.filter(
+              (d: any) => d.date.toDateString() !== dateStr,
+            );
+          }
+        });
+      }
+
+      // 5️⃣ Update doctor info
       const doctorUpdate: any = { ...rest };
-      if (workingHour) doctorUpdate.workingHour = workingHour;
-      if (professionalInformation)
+
+      if (professionalInformation) {
         doctorUpdate.professionalInformation = professionalInformation;
-      if (phoneNumber) doctorUpdate.phoneNumber = phoneNumber;
+      }
+
+      if (phoneNumber) {
+        doctorUpdate.phoneNumber = phoneNumber;
+      }
+
+      if (parsedAvailability !== undefined) {
+        doctorUpdate.availability = parsedAvailability;
+      }
+
+      if (blockedDates !== undefined) {
+        doctorUpdate.blockedDates = updatedBlockedDates;
+      }
 
       const updatedDoctor = await Doctor_Model.findByIdAndUpdate(
         doctorId,
         doctorUpdate,
-        { new: true, session }
+        { new: true, session },
       );
 
       await session.commitTransaction();
@@ -67,6 +128,7 @@ export const DoctorService = {
       throw error;
     }
   },
+
   getDoctors: async () => {
     return Doctor_Model.find().populate("userId").populate("clinicId");
   },
@@ -116,7 +178,7 @@ export const DoctorService = {
   updateDoctorBasic: async (
     userId: string,
     payload: any,
-    profileImageUrl: string
+    profileImageUrl: string,
   ) => {
     const { fullName, phoneNumber, dateOfBirth, gender } = payload;
 
@@ -134,7 +196,7 @@ export const DoctorService = {
       const updatedUser = await User_Model.findByIdAndUpdate(
         userId,
         updateData,
-        { new: true, session }
+        { new: true, session },
       );
 
       if (!updatedUser) {
@@ -149,7 +211,7 @@ export const DoctorService = {
           dateOfBirth,
           gender,
         },
-        { new: true, session }
+        { new: true, session },
       ).populate("userId");
 
       if (!updatedClinic) {
@@ -190,7 +252,7 @@ export const DoctorService = {
       const updatedProfessional = await Doctor_Model.findOneAndUpdate(
         { userId }, // correct filter
         { professionalInformation },
-        { new: true }
+        { new: true },
       );
 
       if (!updatedProfessional) {
@@ -226,7 +288,7 @@ export const DoctorService = {
       {
         $push: { certificates: newCertificate },
       },
-      { new: true }
+      { new: true },
     );
 
     return updatedCertificates;
@@ -248,7 +310,7 @@ export const DoctorService = {
           certificates: { _id: certificateId },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     return updated;
@@ -257,7 +319,7 @@ export const DoctorService = {
   deleteDoctor: async (
     doctorId: string,
     clinicId: string,
-    doctorUserId: string
+    doctorUserId: string,
   ) => {
     const session = await mongoose.startSession();
 
@@ -267,7 +329,7 @@ export const DoctorService = {
       // 1️⃣ Delete doctor user
       const user = await User_Model.findOneAndDelete(
         { _id: doctorUserId },
-        { session }
+        { session },
       );
 
       if (!user) {
@@ -277,7 +339,7 @@ export const DoctorService = {
       // 2️⃣ Delete doctor profile
       const doctor = await Doctor_Model.findOneAndDelete(
         { _id: doctorId, clinicId },
-        { session }
+        { session },
       );
 
       if (!doctor) {
@@ -307,11 +369,11 @@ export const DoctorService = {
     const totalAppointments = appointments?.length || 0;
 
     const totalPendingAppointments = appointments.filter(
-      (item: any) => item.status === "pending"
+      (item: any) => item.status === "pending",
     ).length;
 
     const totalCompletedAppointments = appointments.filter(
-      (item: any) => item.status === "completed"
+      (item: any) => item.status === "completed",
     ).length;
 
     return {
@@ -330,7 +392,7 @@ export const DoctorService = {
     doctor.reviews.push(payload);
     const totalRatings = doctor.reviews.reduce(
       (sum: any, review: { rating: any }) => sum + (review.rating || 0),
-      0
+      0,
     );
     doctor.avarageRating = totalRatings / doctor.reviews.length;
 

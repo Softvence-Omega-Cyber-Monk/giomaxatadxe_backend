@@ -297,74 +297,99 @@ const createClinic = async (payload: any) => {
   }
 };
 const createDoctor = async (payload: any) => {
-  console.log("from service", payload);
+  console.log("payload", payload);
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const {
-      clinicId,
-      doctorName,
-      email,
-      startTime,
-      endTime,
-      ...doctorPayload
-    } = payload;
+    const { clinicId, doctorName, email, availability, ...doctorPayload } =
+      payload;
+    let parsedAvailability: any[] = [];
 
-    const workingHour = {
-      startTime,
-      endTime,
-    };
-    const password = generateRandomPassword();
-    console.log("password genarete successfull", password);
+    if (payload.availability) {
+      // Case 1: availability is an array
+      if (Array.isArray(payload.availability)) {
+        parsedAvailability = payload.availability.map((item: any) =>
+          typeof item === "string" ? JSON.parse(item) : item,
+        );
+      }
 
-    // Check email
-    const existingEmail = await User_Model.findOne({ email }, null, {
-      session,
-    });
-    if (existingEmail) {
+      // Case 2: availability is a single string
+      else if (typeof payload.availability === "string") {
+        parsedAvailability = [JSON.parse(payload.availability)];
+      }
+    }
+
+    const days = parsedAvailability.map((a) => a.day.toLowerCase());
+    const duplicateDays = days.filter(
+      (day, index) => days.indexOf(day) !== index,
+    );
+
+    if (duplicateDays.length > 0) {
+      throw new Error(
+        `Duplicate availability day found: ${[...new Set(duplicateDays)].join(
+          ", ",
+        )}`,
+      );
+    }
+
+    console.log("availbility data", parsedAvailability);
+
+    // 1️⃣ Check if email already exists
+    const existingUser = await User_Model.findOne({ email }).session(session);
+    if (existingUser) {
       throw new Error("Email already exists.");
     }
 
-    // Hash password
+    // 2️⃣ Generate & hash password
+    const password = generateRandomPassword();
     const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
-    const hashedPass = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const newUser = await User_Model.create(
+    // 3️⃣ Create user
+    const [newUser] = await User_Model.create(
       [
         {
           fullName: doctorName,
           email,
-          password: hashedPass,
-          comfirmPassword: hashedPass,
+          password: hashedPassword,
+          comfirmPassword: hashedPassword,
           role: "doctor",
         },
       ],
       { session },
     );
 
-    const createClinic = await Doctor_Model.create(
-      [{ ...doctorPayload, workingHour, userId: newUser[0]._id, clinicId }],
+    // 4️⃣ Create doctor profile
+    const [newDoctor] = await Doctor_Model.create(
+      [
+        {
+          ...doctorPayload,
+          userId: newUser._id,
+          clinicId,
+          availability: parsedAvailability || [],
+        },
+      ],
       { session },
     );
 
-    // -------- 5. Send Email With Credentials --------
+    // 5️⃣ Send login credentials email
     await sendEmail({
       to: email,
       subject: "Your Doctor Account Login Credentials",
       html: `
         <h2>Welcome, Dr. ${doctorName}</h2>
-        <p>Your account has been Registered successfully.</p>
+        <p>Your doctor account has been created successfully.</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Password:</strong> ${password}</p>
-        <p>Please login and update your password.</p>
+        <p>Please login and change your password immediately.</p>
       `,
     });
 
     await session.commitTransaction();
     session.endSession();
 
-    return createClinic[0];
+    return newDoctor;
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
