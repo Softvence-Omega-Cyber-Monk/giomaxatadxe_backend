@@ -488,8 +488,8 @@ export const doctorAppointmentService = {
           availability.day?.toLowerCase() === day.toLowerCase(),
       );
 
-      const selectedDateStartTimes = availabilityForDay?.startTime;
-      const selectedDateEndTimes = availabilityForDay?.endTime;
+      const startTimeSlot = availabilityForDay?.startTime;
+      const endTimeSlot = availabilityForDay?.endTime;
 
       const appointmentsForDate = allAppointments
         .filter(
@@ -504,10 +504,13 @@ export const doctorAppointmentService = {
 
       return {
         appointmentsForDate,
-        selectedDateTimeSlot: {
-          selectedDateStartTimes,
-          selectedDateEndTimes,
+        doctorAppoinmentTimeSolts: {
+          startTimeSlot,
+          endTimeSlot,
         },
+        blockedDates: doctor.blockedDates?.map(
+          (d: any) => new Date(d.date).toISOString().split("T")[0],
+        ),
       };
     }
 
