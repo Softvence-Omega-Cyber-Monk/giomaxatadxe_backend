@@ -44,7 +44,7 @@ export const doctorAppointmentService = {
 
       if (bookedDate === formattedDate) {
         throw new Error(
-          "This date and time are already booked. Please choose another slot."
+          "This date and time are already booked. Please choose another slot.",
         );
       }
     }
@@ -66,7 +66,7 @@ export const doctorAppointmentService = {
       clinic.userId.toString(),
       "New Appointment Created for A Doctor",
       ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details. `,
-      "notification"
+      "notification",
     );
 
     return appointment;
@@ -93,7 +93,7 @@ export const doctorAppointmentService = {
         booked._id.toString() === appointmentId
       ) {
         throw new Error(
-          "This date and time are already booked. Please choose another slot."
+          "This date and time are already booked. Please choose another slot.",
         );
       }
     }
@@ -105,13 +105,17 @@ export const doctorAppointmentService = {
         prefarenceDate: new Date(prefarenceDate),
         prefarenceTime,
       },
-      { new: true }
+      { new: true },
     );
 
     return updatedAppointment;
   },
   // Get all appointments
-  getAllAppointments: async (status?: string, doctorId?: string, clinicId?: string) => {
+  getAllAppointments: async (
+    status?: string,
+    doctorId?: string,
+    clinicId?: string,
+  ) => {
     const filter: any = {};
 
     // ✅ Status handling
@@ -121,7 +125,6 @@ export const doctorAppointmentService = {
       // ❌ exclude pending when no status or status === "all"
       filter.status = { $ne: "pending" };
     }
-
 
     if (doctorId) {
       filter.doctorId = doctorId;
@@ -459,17 +462,59 @@ export const doctorAppointmentService = {
     return await doctorAppointment_Model.findByIdAndUpdate(
       id,
       { status },
-      { new: true }
+      { new: true },
     );
   },
-  getSelectedDateAndTime: async (id: string) => {
-    const singleDoctorAppointments = await doctorAppointment_Model.find({
+  getSelectedDateAndTime: async (id: string, date?: string) => {
+    const doctor = await Doctor_Model.findById(id);
+    if (!doctor) throw new Error("Doctor not found");
+
+    // Get all appointments for this doctor
+    const allAppointments = await doctorAppointment_Model.find({
       doctorId: id,
     });
 
+    // 1️⃣ If a specific date is provided
+    if (date) {
+      const selectedDateStr = new Date(date).toISOString().split("T")[0];
+
+      // Get weekday (Monday, Tuesday, ...)
+      const day = new Date(date).toLocaleDateString("en-US", {
+        weekday: "long",
+      });
+
+      const availabilityForDay = doctor.availability?.find(
+        (availability: any) =>
+          availability.day?.toLowerCase() === day.toLowerCase(),
+      );
+
+      const selectedDateStartTimes = availabilityForDay?.startTime;
+      const selectedDateEndTimes = availabilityForDay?.endTime;
+
+      const appointmentsForDate = allAppointments
+        .filter(
+          (appointment: any) =>
+            new Date(appointment.prefarenceDate).toISOString().split("T")[0] ===
+            selectedDateStr,
+        )
+        .map((appointment: any) => ({
+          date: selectedDateStr,
+          time: appointment.prefarenceTime,
+        }));
+
+      return {
+        appointmentsForDate,
+        selectedDateTimeSlot: {
+          selectedDateStartTimes,
+          selectedDateEndTimes,
+        },
+      };
+    }
+
+    // 2️⃣ If no date is provided → return all appointments grouped
     const grouped: any = {};
 
-    singleDoctorAppointments.forEach((appointment) => {
+    allAppointments.forEach((appointment: any) => {
       const dateObj = appointment.prefarenceDate;
       const formattedDate = dateObj.toISOString().split("T")[0];
 
@@ -485,7 +530,12 @@ export const doctorAppointmentService = {
       });
     });
 
-    return grouped;
+    return {
+      grouped,
+      blockedDates: doctor.blockedDates?.map(
+        (d: any) => new Date(d.date).toISOString().split("T")[0],
+      ),
+    };
   },
 
   getAppoinmentTimeBasedOnDate: async (date: Date, id: string) => {
