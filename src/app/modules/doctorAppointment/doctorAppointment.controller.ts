@@ -190,7 +190,8 @@ export const doctorAppointmentController = {
   getSelectedDateAndTime: async (req: Request, res: Response) => {
     try {
       const result = await doctorAppointmentService.getSelectedDateAndTime(
-        req.params.id
+        req.params.id,
+        req.query.date as string
       );
       res.json({
         success: true,

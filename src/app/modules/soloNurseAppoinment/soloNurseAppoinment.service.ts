@@ -222,8 +222,8 @@ export const soloNurseAppointmentService = {
       const availabilityForDay = soloNurse.availability?.find(
         (availability) => availability.day === day,
       );
-      const selectedDateStartTimes = availabilityForDay?.startTime;
-      const selectedDateEndTimes = availabilityForDay?.endTime;
+      const startTimeSlot = availabilityForDay?.startTime;
+      const endTimeSlot = availabilityForDay?.endTime;
 
       const appointmentsForDate = allAppointments
         .filter(
@@ -238,7 +238,10 @@ export const soloNurseAppointmentService = {
 
       return {
         appointmentsForDate,
-        selectedDateTimeSlot: { selectedDateStartTimes, selectedDateEndTimes },
+        nurseAppoinmentTimeSlot: { startTimeSlot, endTimeSlot },
+        blockedDates: soloNurse.blockedDates?.map(
+          (d: any) => new Date(d.date).toISOString().split("T")[0],
+        ),
       }; // only appointments for that date
     }
 
