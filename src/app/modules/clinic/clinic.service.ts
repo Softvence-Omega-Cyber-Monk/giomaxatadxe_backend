@@ -79,7 +79,7 @@ const getClinicAppointments = async (clinicId: string, status?: string) => {
       const time = item.prefarenceTime; // "10:30 AM"
 
       const appointmentDateTime = new Date(
-        `${date.toISOString().split("T")[0]} ${time}`
+        `${date.toISOString().split("T")[0]} ${time}`,
       );
 
       return appointmentDateTime > now;
@@ -88,10 +88,10 @@ const getClinicAppointments = async (clinicId: string, status?: string) => {
     // ✅ Sort nearest first
     appointments.sort((a: any, b: any) => {
       const ad = new Date(
-        `${a.prefarenceDate.toISOString().split("T")[0]} ${a.prefarenceTime}`
+        `${a.prefarenceDate.toISOString().split("T")[0]} ${a.prefarenceTime}`,
       );
       const bd = new Date(
-        `${b.prefarenceDate.toISOString().split("T")[0]} ${b.prefarenceTime}`
+        `${b.prefarenceDate.toISOString().split("T")[0]} ${b.prefarenceTime}`,
       );
 
       // 🔥 DESC order (latest first)
@@ -146,7 +146,7 @@ const getClinicPatients = async (clinicId: string) => {
 const updateClinicBasic = async (
   userId: string,
   payload: any,
-  profileImageUrl: string
+  profileImageUrl: string,
 ) => {
   const {
     fullName,
@@ -191,7 +191,7 @@ const updateClinicBasic = async (
         clinicDescription,
         address,
       },
-      { new: true, session }
+      { new: true, session },
     ).populate("userId");
 
     if (!updatedClinic) {
@@ -233,7 +233,7 @@ const uploadCertificate = async (userId: string, payload: any) => {
       $push: { clinicCertificates: newCertificate },
       medicalLicenseNumber: payload.data?.medicalLicenseNumber, // optional
     },
-    { new: true }
+    { new: true },
   );
   return updatedCertificates;
 };
@@ -254,7 +254,7 @@ const deleteCertificate = async (userId: string, certificateId: string) => {
         clinicCertificates: { _id: certificateId },
       },
     },
-    { new: true }
+    { new: true },
   );
 
   return updated;
@@ -281,7 +281,7 @@ const availabilitySettings = async (userId: string, payload: any) => {
     {
       $set: { availability },
     },
-    { new: true }
+    { new: true },
   );
   return updatedCertificates;
 };
@@ -294,7 +294,7 @@ const addReviews = async (userId: string, payload: any) => {
   clinic.reviews.push(payload);
   const totalRatings = clinic.reviews.reduce(
     (sum: any, review: { rating: any }) => sum + (review.rating || 0),
-    0
+    0,
   );
   clinic.avarageRating = totalRatings / clinic.reviews.length;
 
@@ -324,19 +324,42 @@ const addNewPaymentMethod = async (userId: string, payload: any) => {
     {
       $push: { "paymentAndEarnings.withdrawalMethods": newMethod },
     },
-    { new: true }
+    { new: true },
   );
 
   return updatedClinic;
 };
 
-const deleteClinic = async (id: string) => {
-  const result = await Clinic_Model.findByIdAndDelete(id);
-  return result;
+const deleteClinic = async (userId: string) => {
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const user = await User_Model.findOneAndDelete(
+      { _id: userId },
+      { session },
+    );
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const clinic = await Clinic_Model.findOneAndDelete({ userId }, { session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return clinic;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 };
 const getAppoinmentTimeBasedOnDateForClinic = async (
   date: Date,
-  id: string
+  id: string,
 ) => {
   // console.log("date and id ", date, id);
 
@@ -385,7 +408,7 @@ const getClinicPaymentData = async (clinicUserId: string) => {
     (total, request) => {
       return total + request.amount;
     },
-    0
+    0,
   );
 
   return {
@@ -411,13 +434,12 @@ const getClinicDashboardOverview = async (clinicId: string) => {
   const clinicEarning = await getClinicPaymentData(clinicId);
   const clinicPendingMoney = clinicEarning.clinicPendingMoney;
 
-
   return {
     clinicPatientsLength,
     clinicAppointmentsLength,
     clinicDoctorsLength,
     clinicRating,
-    clinicPendingMoney 
+    clinicPendingMoney,
   };
 };
 
@@ -432,7 +454,6 @@ const getAllClinicName = async () => {
 
   return clinics;
 };
-
 
 export const ClinicService = {
   getAllClinics,
@@ -450,5 +471,5 @@ export const ClinicService = {
   getAppoinmentTimeBasedOnDateForClinic,
   getClinicPaymentData,
   getClinicDashboardOverview,
-  getAllClinicName
+  getAllClinicName,
 };
