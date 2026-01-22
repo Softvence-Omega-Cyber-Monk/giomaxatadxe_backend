@@ -320,7 +320,7 @@ const createDoctor = async (payload: any) => {
       }
     }
 
-    const days = parsedAvailability.map((a) => a.day.toLowerCase());
+    const days = parsedAvailability.map((a) => a?.day?.toLowerCase());
     const duplicateDays = days.filter(
       (day, index) => days.indexOf(day) !== index,
     );
