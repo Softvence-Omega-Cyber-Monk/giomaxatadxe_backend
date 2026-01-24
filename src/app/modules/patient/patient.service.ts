@@ -18,9 +18,46 @@ export const patientService = {
   updatePatientBasic: async (
     userId: string,
     payload: any,
-    profileImageUrl: string
+    profileImageUrl: string,
   ) => {
-    const { fullName, phoneNumber, dateOfBirth, gender, bloodGroup ,nationalIdNumber } = payload;
+    const {
+      fullName,
+      phoneNumber,
+      dateOfBirth,
+      gender,
+      bloodGroup,
+      nationalIdNumber,
+    } = payload;
+
+    if (payload.dateOfBirth) {
+      const dob = new Date(payload.dateOfBirth);
+      const today = new Date();
+
+      if (isNaN(dob.getTime())) {
+        throw new Error("Invalid date of birth");
+      }
+
+      if (dob > today) {
+        throw new Error("Date of birth cannot be in the future.");
+      }
+
+      let age = today.getFullYear() - dob.getFullYear();
+
+      const monthDiff = today.getMonth() - dob.getMonth();
+      const dayDiff = today.getDate() - dob.getDate();
+
+      // If birthday has not occurred yet this year
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        age--;
+      }
+
+      // Optional: validate minimum age
+      if (age < 0) {
+        throw new Error("Invalid age calculated");
+      }
+
+      payload.age = age; // store or use age
+    }
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -36,7 +73,7 @@ export const patientService = {
       const updatedUser = await User_Model.findByIdAndUpdate(
         userId,
         updateData,
-        { new: true, session }
+        { new: true, session },
       );
 
       if (!updatedUser) {
@@ -52,8 +89,9 @@ export const patientService = {
           dateOfBirth,
           gender,
           bloodGroup,
+          age: payload?.age,
         },
-        { new: true, session }
+        { new: true, session },
       ).populate("userId");
 
       if (!updatedPatient) {
@@ -75,7 +113,7 @@ export const patientService = {
   createOrUpdateAddress: async (
     userId: string,
     addressId: string,
-    payload: any
+    payload: any,
   ) => {
     try {
       // If addressId is provided → update existing address
@@ -98,7 +136,7 @@ export const patientService = {
               "address.$.zipCode": payload.zipCode,
             },
           },
-          { new: true }
+          { new: true },
         ).populate("userId");
 
         if (!updatedPatient) {
@@ -116,7 +154,7 @@ export const patientService = {
             address: payload,
           },
         },
-        { new: true }
+        { new: true },
       ).populate("userId");
 
       if (!updatedPatient) {
@@ -142,7 +180,7 @@ export const patientService = {
             "address.$[].isDefault": false,
           },
         },
-        { session }
+        { session },
       );
 
       // 2️⃣ Set selected address as default
@@ -156,7 +194,7 @@ export const patientService = {
             "address.$.isDefault": true,
           },
         },
-        { new: true, session }
+        { new: true, session },
       );
 
       if (!updatedPatient) {
@@ -182,7 +220,7 @@ export const patientService = {
           address: { _id: addressId },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedPatient) {
@@ -195,7 +233,7 @@ export const patientService = {
     userId: string,
     medicalConditions?: any[],
     medicalMedications?: any[],
-    allergies?: any[]
+    allergies?: any[],
   ) => {
     const pushFields: any = {};
 
@@ -219,7 +257,7 @@ export const patientService = {
     const updatedPatient = await Patient_Model.findOneAndUpdate(
       { userId },
       { $push: pushFields },
-      { new: true, upsert: true }
+      { new: true, upsert: true },
     );
 
     return updatedPatient;
@@ -228,7 +266,7 @@ export const patientService = {
     userId: string,
     medicalConditions?: any,
     medicalMedications?: any,
-    allergies?: any
+    allergies?: any,
   ) => {
     const updateFields: any = {};
     const arrayFilters: any[] = [];
@@ -258,7 +296,7 @@ export const patientService = {
       {
         new: true,
         arrayFilters,
-      }
+      },
     );
 
     return updatedPatient;
@@ -267,7 +305,7 @@ export const patientService = {
     userId: string,
     medicalConditions?: any,
     medicalMedications?: any,
-    allergies?: any
+    allergies?: any,
   ) => {
     const pullFields: any = {};
 
@@ -292,7 +330,7 @@ export const patientService = {
     const updatedPatient = await Patient_Model.findOneAndUpdate(
       { userId },
       { $pull: pullFields },
-      { new: true }
+      { new: true },
     );
 
     return updatedPatient;
@@ -320,7 +358,7 @@ export const patientService = {
       {
         $push: { paymentMethods: newMethod },
       },
-      { new: true }
+      { new: true },
     );
 
     return updatedClinic;
