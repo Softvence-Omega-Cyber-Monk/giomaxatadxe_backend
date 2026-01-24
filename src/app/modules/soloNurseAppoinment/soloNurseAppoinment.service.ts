@@ -139,7 +139,7 @@ export const soloNurseAppointmentService = {
       .find(filter)
       .populate({
         path: "patientId",
-        select: "_id userId",
+        select: "_id userId gender age bloodGroup",
         populate: { path: "userId", select: "_id fullName profileImage role" },
       })
       .populate({
