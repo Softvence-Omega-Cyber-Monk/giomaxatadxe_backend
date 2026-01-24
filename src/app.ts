@@ -21,6 +21,8 @@ app.use(
       "http://localhost:5173",
       "http://localhost:5174",
       "https://medconnect.com.ge",
+      "https://admin.medconnect.com.ge",
+      "https://www.medconnect.com.ge",
       "*"
     ],
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
