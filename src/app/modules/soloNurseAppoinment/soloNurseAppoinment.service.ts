@@ -1,3 +1,4 @@
+import { populate } from "dotenv";
 import { sendNotification } from "../../utils/notificationHelper";
 import { Patient_Model } from "../patient/patient.model";
 import { SoloNurse_Model } from "../soloNurse/soloNurse.model";
@@ -181,7 +182,14 @@ export const soloNurseAppointmentService = {
   getAppointmentById: async (id: string) => {
     return await soloNurseAppoinment_Model
       .findById(id)
-      .populate("patientId", "_id userId  gender age bloodGroup")
+      .populate({
+        path: "patientId",
+        select: "_id userId gender age bloodGroup",
+        populate: {
+          path: "userId",
+          select: "_id fullName profileImage ",
+        },
+      })
       .populate({
         path: "soloNurseId",
         select: "_id userId",
