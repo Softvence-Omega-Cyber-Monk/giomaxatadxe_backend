@@ -21,7 +21,7 @@ const patientSchema = new Schema<TPatient>(
       required: false,
     },
     dateOfBirth: { type: String, required: false },
-    age: { type: Number, required: false },
+    age: { type: Number, required: false, default : null },
     address: [
       {
         addressLabel: { type: String },
