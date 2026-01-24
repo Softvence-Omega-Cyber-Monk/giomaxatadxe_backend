@@ -19,6 +19,7 @@ const patientSchema = new Schema<TPatient>(
       type: String,
       enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
       required: false,
+      default : null
     },
     dateOfBirth: { type: String, required: false },
     age: { type: Number, required: false, default : null },
