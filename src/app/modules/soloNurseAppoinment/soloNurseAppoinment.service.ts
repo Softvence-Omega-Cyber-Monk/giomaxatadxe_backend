@@ -242,6 +242,7 @@ export const soloNurseAppointmentService = {
         blockedDates: soloNurse.blockedDates?.map(
           (d: any) => new Date(d.date).toISOString().split("T")[0],
         ),
+        availability: soloNurse?.availability,
       }; // only appointments for that date
     }
 
@@ -269,6 +270,7 @@ export const soloNurseAppointmentService = {
       blockedDates: soloNurse.blockedDates?.map(
         (d: any) => new Date(d.date).toISOString().split("T")[0],
       ),
+      availability: soloNurse?.availability,
     };
   },
 
