@@ -181,7 +181,7 @@ export const soloNurseAppointmentService = {
   getAppointmentById: async (id: string) => {
     return await soloNurseAppoinment_Model
       .findById(id)
-      .populate("patientId", "_id userId ")
+      .populate("patientId", "_id userId  gender age bloodGroup")
       .populate({
         path: "soloNurseId",
         select: "_id userId",
