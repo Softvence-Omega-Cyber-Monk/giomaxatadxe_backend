@@ -467,6 +467,7 @@ export const doctorAppointmentService = {
   },
   getSelectedDateAndTime: async (id: string, date?: string) => {
     const doctor = await Doctor_Model.findById(id);
+    console.log("doctro ", doctor?.availability);
     if (!doctor) throw new Error("Doctor not found");
 
     // Get all appointments for this doctor
@@ -511,6 +512,7 @@ export const doctorAppointmentService = {
         blockedDates: doctor.blockedDates?.map(
           (d: any) => new Date(d.date).toISOString().split("T")[0],
         ),
+        availability: doctor?.availability,
       };
     }
 
@@ -538,6 +540,7 @@ export const doctorAppointmentService = {
       blockedDates: doctor.blockedDates?.map(
         (d: any) => new Date(d.date).toISOString().split("T")[0],
       ),
+      availability: doctor?.availability,
     };
   },
 
