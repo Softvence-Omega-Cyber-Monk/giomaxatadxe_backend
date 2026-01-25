@@ -13,11 +13,11 @@ const clinicSchema = new Schema<TClinic>(
     },
     nationality: {
       type: String,
-      required: true,
+   
     },
     nationalIdNumber: {
       type: String,
-      required: true,
+    
     },
     address: {
       type: String,
