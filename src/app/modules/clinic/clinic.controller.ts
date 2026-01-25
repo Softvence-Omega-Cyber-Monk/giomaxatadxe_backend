@@ -68,6 +68,23 @@ const getClinicAppointments = async (req: Request, res: Response) => {
     });
   }
 };
+const getAllAppoinmentsPrefarenceDate = async (req: Request, res: Response) => {
+  try {
+    const result = await ClinicService.getAllAppoinmentsPrefarenceDate(
+      req.params.clinicId,
+    );
+    res.json({
+      success: true,
+      message: "Clinic appointments date fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 const getClinicDoctors = async (req: Request, res: Response) => {
   try {
     const result = await ClinicService.getClinicDoctors(
@@ -330,6 +347,7 @@ export const ClinicController = {
   getAllClinics,
   getClinicById,
   getClinicAppointments,
+  getAllAppoinmentsPrefarenceDate,
   getClinicDoctors,
   getClinicPatients,
   updateClinicBasic,
