@@ -117,6 +117,13 @@ const getClinicAppointments = async (
 
   return appointments;
 };
+const getAllAppoinmentsPrefarenceDate = async (clinicId: string) => {
+  const appointments = await doctorAppointment_Model
+    .find({ clinicId })
+    .distinct("prefarenceDate");
+
+  return appointments.map((date: Date) => date.toISOString().split("T")[0]);
+};
 
 const getClinicDoctors = async (clinicId: string, appointmentType?: any) => {
   console.log("clinti id 0", clinicId);
@@ -475,6 +482,7 @@ export const ClinicService = {
   getAllClinics,
   getClinicById,
   getClinicAppointments,
+  getAllAppoinmentsPrefarenceDate,
   getClinicDoctors,
   getClinicPatients,
   updateClinicBasic,
