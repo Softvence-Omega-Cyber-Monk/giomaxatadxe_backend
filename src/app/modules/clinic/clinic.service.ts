@@ -69,11 +69,11 @@ const getClinicAppointments = async (
     .find(filter)
     .populate({
       path: "patientId",
-      select: "_id userId",
+      select: "_id userId phoneNumber nationalIdNumber gender age bloodGroup",
       populate: {
         path: "userId",
         model: "user",
-        select: "fullName role",
+        select: "fullName role ",
       },
     })
     .populate({
@@ -84,7 +84,8 @@ const getClinicAppointments = async (
         model: "user",
         select: "fullName",
       },
-    });
+    })
+    .sort({ createdAt: -1 });
 
   // ✅ UPCOMING LOGIC (DATE + TIME)
   if (status === "upcoming") {
