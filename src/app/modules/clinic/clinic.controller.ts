@@ -44,6 +44,9 @@ const getClinicAppointments = async (req: Request, res: Response) => {
     const result = await ClinicService.getClinicAppointments(
       req.params.clinicId,
       req.query.status as any,
+      req.query.doctorId as any,
+      req.query.date as any,
+      req.query.serviceType as any,
     );
 
     if (!result) {

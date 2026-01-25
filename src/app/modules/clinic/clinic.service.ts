@@ -4,11 +4,9 @@ import mongoose from "mongoose";
 import { User_Model } from "../user/user.schema";
 import { Doctor_Model } from "../doctor/doctor.model";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
-import { Patient_Model } from "../patient/patient.model";
-import app from "../../../app";
+
 import { Wallet_Model } from "../wallet/wallet.model";
 import { WithdrawRequest_Model } from "../withdrowRequest/withdrowRequest.model";
-import { populate } from "dotenv";
 
 const getAllClinics = async () => {
   const result = await Clinic_Model.find()
@@ -40,12 +38,30 @@ const getClinicById = async (userId: string) => {
     });
   return result;
 };
-const getClinicAppointments = async (clinicId: string, status?: string) => {
+const getClinicAppointments = async (
+  clinicId: string,
+  status?: string,
+  doctorId?: string,
+  date?: Date,
+  serviceType?: string,
+) => {
   let filter: any = { clinicId };
 
   // Normal status filtering (exclude upcoming)
   if (status && status !== "upcoming") {
     filter.status = status;
+  }
+
+  if (doctorId) {
+    filter.doctorId = doctorId;
+  }
+
+  if (date) {
+    filter.prefarenceDate = date;
+  }
+
+  if (serviceType) {
+    filter.serviceType = serviceType;
   }
 
   // Fetch from DB
