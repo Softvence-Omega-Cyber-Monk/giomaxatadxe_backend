@@ -417,10 +417,12 @@ const getAppoinmentTimeBasedOnDateForClinic = async (
 };
 
 const getClinicPaymentData = async (clinicUserId: string) => {
+  console.log("clinic user id ", clinicUserId);
   const clinicMoney = await Wallet_Model.findOne({
     ownerId: clinicUserId,
     ownerType: "CLINIC",
   });
+  console.log("clinic money ", clinicMoney);
   const clinicPendingMoney = clinicMoney?.pendingBalance || 0;
 
   const clinicWithdrawRequests = await WithdrawRequest_Model.find({
@@ -443,6 +445,7 @@ const getClinicPaymentData = async (clinicUserId: string) => {
   };
 };
 const getClinicDashboardOverview = async (clinicId: string) => {
+  const clinic = await Clinic_Model.findOne({ _id: clinicId });
   const clinicPatient = getClinicPatients(clinicId);
   const clinicPatientsLength = (await clinicPatient).length;
 
@@ -456,8 +459,12 @@ const getClinicDashboardOverview = async (clinicId: string) => {
     _id: clinicId,
   }).select("avarageRating");
 
-  const clinicEarning = await getClinicPaymentData(clinicId);
+  const clinicEarning = await getClinicPaymentData(
+    clinic?.userId as unknown as string,
+  );
+  console.log("clinic earning", clinicEarning);
   const clinicPendingMoney = clinicEarning.clinicPendingMoney;
+  console.log("clinic pending mondy", clinicPendingMoney);
 
   return {
     clinicPatientsLength,

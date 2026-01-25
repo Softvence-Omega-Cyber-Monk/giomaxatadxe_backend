@@ -42,7 +42,7 @@ const createBoGOrder = async (payment: any) => {
         "Content-Type": "application/json",
         "Accept-Language": "en",
       },
-    }
+    },
   );
 
   return res.data;
@@ -51,7 +51,9 @@ const createBoGOrder = async (payment: any) => {
 const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
   const { external_order_id, status } = payload;
 
-  const payment = await Payment_Model.findById(external_order_id);
+  console.log("external order id ", external_order_id);
+
+  const payment = await Payment_Model.findOne({ _id: external_order_id });
   console.log("payment ", payment);
 
   if (!payment) {
@@ -75,7 +77,7 @@ const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
       {
         $inc: { pendingBalance: payment.amount },
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
     console.log("response wallet", res);
   } else {
@@ -94,13 +96,13 @@ const adminPaymentData = async () => {
   });
   const totalPayableAmount = paymentsWithoutPaid.reduce(
     (acc, payment) => acc + payment.amount,
-    0
+    0,
   );
 
   const paymentsWithPaid = await Payment_Model.find({ status: "PAID" });
   const totalPayoutAmout = paymentsWithPaid.reduce(
     (acc, payment) => acc + payment.amount,
-    0
+    0,
   );
 
   return {
@@ -118,5 +120,5 @@ export const PaymentService = {
   createBoGOrder,
   handleBoGCallbackService,
   adminPaymentData,
-  getAllTransation
+  getAllTransation,
 };
