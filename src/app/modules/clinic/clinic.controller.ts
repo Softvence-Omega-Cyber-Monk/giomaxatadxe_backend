@@ -45,7 +45,7 @@ const getClinicAppointments = async (req: Request, res: Response) => {
       req.params.clinicId,
       req.query.status as any,
       req.query.doctorId as any,
-      req.query.date as any,
+      req.query.prefarenceDate as any,
       req.query.serviceType as any,
     );
 
