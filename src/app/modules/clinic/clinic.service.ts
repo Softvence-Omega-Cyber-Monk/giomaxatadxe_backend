@@ -42,9 +42,10 @@ const getClinicAppointments = async (
   clinicId: string,
   status?: string,
   doctorId?: string,
-  date?: Date,
+  prefarenceDate?: Date,
   serviceType?: string,
 ) => {
+  // console.log('data',prefarenceDate);
   let filter: any = { clinicId };
 
   // Normal status filtering (exclude upcoming)
@@ -56,8 +57,8 @@ const getClinicAppointments = async (
     filter.doctorId = doctorId;
   }
 
-  if (date) {
-    filter.prefarenceDate = date;
+  if (prefarenceDate) {
+    filter.prefarenceDate = prefarenceDate;
   }
 
   if (serviceType) {
