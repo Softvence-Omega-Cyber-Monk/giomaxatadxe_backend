@@ -31,6 +31,7 @@ export type TClinic = {
       cardNumber: string;
       cvv: string;
       expiryDate: string;
+      isDefault: boolean;
     }[];
   };
   reviews?: {

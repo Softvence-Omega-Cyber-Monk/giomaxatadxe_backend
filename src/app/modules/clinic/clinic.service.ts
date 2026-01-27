@@ -74,7 +74,7 @@ const getClinicAppointments = async (
       populate: {
         path: "userId",
         model: "user",
-        select: "fullName role ",
+        select: "fullName role email profileImage",
       },
     })
     .populate({
@@ -155,7 +155,7 @@ const getClinicPatients = async (clinicId: string) => {
     })
     .populate({
       path: "patientId",
-      select: "_id userId age bloodGroup gender",
+      select: "_id userId age bloodGroup gender phoneNumber nationalIdNumber",
       populate: {
         path: "userId",
         model: "user", // ensure correct model name

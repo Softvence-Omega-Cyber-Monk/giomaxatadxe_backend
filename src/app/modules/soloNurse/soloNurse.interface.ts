@@ -60,6 +60,7 @@ export type TSoloNurse = {
       cardNumber: string;
       cvv: string;
       expiryDate: string;
+      isDefault: boolean;
     }[];
   };
   reviews?: {

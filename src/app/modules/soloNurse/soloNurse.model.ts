@@ -98,6 +98,7 @@ const soloNurseSchema = new Schema<TSoloNurse>(
           cardNumber: { type: String },
           cvv: { type: String },
           expiryDate: { type: String },
+          isDefault : { type: Boolean, default: false },
         },
       ],
     },

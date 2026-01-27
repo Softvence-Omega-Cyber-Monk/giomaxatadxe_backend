@@ -4,8 +4,16 @@ import { TRefund } from "./refund.interface";
 import { Refund } from "./refund.model";
 import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoinment.model";
 
+import { Patient_Model } from "../patient/patient.model";
+
 const createRefund = async (payload: TRefund) => {
   // console.log("payload", payload);
+  const user = await Patient_Model.findOne({ _id: payload.userId });
+
+  if (!user?.paymentMethods || user.paymentMethods.length === 0) {
+    throw new Error("No payment methods found , Please add payment methods");
+  }
+
   let appointment: any = null;
 
   if (payload.appointmentType === "doctor") {
@@ -49,7 +57,7 @@ const getRefundByUserId = async (userId: string) => {
 
 const acceptOrRejectRefund = async (
   refundId: string,
-  status: "pending" | "approved" | "rejected"
+  status: "pending" | "approved" | "rejected",
 ) => {
   const refund = await Refund.findById(refundId);
   if (!refund) {
@@ -75,7 +83,8 @@ const acceptOrRejectRefund = async (
   }
 
   if (appointment) {
-    appointment.isRefunded = status === "approved" ? "refunded" : "refund-rejected";
+    appointment.isRefunded =
+      status === "approved" ? "refunded" : "refund-rejected";
     await appointment.save();
   }
 

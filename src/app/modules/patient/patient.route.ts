@@ -11,39 +11,43 @@ router.get("/getSinglePatient/:userId", patientController.getPatientById);
 router.put(
   "/update-basic/:userId",
   patientProfileImage.single("profileImage"),
-  patientController.updatePatientBasic
+  patientController.updatePatientBasic,
 );
 router.patch(
   "/createOrUpdateAddress/:userId",
-  patientController.createOrUpdateAddress
+  patientController.createOrUpdateAddress,
 );
 router.patch(
   "/setDefaultAddress/:patientId/:addressId",
-  patientController.setDefaultAddressController
+  patientController.setDefaultAddressController,
 );
 
 // Delete address
 router.delete(
   "/deleteAddress/:patientId/:addressId",
-  patientController.deleteAddressController
+  patientController.deleteAddressController,
 );
 
 router.post(
   "/medical-history/:userId",
-  patientController.addMedicalHistoryService
+  patientController.addMedicalHistoryService,
 );
 router.put(
   "/update/medical-history/:userId",
-  patientController.updateMedicalHistoryService
+  patientController.updateMedicalHistoryService,
 );
 router.delete(
   "/delete/medical-history/:userId",
-  patientController.deleteMedicalHistoryService
+  patientController.deleteMedicalHistoryService,
 );
 
 router.put(
   "/addNewPaymentMethod/:userId",
-  patientController.addNewPaymentMethod
+  patientController.addNewPaymentMethod,
+);
+router.patch(
+  "/payment-methods/:patientId/:paymentMethodId/set-default",
+  patientController.setDefaultPaymentMethod,
 );
 
 router.delete("/deletePatient/:patientId", patientController.deletePatient);
