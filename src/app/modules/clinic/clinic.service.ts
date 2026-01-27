@@ -149,7 +149,9 @@ const getClinicPatients = async (clinicId: string) => {
   const appointmentRecords = await doctorAppointment_Model
     .find({
       clinicId,
-      status: "confirmed",
+      status: {
+        $in: ["confirmed", "completed", "rejected", "cancelled"],
+      },
     })
     .populate({
       path: "patientId",
@@ -467,9 +469,9 @@ const getClinicDashboardOverview = async (clinicId: string) => {
   console.log("clinic pending mondy", clinicPendingMoney);
 
   return {
-    clinicPatientsLength,
-    clinicAppointmentsLength,
-    clinicDoctorsLength,
+    clinicPatients: clinicPatientsLength,
+    clinicAppointments: clinicAppointmentsLength,
+    clinicDoctors: clinicDoctorsLength,
     clinicRating,
     clinicPendingMoney,
   };
