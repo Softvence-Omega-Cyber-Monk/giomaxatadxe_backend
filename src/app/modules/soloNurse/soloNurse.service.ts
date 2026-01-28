@@ -313,10 +313,10 @@ export const SoloNurseService = {
   availabilitySettings: async (userId: string, payload: any) => {
     console.log("payload from service ", payload);
 
-    const clinic = await SoloNurse_Model.findOne({ userId });
+    const soloNurse = await SoloNurse_Model.findOne({ userId });
 
-    if (!clinic) {
-      throw new Error("Clinic not found for this user");
+    if (!soloNurse) {
+      throw new Error("soloNurse not found for this user");
     }
 
     /** -------------------------------
@@ -324,7 +324,7 @@ export const SoloNurseService = {
    --------------------------------*/
     if (Array.isArray(payload?.availability)) {
       payload.availability.forEach((incomingDay: any) => {
-        const existingDay = clinic.availability?.find(
+        const existingDay = soloNurse.availability?.find(
           (d: any) => d.day === incomingDay.day,
         );
 
@@ -338,7 +338,7 @@ export const SoloNurseService = {
           if (incomingDay.isEnabled !== undefined)
             existingDay.isEnabled = incomingDay.isEnabled;
         } else {
-          clinic.availability?.push({
+          soloNurse.availability?.push({
             day: incomingDay.day,
             startTime: incomingDay.startTime || "09:00",
             endTime: incomingDay.endTime || "17:00",
@@ -352,9 +352,9 @@ export const SoloNurseService = {
    * 2️⃣ HANDLE BLOCKED DATES
    --------------------------------*/
     if (Array.isArray(payload?.blockedDates)) {
-      clinic.blockedDates = clinic.blockedDates || [];
+      soloNurse.blockedDates = soloNurse.blockedDates || [];
 
-      const existingDates = clinic.blockedDates.map((d: any) =>
+      const existingDates = soloNurse.blockedDates.map((d: any) =>
         d.date.toDateString(),
       );
 
@@ -363,12 +363,12 @@ export const SoloNurseService = {
 
         if (incoming.action === "add") {
           if (!existingDates.includes(dateStr)) {
-            clinic.blockedDates?.push({
+            soloNurse.blockedDates?.push({
               date: new Date(incoming.date),
             });
           }
         } else if (incoming.action === "remove") {
-          clinic.blockedDates = clinic.blockedDates?.filter(
+          soloNurse.blockedDates = soloNurse.blockedDates?.filter(
             (d: any) => d.date.toDateString() !== dateStr,
           );
         }
@@ -379,28 +379,32 @@ export const SoloNurseService = {
    * 3️⃣ HANDLE AVAILABLE DATE RANGE (NEW)
    --------------------------------*/
     if (payload?.availableDateRange) {
-      clinic.availableDateRange = {
+      soloNurse.availableDateRange = {
         startDate: payload.availableDateRange.startDate
           ? new Date(payload.availableDateRange.startDate)
-          : clinic.availableDateRange?.startDate,
+          : soloNurse.availableDateRange?.startDate,
 
         endDate: payload.availableDateRange.endDate
           ? new Date(payload.availableDateRange.endDate)
-          : clinic.availableDateRange?.endDate,
+          : soloNurse.availableDateRange?.endDate,
 
         isEnabled:
           payload.availableDateRange.isEnabled ??
-          clinic.availableDateRange?.isEnabled ??
+          soloNurse.availableDateRange?.isEnabled ??
           false,
       };
+    }
+
+    if (payload?.slotTimeDuration) {
+      soloNurse.slotTimeDuration = payload.slotTimeDuration;
     }
 
     /** -------------------------------
    * 4️⃣ SAVE
    --------------------------------*/
-    await clinic.save();
+    await soloNurse.save();
 
-    return clinic;
+    return soloNurse;
   },
 
   addNewPaymentMethod: async (userId: string, payload: any) => {

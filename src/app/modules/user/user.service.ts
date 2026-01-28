@@ -308,6 +308,7 @@ const createDoctor = async (payload: any) => {
       email,
       availability,
       availableDateRange,
+      slotTimeDuration,
       ...doctorPayload
     } = payload;
     let parsedAvailability: any[] = [];
@@ -400,6 +401,7 @@ const createDoctor = async (payload: any) => {
           clinicId,
           availability: parsedAvailability || [],
           availableDateRange: parsedAvailableDateRange, // 👈 ADD HERE
+          slotTimeDuration,
         },
       ],
       { session },

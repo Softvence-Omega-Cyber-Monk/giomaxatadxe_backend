@@ -49,6 +49,7 @@ export type TSoloNurse = {
     endTime: string; // 17:00
     isEnabled: boolean;
   }[];
+  slotTimeDuration?: number;
 
   /** ✅ DATE-BASED BLOCKING */
   blockedDates?: {

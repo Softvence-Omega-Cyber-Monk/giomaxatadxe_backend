@@ -252,6 +252,7 @@ export const soloNurseAppointmentService = {
         ),
         availability: soloNurse?.availability,
         availableDateRange: soloNurse?.availableDateRange,
+        slotTimeDuration: soloNurse?.slotTimeDuration,
       }; // only appointments for that date
     }
 
@@ -281,6 +282,7 @@ export const soloNurseAppointmentService = {
       ),
       availability: soloNurse?.availability,
       availableDateRange: soloNurse?.availableDateRange,
+      slotTimeDuration: soloNurse?.slotTimeDuration,
     };
   },
 
