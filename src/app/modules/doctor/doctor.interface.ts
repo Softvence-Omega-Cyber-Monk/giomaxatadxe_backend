@@ -27,6 +27,8 @@ export type TDoctor = {
     isEnabled: boolean;
   }[];
 
+  slotTimeDuration?: number;
+
   /** ✅ DATE-BASED BLOCKING */
   blockedDates?: {
     date: Date; // YYYY-MM-DD

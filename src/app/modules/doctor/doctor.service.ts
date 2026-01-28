@@ -19,6 +19,7 @@ export const DoctorService = {
         availability,
         availableDateRange,
         blockedDates,
+        slotTimeDuration,
         ...rest
       } = payload;
 
@@ -141,6 +142,10 @@ export const DoctorService = {
 
       if (blockedDates !== undefined) {
         doctorUpdate.blockedDates = updatedBlockedDates;
+      }
+
+      if (slotTimeDuration !== undefined) {
+        doctorUpdate.slotTimeDuration = Number(slotTimeDuration);
       }
 
       const updatedDoctor = await Doctor_Model.findByIdAndUpdate(
