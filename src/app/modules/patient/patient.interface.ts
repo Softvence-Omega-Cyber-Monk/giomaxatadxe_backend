@@ -4,6 +4,7 @@ export type TPatient = {
   userId: Types.ObjectId;
   phoneNumber?: string;
   nationalIdNumber?: string;
+  nationality?: string;
   gender?: "male" | "female";
   bloodGroup?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
   dateOfBirth?: string;
