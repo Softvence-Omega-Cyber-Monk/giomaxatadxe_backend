@@ -27,6 +27,7 @@ export const patientService = {
       gender,
       bloodGroup,
       nationalIdNumber,
+      nationality,
     } = payload;
 
     if (payload.dateOfBirth) {
@@ -90,6 +91,7 @@ export const patientService = {
           gender,
           bloodGroup,
           age: payload?.age,
+          nationality,
         },
         { new: true, session },
       ).populate("userId");
