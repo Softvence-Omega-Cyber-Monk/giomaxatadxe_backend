@@ -1,5 +1,10 @@
 import { Types } from "mongoose";
 
+interface TAvailableDateRange {
+  startDate?: Date;
+  endDate?: Date;
+  isEnabled: boolean;
+}
 export type TDoctor = {
   userId: Types.ObjectId;
   clinicId: Types.ObjectId;
@@ -26,6 +31,7 @@ export type TDoctor = {
   blockedDates?: {
     date: Date; // YYYY-MM-DD
   }[];
+  availableDateRange?: TAvailableDateRange; // 👈 NEW FIELD
 
   dateOfBirth?: string;
   gender?: "male" | "female";

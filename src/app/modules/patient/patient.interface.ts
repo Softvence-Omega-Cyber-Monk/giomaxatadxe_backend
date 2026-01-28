@@ -37,9 +37,11 @@ export type TPatient = {
     }[];
   };
   paymentMethods: {
+    _id: any;
     cardHolderName: string;
     cardNumber: string;
     cvv: string;
     expiryDate: string;
+    isDefault ?: boolean
   }[];
 };

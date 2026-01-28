@@ -1,5 +1,11 @@
 import { Types } from "mongoose";
 
+interface TAvailableDateRange {
+  startDate?: Date;
+  endDate?: Date;
+  isEnabled: boolean;
+}
+
 export type TSoloNurse = {
   userId: Types.ObjectId;
   nationality: string;
@@ -49,6 +55,8 @@ export type TSoloNurse = {
     date: Date; // YYYY-MM-DD
   }[];
 
+  availableDateRange?: TAvailableDateRange; // 👈 NEW FIELD
+
   paymentAndEarnings?: {
     totalEarnings: {
       totalThisMonth: number;
@@ -60,6 +68,7 @@ export type TSoloNurse = {
       cardNumber: string;
       cvv: string;
       expiryDate: string;
+      isDefault: boolean;
     }[];
   };
   reviews?: {

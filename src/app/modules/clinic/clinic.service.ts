@@ -19,7 +19,8 @@ const getAllClinics = async () => {
         model: "user", // ensure correct model name
         select: "fullName profileImage", // fields you want
       },
-    });
+    })
+    .sort({ createdAt: -1 });
 
   return result;
 };
@@ -74,7 +75,7 @@ const getClinicAppointments = async (
       populate: {
         path: "userId",
         model: "user",
-        select: "fullName role ",
+        select: "fullName role email profileImage",
       },
     })
     .populate({
@@ -135,7 +136,8 @@ const getClinicDoctors = async (clinicId: string, appointmentType?: any) => {
       appointmentType: appointmentType,
     })
       .populate("userId")
-      .populate("clinicId");
+      .populate("clinicId")
+      .sort({ createdAt: -1 });
     return result;
   } else {
     const result = await Doctor_Model.find({ clinicId })
@@ -155,7 +157,7 @@ const getClinicPatients = async (clinicId: string) => {
     })
     .populate({
       path: "patientId",
-      select: "_id userId age bloodGroup gender",
+      select: "_id userId age bloodGroup gender phoneNumber nationalIdNumber",
       populate: {
         path: "userId",
         model: "user", // ensure correct model name
@@ -165,7 +167,8 @@ const getClinicPatients = async (clinicId: string) => {
     .populate({
       path: "doctorId",
       select: "_id userId ",
-    });
+    })
+    .sort({ createdAt: -1 });
 
   return appointmentRecords;
 };

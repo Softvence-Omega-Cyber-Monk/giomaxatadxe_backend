@@ -339,17 +339,20 @@ export const patientService = {
   addNewPaymentMethod: async (userId: string, payload: any) => {
     console.log("payload from service ", payload);
 
-    const clinic = await Patient_Model.findOne({ userId });
+    const patient = await Patient_Model.findOne({ userId });
 
-    if (!clinic) {
+    if (!patient) {
       throw new Error("patient not found for this user");
     }
+
+    const isFirstPaymentMethod = patient.paymentMethods.length === 0;
 
     const newMethod = {
       cardHolderName: payload.cardHolderName,
       cardNumber: payload.cardNumber,
       cvv: payload.cvv,
       expiryDate: payload.expiryDate,
+      isDefault: isFirstPaymentMethod,
     };
 
     // push into nested array
@@ -362,6 +365,43 @@ export const patientService = {
     );
 
     return updatedClinic;
+  },
+  setDefaultPaymentMethod: async (
+    patientId: string,
+    paymentMethodId: string,
+  ) => {
+    if (
+      !mongoose.Types.ObjectId.isValid(patientId) ||
+      !mongoose.Types.ObjectId.isValid(paymentMethodId)
+    ) {
+      throw { statusCode: 400, message: "Invalid ID" };
+    }
+
+    const patient = await Patient_Model.findById(patientId);
+
+    if (!patient) {
+      throw { statusCode: 404, message: "Patient not found" };
+    }
+
+    const paymentMethod = patient.paymentMethods.find(
+      (method) => method._id.toString() === paymentMethodId,
+    );
+
+    if (!paymentMethod) {
+      throw { statusCode: 404, message: "Payment method not found" };
+    }
+
+    // Remove default from all
+    patient.paymentMethods.forEach((method) => {
+      method.isDefault = false;
+    });
+
+    // Set selected as default
+    paymentMethod.isDefault = true;
+
+    await patient.save();
+
+    return patient;
   },
 
   deletePatient: async (id: string) => {
