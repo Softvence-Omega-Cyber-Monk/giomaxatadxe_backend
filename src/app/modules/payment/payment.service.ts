@@ -48,8 +48,12 @@ const createBoGOrder = async (payment: any) => {
   return res.data;
 };
 
-const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
-  const { external_order_id, status } = payload;
+const handleBoGCallbackService = async (payload: any) => {
+  // console.log("bog callback payload", payload);
+  // const { external_order_id, status } = payload;
+
+  const external_order_id = payload?.body?.external_order_id;
+  const status = payload?.body?.order_status?.key;
 
   console.log("external order id ", external_order_id);
 
