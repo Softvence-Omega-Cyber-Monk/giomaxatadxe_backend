@@ -1,5 +1,11 @@
 import { Types } from "mongoose";
 
+interface TAvailableDateRange {
+  startDate?: Date;
+  endDate?: Date;
+  isEnabled: boolean;
+}
+
 export type TSoloNurse = {
   userId: Types.ObjectId;
   nationality: string;
@@ -48,6 +54,8 @@ export type TSoloNurse = {
   blockedDates?: {
     date: Date; // YYYY-MM-DD
   }[];
+
+  availableDateRange?: TAvailableDateRange; // 👈 NEW FIELD
 
   paymentAndEarnings?: {
     totalEarnings: {

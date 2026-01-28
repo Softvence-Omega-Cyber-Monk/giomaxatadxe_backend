@@ -251,6 +251,7 @@ export const soloNurseAppointmentService = {
           (d: any) => new Date(d.date).toISOString().split("T")[0],
         ),
         availability: soloNurse?.availability,
+        availableDateRange: soloNurse?.availableDateRange,
       }; // only appointments for that date
     }
 
@@ -279,6 +280,7 @@ export const soloNurseAppointmentService = {
         (d: any) => new Date(d.date).toISOString().split("T")[0],
       ),
       availability: soloNurse?.availability,
+      availableDateRange: soloNurse?.availableDateRange,
     };
   },
 

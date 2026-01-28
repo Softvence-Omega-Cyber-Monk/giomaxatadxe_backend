@@ -85,6 +85,12 @@ const soloNurseSchema = new Schema<TSoloNurse>(
       default: [],
     },
 
+    availableDateRange: {
+      startDate: { type: Date },
+      endDate: { type: Date },
+      isEnabled: { type: Boolean, default: false },
+    },
+
     paymentAndEarnings: {
       totalEarnings: {
         totalThisMonth: { type: Number, default: 0 },
@@ -98,7 +104,7 @@ const soloNurseSchema = new Schema<TSoloNurse>(
           cardNumber: { type: String },
           cvv: { type: String },
           expiryDate: { type: String },
-          isDefault : { type: Boolean, default: false },
+          isDefault: { type: Boolean, default: false },
         },
       ],
     },

@@ -311,6 +311,8 @@ export const SoloNurseService = {
   },
 
   availabilitySettings: async (userId: string, payload: any) => {
+    console.log("payload from service ", payload);
+
     const clinic = await SoloNurse_Model.findOne({ userId });
 
     if (!clinic) {
@@ -327,7 +329,6 @@ export const SoloNurseService = {
         );
 
         if (existingDay) {
-          // ✅ Update only provided fields
           if (incomingDay.startTime !== undefined)
             existingDay.startTime = incomingDay.startTime;
 
@@ -337,8 +338,7 @@ export const SoloNurseService = {
           if (incomingDay.isEnabled !== undefined)
             existingDay.isEnabled = incomingDay.isEnabled;
         } else {
-          // ✅ Add new day safely
-          clinic?.availability?.push({
+          clinic.availability?.push({
             day: incomingDay.day,
             startTime: incomingDay.startTime || "09:00",
             endTime: incomingDay.endTime || "17:00",
@@ -352,10 +352,8 @@ export const SoloNurseService = {
    * 2️⃣ HANDLE BLOCKED DATES
    --------------------------------*/
     if (Array.isArray(payload?.blockedDates)) {
-      // Make sure clinic.blockedDates is initialized
       clinic.blockedDates = clinic.blockedDates || [];
 
-      // Convert existing dates to strings for easy comparison
       const existingDates = clinic.blockedDates.map((d: any) =>
         d.date.toDateString(),
       );
@@ -364,12 +362,12 @@ export const SoloNurseService = {
         const dateStr = new Date(incoming.date).toDateString();
 
         if (incoming.action === "add") {
-          // Add date if it doesn't exist
           if (!existingDates.includes(dateStr)) {
-            clinic.blockedDates?.push({ date: new Date(incoming.date) });
+            clinic.blockedDates?.push({
+              date: new Date(incoming.date),
+            });
           }
         } else if (incoming.action === "remove") {
-          // Remove date if it exists
           clinic.blockedDates = clinic.blockedDates?.filter(
             (d: any) => d.date.toDateString() !== dateStr,
           );
@@ -378,7 +376,27 @@ export const SoloNurseService = {
     }
 
     /** -------------------------------
-   * 3️⃣ SAVE (ATOMIC & SAFE)
+   * 3️⃣ HANDLE AVAILABLE DATE RANGE (NEW)
+   --------------------------------*/
+    if (payload?.availableDateRange) {
+      clinic.availableDateRange = {
+        startDate: payload.availableDateRange.startDate
+          ? new Date(payload.availableDateRange.startDate)
+          : clinic.availableDateRange?.startDate,
+
+        endDate: payload.availableDateRange.endDate
+          ? new Date(payload.availableDateRange.endDate)
+          : clinic.availableDateRange?.endDate,
+
+        isEnabled:
+          payload.availableDateRange.isEnabled ??
+          clinic.availableDateRange?.isEnabled ??
+          false,
+      };
+    }
+
+    /** -------------------------------
+   * 4️⃣ SAVE
    --------------------------------*/
     await clinic.save();
 
