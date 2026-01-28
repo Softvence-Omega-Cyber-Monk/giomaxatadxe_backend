@@ -12,6 +12,7 @@ import { sendNotification } from "../../utils/notificationHelper";
 const createWithdrawRequest = async (payload: any) => {
   const { walletId, ownerId, ownerType, amount, cardNumber } = payload;
 
+
   // Set commission based on owner type
   const commissionRate =
     ownerType === "CLINIC" ? 9 : ownerType === "SOLO_NURSE" ? 12 : 0;

@@ -62,6 +62,7 @@ const clinicSchema = new Schema<TClinic>(
           cardNumber: { type: String },
           cvv: { type: String },
           expiryDate: { type: String },
+          isDefault: { type: Boolean, default: false },
         },
       ],
     },

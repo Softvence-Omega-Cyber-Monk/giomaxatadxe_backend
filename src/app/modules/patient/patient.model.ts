@@ -5,7 +5,7 @@ const patientSchema = new Schema<TPatient>(
   {
     userId: { type: Schema.Types.ObjectId, required: true, ref: "user" },
     phoneNumber: { type: String, required: false },
-    
+
     nationalIdNumber: {
       type: String,
       required: false,
@@ -19,10 +19,10 @@ const patientSchema = new Schema<TPatient>(
       type: String,
       enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
       required: false,
-      default : null
+      default: null,
     },
     dateOfBirth: { type: String, required: false },
-    age: { type: Number, required: false, default : null },
+    age: { type: Number, required: false, default: null },
     address: [
       {
         addressLabel: { type: String },
@@ -63,17 +63,17 @@ const patientSchema = new Schema<TPatient>(
     },
     paymentMethods: [
       {
-        _id: false,
         cardHolderName: { type: String },
         cardNumber: { type: String },
         cvv: { type: String },
         expiryDate: { type: String },
+        isDefault: { type: Boolean, default: false },
       },
     ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const Patient_Model = model<TPatient>("Patient", patientSchema);

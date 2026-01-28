@@ -36,7 +36,7 @@ export const patientController = {
       const result = await patientService.updatePatientBasic(
         req.params.userId,
         req.body,
-        profileImageUrl
+        profileImageUrl,
       );
 
       res.json({
@@ -58,7 +58,7 @@ export const patientController = {
       const result = await patientService.createOrUpdateAddress(
         req.params.userId,
         addressId,
-        req.body
+        req.body,
       );
 
       res.json({
@@ -74,56 +74,46 @@ export const patientController = {
     }
   },
 
-  setDefaultAddressController : async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const { patientId, addressId } = req.params;
+  setDefaultAddressController: async (req: Request, res: Response) => {
+    try {
+      const { patientId, addressId } = req.params;
 
-    const result = await patientService.setDefaultAddress(
-      patientId,
-      addressId
-    );
+      const result = await patientService.setDefaultAddress(
+        patientId,
+        addressId,
+      );
 
-    res.status(200).json({
-      success: true,
-      message: "Default address updated successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-},
+      res.status(200).json({
+        success: true,
+        message: "Default address updated successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
 
- deleteAddressController : async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const { patientId, addressId } = req.params;
+  deleteAddressController: async (req: Request, res: Response) => {
+    try {
+      const { patientId, addressId } = req.params;
 
-    const result = await patientService.deleteAddress(
-      patientId,
-      addressId
-    );
+      const result = await patientService.deleteAddress(patientId, addressId);
 
-    res.status(200).json({
-      success: true,
-      message: "Address deleted successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-},
-
+      res.status(200).json({
+        success: true,
+        message: "Address deleted successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
 
   addMedicalHistoryService: async (req: Request, res: Response) => {
     try {
@@ -141,7 +131,7 @@ export const patientController = {
         userId,
         medicalConditions,
         medicalMedications,
-        allergies
+        allergies,
       );
 
       return res.status(200).json({
@@ -172,7 +162,7 @@ export const patientController = {
         userId,
         medicalConditions,
         medicalMedications,
-        allergies
+        allergies,
       );
 
       return res.status(200).json({
@@ -203,7 +193,7 @@ export const patientController = {
         userId,
         medicalConditions,
         medicalMedications,
-        allergies
+        allergies,
       );
 
       return res.status(200).json({
@@ -235,6 +225,28 @@ export const patientController = {
       res.status(500).json({
         success: false,
         message: error.message,
+      });
+    }
+  },
+
+  setDefaultPaymentMethod: async (req: Request, res: Response) => {
+    try {
+      const { patientId, paymentMethodId } = req.params;
+
+      const result = await patientService.setDefaultPaymentMethod(
+        patientId,
+        paymentMethodId,
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Default payment method updated successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(error.statusCode || 500).json({
+        success: false,
+        message: error.message || "Internal server error",
       });
     }
   },
