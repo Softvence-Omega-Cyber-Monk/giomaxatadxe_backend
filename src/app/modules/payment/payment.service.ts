@@ -49,6 +49,7 @@ const createBoGOrder = async (payment: any) => {
 };
 
 const handleBoGCallbackService = async (payload: BoGCallbackPayload) => {
+  console.log("bog callback payload", payload);
   const { external_order_id, status } = payload;
 
   console.log("external order id ", external_order_id);

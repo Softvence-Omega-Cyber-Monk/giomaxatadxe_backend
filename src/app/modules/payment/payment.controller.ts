@@ -5,7 +5,7 @@ import { PaymentService } from "./payment.service";
 
 const startClinicPayment = async (req: any, res: any) => {
   const appointment = await doctorAppointment_Model.findById(
-    req.body.appointmentId
+    req.body.appointmentId,
   );
 
   if (!appointment) return res.status(404).json({ message: "Not found" });
@@ -35,7 +35,7 @@ const startClinicPayment = async (req: any, res: any) => {
 
 const startSoloNursePayment = async (req: any, res: any) => {
   const appointment = await soloNurseAppoinment_Model.findById(
-    req.body.appointmentId
+    req.body.appointmentId,
   );
 
   if (!appointment) return res.status(404).json({ message: "Not found" });
@@ -51,7 +51,10 @@ const startSoloNursePayment = async (req: any, res: any) => {
 
   const bogOrder = await PaymentService.createBoGOrder(payment);
 
+  console.log("bogOrder", bogOrder);
+
   payment.bogOrderId = bogOrder.id;
+
   await payment.save();
 
   res.json({ redirectUrl: bogOrder._links.redirect.href });
@@ -59,10 +62,10 @@ const startSoloNursePayment = async (req: any, res: any) => {
 
 export const bogCallbackController = async (req: any, res: any) => {
   try {
-    console.log("BoG Webhook Payload:", req.body);
+    // console.log("BoG Webhook Payload:", req.body);
 
     const callbackResult = await PaymentService.handleBoGCallbackService(
-      req.body
+      req.body,
     );
 
     // BoG requires 200 OK always
@@ -79,7 +82,7 @@ const paymentSuccess = async (req: any, res: any) => {
   try {
     const { paymentId } = req.query;
 
-    console.log('payment id form succes route ', paymentId);
+    console.log("payment id form succes route ", paymentId);
 
     if (!paymentId) {
       return res.status(400).send("Invalid payment request");
@@ -107,7 +110,7 @@ const paymentFail = async (req: any, res: any) => {
   try {
     const { paymentId } = req.query;
 
-    console.log('payment id form fail route ', paymentId);
+    console.log("payment id form fail route ", paymentId);
 
     if (!paymentId) {
       return res.status(400).send("Invalid payment request");
@@ -164,5 +167,5 @@ export const PaymentController = {
   paymentSuccess,
   paymentFail,
   adminPaymentData,
-  getAllTransation
+  getAllTransation,
 };
