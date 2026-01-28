@@ -59,6 +59,8 @@ const DoctorSchema = new Schema<TDoctor>(
       isEnabled: { type: Boolean, default: false },
     },
 
+    slotTimeDuration: { type: Number, default: 30 },
+
     dateOfBirth: { type: String },
     gender: { type: String, enum: ["male", "female"] },
 

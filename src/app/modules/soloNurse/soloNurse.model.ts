@@ -90,6 +90,10 @@ const soloNurseSchema = new Schema<TSoloNurse>(
       endDate: { type: Date },
       isEnabled: { type: Boolean, default: false },
     },
+    slotTimeDuration: {
+      type: Number,
+      default: 30,
+    },
 
     paymentAndEarnings: {
       totalEarnings: {
