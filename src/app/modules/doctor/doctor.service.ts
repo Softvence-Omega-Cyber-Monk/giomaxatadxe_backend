@@ -17,6 +17,7 @@ export const DoctorService = {
         professionalInformation,
         phoneNumber,
         availability,
+        availableDateRange,
         blockedDates,
         ...rest
       } = payload;
@@ -67,6 +68,30 @@ export const DoctorService = {
         }
       }
 
+      let parsedAvailableDateRange: any | undefined;
+
+      if (availableDateRange !== undefined) {
+        let rangeObj: any = availableDateRange;
+
+        // handle FormData string
+        if (typeof availableDateRange === "string") {
+          rangeObj = JSON.parse(availableDateRange);
+        }
+
+        parsedAvailableDateRange = {
+          startDate: rangeObj.startDate
+            ? new Date(rangeObj.startDate)
+            : doctor.availableDateRange?.startDate,
+
+          endDate: rangeObj.endDate
+            ? new Date(rangeObj.endDate)
+            : doctor.availableDateRange?.endDate,
+
+          isEnabled:
+            rangeObj.isEnabled ?? doctor.availableDateRange?.isEnabled ?? false,
+        };
+      }
+
       // 4️⃣ Handle blocked dates (ADD / REMOVE)
       let updatedBlockedDates = doctor.blockedDates || [];
 
@@ -106,6 +131,10 @@ export const DoctorService = {
 
       if (parsedAvailability !== undefined) {
         doctorUpdate.availability = parsedAvailability;
+      }
+
+      if (parsedAvailableDateRange !== undefined) {
+        doctorUpdate.availableDateRange = parsedAvailableDateRange;
       }
 
       if (blockedDates !== undefined) {
