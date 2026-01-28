@@ -49,7 +49,7 @@ const createBoGOrder = async (payment: any) => {
 };
 
 const handleBoGCallbackService = async (payload: any) => {
-  // console.log("bog callback payload", payload);
+  console.log("bog callback payload", payload);
   // const { external_order_id, status } = payload;
 
   const external_order_id = payload?.body?.external_order_id;
@@ -69,7 +69,7 @@ const handleBoGCallbackService = async (payload: any) => {
     return { message: "Already processed" };
   }
 
-  if (status === "SUCCESS") {
+  if (status === "completed") {
     payment.status = "PAID";
 
     // Move money to pending balance (admin holds money)
