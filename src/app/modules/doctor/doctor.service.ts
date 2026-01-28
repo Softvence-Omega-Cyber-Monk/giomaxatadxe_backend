@@ -76,6 +76,8 @@ export const DoctorService = {
         // handle FormData string
         if (typeof availableDateRange === "string") {
           rangeObj = JSON.parse(availableDateRange);
+        } else {
+          rangeObj = availableDateRange;
         }
 
         parsedAvailableDateRange = {
