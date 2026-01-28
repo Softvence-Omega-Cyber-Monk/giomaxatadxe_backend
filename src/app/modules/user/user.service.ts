@@ -341,15 +341,18 @@ const createDoctor = async (payload: any) => {
 
     console.log("availbility data", parsedAvailability);
 
-    
-    let parsedAvailableDateRange: any = undefined;
+    let parsedAvailableDateRange: any | undefined;
 
-    if (availableDateRange) {
-      let rangeObj: any = availableDateRange;
+    if (availableDateRange !== undefined) {
+      let rangeObj: any;
 
-      // 🔥 handle string payload
+      // 🟢 Case 1: FormData → string
       if (typeof availableDateRange === "string") {
         rangeObj = JSON.parse(availableDateRange);
+      }
+      // 🟢 Case 2: JSON body → object
+      else {
+        rangeObj = availableDateRange;
       }
 
       parsedAvailableDateRange = {
