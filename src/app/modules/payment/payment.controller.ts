@@ -79,6 +79,8 @@ const paymentSuccess = async (req: any, res: any) => {
   try {
     const { paymentId } = req.query;
 
+    console.log('payment id form succes route ', paymentId);
+
     if (!paymentId) {
       return res.status(400).send("Invalid payment request");
     }
@@ -104,6 +106,8 @@ const paymentSuccess = async (req: any, res: any) => {
 const paymentFail = async (req: any, res: any) => {
   try {
     const { paymentId } = req.query;
+
+    console.log('payment id form fail route ', paymentId);
 
     if (!paymentId) {
       return res.status(400).send("Invalid payment request");

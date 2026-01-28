@@ -10,6 +10,10 @@ const patientSchema = new Schema<TPatient>(
       type: String,
       required: false,
     },
+    nationality: {
+      type: String,
+      required: false,
+    },
     gender: {
       type: String,
       enum: ["male", "female"],

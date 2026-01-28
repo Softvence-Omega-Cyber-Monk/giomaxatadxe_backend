@@ -357,7 +357,7 @@ export const soloNurseAppointmentService = {
     // Step 1: Get unique patient IDs for this doctor
     const patientIds = await soloNurseAppoinment_Model.distinct("patientId", {
       soloNurseId: soloNurseId,
-      status: "confirmed",
+      // status: "confirmed",
     });
     console.log("paitent ids ", patientIds);
 
@@ -376,7 +376,7 @@ export const soloNurseAppointmentService = {
       "soloNurseId",
       {
         patientId: patientId,
-        status: "confirmed",
+        // status: "confirmed",
       },
     );
 

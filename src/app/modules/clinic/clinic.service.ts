@@ -160,17 +160,26 @@ const getClinicPatients = async (clinicId: string) => {
       select: "_id userId age bloodGroup gender phoneNumber nationalIdNumber",
       populate: {
         path: "userId",
-        model: "user", // ensure correct model name
-        select: "fullName role email profileImage ", // fields you want
+        model: "user",
+        select: "fullName role email profileImage",
       },
     })
     .populate({
       path: "doctorId",
-      select: "_id userId ",
+      select: "_id userId",
     })
     .sort({ createdAt: -1 });
 
-  return appointmentRecords;
+  // 🔹 Filter unique patients by patientId
+  const uniquePatientsMap = new Map();
+  appointmentRecords.forEach((appt) => {
+    if (appt.patientId) {
+      uniquePatientsMap.set(appt.patientId._id.toString(), appt.patientId);
+    }
+  });
+
+  // Return array of unique patient objects
+  return Array.from(uniquePatientsMap.values());
 };
 
 const updateClinicBasic = async (
