@@ -53,6 +53,12 @@ const DoctorSchema = new Schema<TDoctor>(
       default: [],
     },
 
+    availableDateRange: {
+      startDate: { type: Date },
+      endDate: { type: Date },
+      isEnabled: { type: Boolean, default: false },
+    },
+
     dateOfBirth: { type: String },
     gender: { type: String, enum: ["male", "female"] },
 

@@ -302,8 +302,14 @@ const createDoctor = async (payload: any) => {
   session.startTransaction();
 
   try {
-    const { clinicId, doctorName, email, availability, ...doctorPayload } =
-      payload;
+    const {
+      clinicId,
+      doctorName,
+      email,
+      availability,
+      availableDateRange,
+      ...doctorPayload
+    } = payload;
     let parsedAvailability: any[] = [];
 
     if (payload.availability) {
@@ -334,6 +340,28 @@ const createDoctor = async (payload: any) => {
     }
 
     console.log("availbility data", parsedAvailability);
+
+    
+    let parsedAvailableDateRange: any = undefined;
+
+    if (availableDateRange) {
+      let rangeObj: any = availableDateRange;
+
+      // 🔥 handle string payload
+      if (typeof availableDateRange === "string") {
+        rangeObj = JSON.parse(availableDateRange);
+      }
+
+      parsedAvailableDateRange = {
+        startDate: rangeObj.startDate
+          ? new Date(rangeObj.startDate)
+          : undefined,
+
+        endDate: rangeObj.endDate ? new Date(rangeObj.endDate) : undefined,
+
+        isEnabled: rangeObj.isEnabled ?? false,
+      };
+    }
 
     // 1️⃣ Check if email already exists
     const existingUser = await User_Model.findOne({ email }).session(session);
@@ -368,6 +396,7 @@ const createDoctor = async (payload: any) => {
           userId: newUser._id,
           clinicId,
           availability: parsedAvailability || [],
+          availableDateRange: parsedAvailableDateRange, // 👈 ADD HERE
         },
       ],
       { session },
