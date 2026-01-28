@@ -513,6 +513,8 @@ export const doctorAppointmentService = {
           (d: any) => new Date(d.date).toISOString().split("T")[0],
         ),
         availability: doctor?.availability,
+        availableDateRange: doctor?.availableDateRange,
+        slotTimeDuration: doctor?.slotTimeDuration,
       };
     }
 
@@ -541,6 +543,8 @@ export const doctorAppointmentService = {
         (d: any) => new Date(d.date).toISOString().split("T")[0],
       ),
       availability: doctor?.availability,
+      availableDateRange: doctor?.availableDateRange,
+      slotTimeDuration: doctor?.slotTimeDuration,
     };
   },
 
