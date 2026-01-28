@@ -80,6 +80,7 @@ export const bogCallbackController = async (req: any, res: any) => {
 
 const paymentSuccess = async (req: any, res: any) => {
   try {
+    console.log("in success route , ", req.body, req.query);
     const { paymentId } = req.query;
 
     console.log("payment id form succes route ", paymentId);

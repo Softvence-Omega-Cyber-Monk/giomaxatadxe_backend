@@ -28,8 +28,8 @@ const createBoGOrder = async (payment: any) => {
     },
 
     redirect_urls: {
-      success: `${process.env.BACKEND_URL}/api/v1/payment/success`,
-      fail: `${process.env.BACKEND_URL}/api/v1/payment/fail`,
+      success: `${process.env.BACKEND_URL}/api/v1/payment/success?paymentId=${payment._id}`,
+      fail: `${process.env.BACKEND_URL}/api/v1/payment/fail?paymentId=${payment._id}`,
     },
   };
 
