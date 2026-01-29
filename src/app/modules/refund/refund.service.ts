@@ -29,6 +29,8 @@ const createRefund = async (payload: TRefund) => {
     });
   }
 
+  console.log('appointment in refund',appointment);
+
   if (!appointment) {
     throw new Error("Appointment not found");
   }
