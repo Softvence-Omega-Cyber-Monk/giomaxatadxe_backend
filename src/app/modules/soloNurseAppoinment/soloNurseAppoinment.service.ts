@@ -414,54 +414,68 @@ export const soloNurseAppointmentService = {
     const patientObjectId = new mongoose.Types.ObjectId(patientUserId);
 
     const nurses = await ChatModel.aggregate([
-      // 1️⃣ Only patient → nurse chats
+      // 1️⃣ Match BOTH directions
       {
         $match: {
           chatType: "nurse_patient",
-          senderId: patientObjectId,
+          $or: [{ senderId: patientObjectId }, { receiverId: patientObjectId }],
         },
       },
 
-      // 2️⃣ Unique nurses
+      // 2️⃣ Figure out who the nurse is
+      {
+        $project: {
+          nurseUserId: {
+            $cond: [
+              { $eq: ["$senderId", patientObjectId] },
+              "$receiverId", // patient sent → nurse received
+              "$senderId", // nurse sent → patient received
+            ],
+          },
+        },
+      },
+
+      // 3️⃣ Unique nurses
       {
         $group: {
-          _id: "$receiverId", // nurse userId
+          _id: "$nurseUserId",
         },
       },
 
-      // 3️⃣ Join users
+      // 4️⃣ Join users
       {
         $lookup: {
           from: "users",
           localField: "_id",
           foreignField: "_id",
-          as: "nurse",
+          as: "user",
         },
       },
-      { $unwind: "$nurse" },
+      { $unwind: "$user" },
 
-      // 4️⃣ Ensure role is solo nurse
+      // 5️⃣ Ensure role is solo nurse
       {
         $match: {
-          "nurse.role": "soloNurse",
+          "user.role": "solo_nurse",
         },
       },
 
-      // 5️⃣ Final output
+      // 6️⃣ Final output
       {
         $project: {
           _id: 0,
-          userId: "$nurse._id",
-          fullName: "$nurse.fullName",
-          profileImage: "$nurse.profileImage",
-          role: "$nurse.role",
-          email: "$nurse.email",
+          userId: "$user._id",
+          fullName: "$user.fullName",
+          profileImage: "$user.profileImage",
+          role: "$user.role",
+          email: "$user.email",
         },
       },
     ]);
 
     return nurses;
   },
+
   deleteAppointment: async (id: string) => {
     return await soloNurseAppoinment_Model.findByIdAndDelete(id);
   },
