@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { User_Model } from "../user/user.schema";
 import { SoloNurse_Model } from "./soloNurse.model";
 import { Wallet_Model } from "../wallet/wallet.model";
@@ -416,13 +416,16 @@ export const SoloNurseService = {
       throw new Error("Clinic not found for this user");
     }
 
+    const hasExistingMethods =
+      (clinic?.paymentAndEarnings?.withdrawalMethods?.length ?? 0) > 0;
+
     const newMethod = {
       cardHolderName: payload.cardHolderName,
       cardNumber: payload.cardNumber,
       cvv: payload.cvv,
       expiryDate: payload.expiryDate,
+      isDefault: !hasExistingMethods, // ✅ first one becomes default
     };
-
     // push into nested array
     const updatedClinic = await SoloNurse_Model.findOneAndUpdate(
       { userId },
@@ -433,6 +436,46 @@ export const SoloNurseService = {
     );
 
     return updatedClinic;
+  },
+
+  setDefaultPaymentMethod: async (userId: string, methodId: string) => {
+    if (!Types.ObjectId.isValid(methodId)) {
+      throw new Error("Invalid payment method ID");
+    }
+
+    const SoloNurse = await SoloNurse_Model.findOne({ userId });
+
+    if (!SoloNurse) {
+      throw new Error("SoloNurse not found for this user");
+    }
+
+    const methodExists = SoloNurse.paymentAndEarnings?.withdrawalMethods?.some(
+      (m: any) => m?._id.toString() === methodId,
+    );
+
+    
+
+    if (!methodExists) {
+      throw new Error("Payment method not found");
+    }
+
+    // 1️⃣ unset all defaults
+    // 2️⃣ set selected one as default
+    const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
+      { userId },
+      {
+        $set: {
+          "paymentAndEarnings.withdrawalMethods.$[].isDefault": false,
+          "paymentAndEarnings.withdrawalMethods.$[elem].isDefault": true,
+        },
+      },
+      {
+        arrayFilters: [{ "elem._id": new Types.ObjectId(methodId) }],
+        new: true,
+      },
+    );
+
+    return updatedSoloNurse;
   },
   addReviews: async (userId: string, payload: any) => {
     const soloNurse: any = await SoloNurse_Model.findOne({ userId });

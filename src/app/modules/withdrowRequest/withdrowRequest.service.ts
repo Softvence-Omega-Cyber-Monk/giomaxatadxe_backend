@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { Wallet_Model } from "../wallet/wallet.model";
 import { WithdrawRequest_Model } from "./withdrowRequest.model";
-import { User_Model } from "../user/user.schema";
 import { Clinic_Model } from "../clinic/clinic.model";
 import { SoloNurse_Model } from "../soloNurse/soloNurse.model";
 import { sendNotification } from "../../utils/notificationHelper";
@@ -12,6 +11,24 @@ import { sendNotification } from "../../utils/notificationHelper";
 const createWithdrawRequest = async (payload: any) => {
   const { walletId, ownerId, ownerType, amount, cardNumber } = payload;
 
+  console.log("payload", payload);
+
+  let user = null;
+
+  if (ownerType === "CLINIC") {
+    user = await Clinic_Model.findOne({ _id: ownerId });
+    if (!user) throw new Error("Clinic not found");
+  } else if (ownerType === "SOLO_NURSE") {
+    console.log("hit solo nurse block ");
+    user = await SoloNurse_Model.findOne({ _id: ownerId });
+    if (!user) throw new Error("Solo Nurse not found");
+  }
+
+  const withdrawAddress = user?.paymentAndEarnings?.withdrawalMethods?.find(
+    (method: any) => method?.isDefault === true,
+  );
+
+  // console.log("withdraw addrsss ", withdrawAddress?.cardNumber);
 
   // Set commission based on owner type
   const commissionRate =
@@ -40,7 +57,7 @@ const createWithdrawRequest = async (payload: any) => {
     ownerId,
     ownerType,
     amount,
-    cardNumber,
+    cardNumber: withdrawAddress?.cardNumber,
   });
 };
 
@@ -86,7 +103,7 @@ const markAsPaid = async (withdrawId: string) => {
       userId?.userId?._id?.toString() || "",
       "Withdraw Request",
       `$${withdraw.amount} withdraw request approved`,
-      "notification"
+      "notification",
     );
   } else if (withdraw?.ownerType === "SOLO_NURSE") {
     const userId = await SoloNurse_Model.findById(withdraw.ownerId)
@@ -97,7 +114,7 @@ const markAsPaid = async (withdrawId: string) => {
       userId?.userId?._id?.toString() || "",
       "Withdraw Request",
       `$${withdraw.amount} withdraw request approved`,
-      "notification"
+      "notification",
     );
   }
 
@@ -115,9 +132,8 @@ const rejectWithdraw = async (withdrawId: string) => {
   session.startTransaction();
 
   try {
-    const withdraw = await WithdrawRequest_Model.findById(withdrawId).session(
-      session
-    );
+    const withdraw =
+      await WithdrawRequest_Model.findById(withdrawId).session(session);
     if (!withdraw) throw new Error("Withdraw request not found");
 
     if (withdraw.status !== "PENDING") {
@@ -125,7 +141,7 @@ const rejectWithdraw = async (withdrawId: string) => {
     }
 
     const wallet = await Wallet_Model.findById(withdraw.walletId).session(
-      session
+      session,
     );
     if (!wallet) throw new Error("Wallet not found");
 
