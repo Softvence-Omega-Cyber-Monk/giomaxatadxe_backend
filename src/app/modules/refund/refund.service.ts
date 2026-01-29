@@ -10,9 +10,9 @@ const createRefund = async (payload: TRefund) => {
   // console.log("payload", payload);
   const user = await Patient_Model.findOne({ _id: payload.userId });
 
-  if (!user?.paymentMethods || user.paymentMethods.length === 0) {
-    throw new Error("No payment methods found , Please add payment methods");
-  }
+  // if (!user?.paymentMethods || user.paymentMethods.length === 0) {
+  //   throw new Error("No payment methods found , Please add payment methods");
+  // }
 
   let appointment: any = null;
 
