@@ -12,54 +12,59 @@ router.get("/getSingle/:userId", SoloNurseController.getSoloNurseById);
 router.put(
   "/update-basic/:userId",
   soloNurseProfileImage.single("profileImage"),
-  SoloNurseController.updateSoloNurseBasic
+  SoloNurseController.updateSoloNurseBasic,
 );
 router.put(
   "/update-professional/:userId/",
-  SoloNurseController.professionalUpdate
+  SoloNurseController.professionalUpdate,
 );
 router.put(
   "/addSingleSubService/:userId/:serviceId/:serviceName",
-  SoloNurseController.addSubServiceWithAutoMainService
+  SoloNurseController.addSubServiceWithAutoMainService,
 );
 router.put(
   "/deleteSingleSubService/:userId/:serviceId/:subServiceId",
-  SoloNurseController.deleteSingleSubService
+  SoloNurseController.deleteSingleSubService,
 );
 router.put(
   "/upload-certificate/:userId",
   nurseCertificate.single("uploadCertificates"),
-  SoloNurseController.uploadCertificate
+  SoloNurseController.uploadCertificate,
 );
 
 router.delete(
   "/delete-certificate/:userId/:certificateId",
-  SoloNurseController.deleteCertificate
+  SoloNurseController.deleteCertificate,
 );
 
 router.put("/availability/:userId", SoloNurseController.availabilitySettings);
 router.put(
   "/addNewPaymentMethod/:userId",
-  SoloNurseController.addNewPaymentMethod
+  SoloNurseController.addNewPaymentMethod,
+);
+
+router.patch(
+  "/payment-methods/set-default/:userId/:methodId",
+  SoloNurseController.setDefaultPaymentMethod,
 );
 router.put("/addReviews/:userId", SoloNurseController.addReviews);
 
 router.delete(
   "/delete/:soloNurseUserId/:soloNurseId",
-  SoloNurseController.deleteSoloNurse
+  SoloNurseController.deleteSoloNurse,
 );
 router.get(
   "/getSoloNursePaymentData/:soloNurseUserId",
-  SoloNurseController.getSoloNursePaymentData
+  SoloNurseController.getSoloNursePaymentData,
 );
 
 router.get(
   "/get/sub-services",
-  SoloNurseController.getSubServicesByMainService
+  SoloNurseController.getSubServicesByMainService,
 );
 router.get(
   "/getSoloNurseDashboardOverview/:soloNurseId",
-  SoloNurseController.getSoloNurseDashboardOverview
+  SoloNurseController.getSoloNurseDashboardOverview,
 );
 
 export const SoloNurseRoutes = router;

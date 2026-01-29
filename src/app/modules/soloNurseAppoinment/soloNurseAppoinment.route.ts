@@ -10,34 +10,32 @@ router.get("/getSingle/:id", soloNurseAppointmentController.getById);
 router.put("/update/:id", soloNurseAppointmentController.update);
 router.get(
   "/getSelectedDateAndTime/:id",
-  soloNurseAppointmentController.getSelectedDateAndTime
+  soloNurseAppointmentController.getSelectedDateAndTime,
 );
 router.post(
   "/getAppoinmentTimeBasedOnDate/:id",
-  soloNurseAppointmentController.getAppoinmentTimeBasedOnDate
+  soloNurseAppointmentController.getAppoinmentTimeBasedOnDate,
 );
 router.get(
   "/getSinglePaintentAppointmentForNurse/:patientId",
-  soloNurseAppointmentController.getSinglePaintentAppointmentForNurse
+  soloNurseAppointmentController.getSinglePaintentAppointmentForNurse,
 );
 router.get(
   "/getSingleNurseAppointment/:soloNurseId",
-  soloNurseAppointmentController.getSingleNurseAppointment
+  soloNurseAppointmentController.getSingleNurseAppointment,
 );
 
 router.get(
-  "/getSinlgePatientChatsForNurse/:soloNurseId",
-  soloNurseAppointmentController.getSinlgePatientChatsForNurse
+  "/getSinlgePatientChatsForNurse/:soloNurseUserId",
+  soloNurseAppointmentController.getSinlgePatientChatsForNurse,
 );
 router.get(
-  "/getSinglePatientChatsWithNurse/:patientId",
-  soloNurseAppointmentController.getSinlgePatientChatsWithNurse
+  "/getSinglePatientChatsWithNurse/:patientUserId",
+  soloNurseAppointmentController.getSinlgePatientChatsWithNurse,
 );
 router.delete(
   "/deleteAppointment/:appoinmentId",
-  soloNurseAppointmentController.deleteAppointment
+  soloNurseAppointmentController.deleteAppointment,
 );
-
-
 
 export const soloNurseAppoinmentRoutes = router;

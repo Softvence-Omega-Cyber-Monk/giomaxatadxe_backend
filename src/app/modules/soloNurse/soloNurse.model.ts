@@ -103,7 +103,7 @@ const soloNurseSchema = new Schema<TSoloNurse>(
       },
       withdrawalMethods: [
         {
-          _id: false,
+
           cardHolderName: { type: String },
           cardNumber: { type: String },
           cvv: { type: String },

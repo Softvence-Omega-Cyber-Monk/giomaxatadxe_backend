@@ -7,7 +7,7 @@ export const SoloNurseController = {
     try {
       const result = await SoloNurseService.getAllSoloNurses(
         req.query.serviceName as string,
-        req.query.sub_serviceName as string
+        req.query.sub_serviceName as string,
       );
       res.json({ success: true, data: result });
     } catch (error: any) {
@@ -32,7 +32,7 @@ export const SoloNurseController = {
       const result = await SoloNurseService.updateSoloNurseBasic(
         req.params.userId,
         req.body,
-        profileImageUrl
+        profileImageUrl,
       );
 
       res.json({
@@ -53,7 +53,7 @@ export const SoloNurseController = {
 
       const result = await SoloNurseService.professionalUpdate(
         userId,
-        req.body
+        req.body,
       );
 
       res.status(200).json({
@@ -79,7 +79,7 @@ export const SoloNurseController = {
           | "Nurse care and infusion therapy"
           | "Nurse Care & Elderly Support"
           | "Medical massage & Physio therapy",
-        req.body
+        req.body,
       );
 
       res.json({
@@ -99,7 +99,7 @@ export const SoloNurseController = {
       const result = await SoloNurseService.deleteSingleSubService(
         req.params.userId,
         req.params.serviceId,
-        req.params.subServiceId
+        req.params.subServiceId,
       );
 
       res.json({
@@ -148,7 +148,7 @@ export const SoloNurseController = {
 
       const result = await SoloNurseService.deleteCertificate(
         userId,
-        certificateId
+        certificateId,
       );
 
       res.json({
@@ -203,6 +203,27 @@ export const SoloNurseController = {
       });
     }
   },
+  setDefaultPaymentMethod: async (req: Request, res: Response) => {
+    try {
+      const { methodId, userId } = req.params;
+
+      const result = await SoloNurseService.setDefaultPaymentMethod(
+        userId,
+        methodId,
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Default payment method updated successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  },
   addReviews: async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;
@@ -237,7 +258,7 @@ export const SoloNurseController = {
   getSoloNursePaymentData: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.getSoloNursePaymentData(
-        req.params.soloNurseUserId
+        req.params.soloNurseUserId,
       );
 
       res.json({
@@ -265,7 +286,7 @@ export const SoloNurseController = {
       }
 
       const result = await SoloNurseService.getSubServicesByMainService(
-        serviceName as string
+        serviceName as string,
       );
 
       return res.status(200).json({
@@ -283,7 +304,7 @@ export const SoloNurseController = {
   getSoloNurseDashboardOverview: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.getSoloNurseDashboardOverview(
-        req.params.soloNurseId as string
+        req.params.soloNurseId as string,
       );
 
       return res.status(200).json({
