@@ -3,6 +3,8 @@ import { sendNotification } from "../../utils/notificationHelper";
 import { Patient_Model } from "../patient/patient.model";
 import { SoloNurse_Model } from "../soloNurse/soloNurse.model";
 import { soloNurseAppoinment_Model } from "./soloNurseAppoinment.model";
+import mongoose from "mongoose";
+import { ChatModel } from "../chat/chat.model";
 
 export const soloNurseAppointmentService = {
   createAppointment: async (data: any) => {
@@ -354,44 +356,112 @@ export const soloNurseAppointmentService = {
         },
       });
   },
-  getSinlgePatientChatsForNurse: async (soloNurseId: string) => {
-    console.log("solonurse id ", soloNurseId);
-    // Step 1: Get unique patient IDs for this doctor
-    const patientIds = await soloNurseAppoinment_Model.distinct("patientId", {
-      soloNurseId: soloNurseId,
-      // status: "confirmed",
-    });
-    console.log("paitent ids ", patientIds);
 
-    // Step 2: Fetch patient details using the IDs
-    return await Patient_Model.find({ _id: { $in: patientIds } })
-      .select("userId")
-      .populate({
-        path: "userId",
-        model: "user",
-        select: "fullName role profileImage",
-      });
-  },
-  getSinlgePatientChatsWithNurse: async (patientId: string) => {
-    // Step 1: Get unique patient IDs for this soloNurse
-    const soloNurseIds = await soloNurseAppoinment_Model.distinct(
-      "soloNurseId",
+  getSinlgePatientChatsForNurse: async (soloNurseUserId: string) => {
+    const nurseObjectId = new mongoose.Types.ObjectId(soloNurseUserId);
+
+    const patients = await ChatModel.aggregate([
+      // 1️⃣ Only patient → nurse chats
       {
-        patientId: patientId,
-        // status: "confirmed",
+        $match: {
+          chatType: "nurse_patient",
+          receiverId: nurseObjectId,
+        },
       },
-    );
 
-    // Step 2: Fetch patient details using the IDs
-    return await SoloNurse_Model.find({ _id: { $in: soloNurseIds } })
-      .select("userId")
-      .populate({
-        path: "userId",
-        model: "user",
-        select: "fullName role profileImage",
-      });
+      // 2️⃣ Unique patients
+      {
+        $group: {
+          _id: "$senderId", // patient userId
+        },
+      },
+
+      // 3️⃣ Join users
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+
+      // 4️⃣ Ensure only patients
+      {
+        $match: {
+          "user.role": "patient",
+        },
+      },
+
+      // 5️⃣ Final output
+      {
+        $project: {
+          _id: 0,
+          userId: "$user._id",
+          fullName: "$user.fullName",
+          profileImage: "$user.profileImage",
+          role: "$user.role",
+          email: "$user.email",
+        },
+      },
+    ]);
+
+    return patients;
   },
 
+  getSinlgePatientChatsWithNurse: async (patientUserId: string) => {
+    const patientObjectId = new mongoose.Types.ObjectId(patientUserId);
+
+    const nurses = await ChatModel.aggregate([
+      // 1️⃣ Only patient → nurse chats
+      {
+        $match: {
+          chatType: "nurse_patient",
+          senderId: patientObjectId,
+        },
+      },
+
+      // 2️⃣ Unique nurses
+      {
+        $group: {
+          _id: "$receiverId", // nurse userId
+        },
+      },
+
+      // 3️⃣ Join users
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "nurse",
+        },
+      },
+      { $unwind: "$nurse" },
+
+      // 4️⃣ Ensure role is solo nurse
+      {
+        $match: {
+          "nurse.role": "soloNurse",
+        },
+      },
+
+      // 5️⃣ Final output
+      {
+        $project: {
+          _id: 0,
+          userId: "$nurse._id",
+          fullName: "$nurse.fullName",
+          profileImage: "$nurse.profileImage",
+          role: "$nurse.role",
+          email: "$nurse.email",
+        },
+      },
+    ]);
+
+    return nurses;
+  },
   deleteAppointment: async (id: string) => {
     return await soloNurseAppoinment_Model.findByIdAndDelete(id);
   },

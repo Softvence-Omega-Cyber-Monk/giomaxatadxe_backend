@@ -150,7 +150,7 @@ export const soloNurseAppointmentController = {
     getSinlgePatientChatsForNurse: async (req: Request, res: Response) => {
       try {
         const result = await soloNurseAppointmentService.getSinlgePatientChatsForNurse(
-          req.params.soloNurseId
+          req.params.soloNurseUserId
         );
         res.json({
           success: true,
@@ -165,7 +165,7 @@ export const soloNurseAppointmentController = {
       getSinlgePatientChatsWithNurse: async (req: Request, res: Response) => {
         try {
           const result = await soloNurseAppointmentService.getSinlgePatientChatsWithNurse(
-            req.params.patientId
+            req.params.patientUserId
           );
           res.json({
             success: true,
