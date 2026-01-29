@@ -11,7 +11,7 @@ import { sendNotification } from "../../utils/notificationHelper";
 const createWithdrawRequest = async (payload: any) => {
   const { walletId, ownerId, ownerType, amount, cardNumber } = payload;
 
-  console.log("payload", payload);
+  // console.log("payload", payload);
 
   let user = null;
 
@@ -19,7 +19,6 @@ const createWithdrawRequest = async (payload: any) => {
     user = await Clinic_Model.findOne({ _id: ownerId });
     if (!user) throw new Error("Clinic not found");
   } else if (ownerType === "SOLO_NURSE") {
-    console.log("hit solo nurse block ");
     user = await SoloNurse_Model.findOne({ _id: ownerId });
     if (!user) throw new Error("Solo Nurse not found");
   }
@@ -27,6 +26,8 @@ const createWithdrawRequest = async (payload: any) => {
   const withdrawAddress = user?.paymentAndEarnings?.withdrawalMethods?.find(
     (method: any) => method?.isDefault === true,
   );
+
+  console.log("withdrawAddress", withdrawAddress);
 
   // console.log("withdraw addrsss ", withdrawAddress?.cardNumber);
 

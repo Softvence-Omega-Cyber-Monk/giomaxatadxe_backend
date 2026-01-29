@@ -1,12 +1,13 @@
-import { Clinic_Model } from "./clinic.model";
+
 import { TClinic } from "./clinic.interface";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { User_Model } from "../user/user.schema";
 import { Doctor_Model } from "../doctor/doctor.model";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
 
 import { Wallet_Model } from "../wallet/wallet.model";
 import { WithdrawRequest_Model } from "../withdrowRequest/withdrowRequest.model";
+import { Clinic_Model } from "./clinic.model";
 
 const getAllClinics = async () => {
   const result = await Clinic_Model.find()
@@ -350,11 +351,15 @@ const addNewPaymentMethod = async (userId: string, payload: any) => {
     throw new Error("Clinic not found for this user");
   }
 
+  const hasExistingMethods =
+    clinic?.paymentAndEarnings?.withdrawalMethods?.length === 0;
+
   const newMethod = {
     cardHolderName: payload.cardHolderName,
     cardNumber: payload.cardNumber,
     cvv: payload.cvv,
     expiryDate: payload.expiryDate,
+    isDefault: hasExistingMethods,
   };
 
   // push into nested array
@@ -367,6 +372,40 @@ const addNewPaymentMethod = async (userId: string, payload: any) => {
   );
 
   return updatedClinic;
+};
+const setDefaultPaymentMethod = async (userId: string, methodId: string) => {
+  if (!Types.ObjectId.isValid(methodId)) {
+    throw new Error("Invalid payment method ID");
+  }
+
+  const clinic = await Clinic_Model.findOne({ userId });
+
+  if (!clinic) {
+    throw new Error("Clinic not found for this user");
+  }
+
+  const methodExists = clinic.paymentAndEarnings?.withdrawalMethods?.some(
+    (m: any) => m?._id.toString() === methodId,
+  );
+
+  if (!methodExists) {
+    throw new Error("Payment method not found");
+  }
+
+  // 1️⃣ Unset current default (only if exists)
+  await Clinic_Model.updateOne(
+    { userId, "paymentAndEarnings.withdrawalMethods.isDefault": true },
+    { $set: { "paymentAndEarnings.withdrawalMethods.$.isDefault": false } },
+  );
+
+  // 2️⃣ Set the selected card as default
+  const updateClinic = await Clinic_Model.findOneAndUpdate(
+    { userId, "paymentAndEarnings.withdrawalMethods._id": methodId },
+    { $set: { "paymentAndEarnings.withdrawalMethods.$.isDefault": true } },
+    { new: true },
+  );
+
+  return updateClinic;
 };
 
 const deleteClinic = async (userId: string) => {
@@ -514,6 +553,7 @@ export const ClinicService = {
   availabilitySettings,
   addReviews,
   addNewPaymentMethod,
+  setDefaultPaymentMethod,
   deleteClinic,
   getAppoinmentTimeBasedOnDateForClinic,
   getClinicPaymentData,
