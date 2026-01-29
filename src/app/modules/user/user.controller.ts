@@ -36,11 +36,6 @@ const createSoloNurse = async (req: Request, res: Response) => {
       pending,
       availbleForWithdrawal,
 
-      cardHolderName,
-      cardNumber,
-      cvv,
-      expiryDate,
-
       ...data
     } = req.body;
 
@@ -68,29 +63,11 @@ const createSoloNurse = async (req: Request, res: Response) => {
       consultationFee,
     };
 
-    const withdrawalMethods = [
-      {
-        cardHolderName,
-        cardNumber,
-        cvv,
-        expiryDate,
-      },
-    ];
-
-    const paymentAndEarnings = {
-      totalEarnings: {
-        totalThisMonth: 0,
-        pending: 0,
-        availbleForWithdrawal: 0,
-      },
-      withdrawalMethods,
-    };
     const result = await UserService.createSoloNurse({
       ...data,
       certificates,
       availability,
       professionalInformation,
-      paymentAndEarnings,
     });
     res.status(201).json({
       success: true,
@@ -125,10 +102,7 @@ const createClinic = async (req: Request, res: Response) => {
       pending,
       availbleForWithdrawal,
 
-      cardHolderName,
-      cardNumber,
-      cvv,
-      expiryDate,
+
       servicesOffered,
 
       ...data
@@ -157,29 +131,12 @@ const createClinic = async (req: Request, res: Response) => {
       appointmentType,
     };
 
-    const withdrawalMethods = [
-      {
-        cardHolderName,
-        cardNumber,
-        cvv,
-        expiryDate,
-      },
-    ];
-
-    const paymentAndEarnings = {
-      totalEarnings: {
-        totalThisMonth: 0,
-        pending: 0,
-        availbleForWithdrawal: 0,
-      },
-      withdrawalMethods,
-    };
     const result = await UserService.createClinic({
       ...data,
       clinicCertificates,
       availability,
       servicesOffered: servicesOfferedData,
-      paymentAndEarnings,
+      
     });
 
     console.log("clinic create", result);
@@ -249,7 +206,11 @@ const verifyUser = async (req: Request, res: Response) => {
   const code = req.params.code;
   try {
     const result = await UserService.verifyUser(userId, code);
-    res.json({ success: true, message: "User verified successfully", data: result });
+    res.json({
+      success: true,
+      message: "User verified successfully",
+      data: result,
+    });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -259,7 +220,11 @@ const addAdminApproval = async (req: Request, res: Response) => {
 
   try {
     const result = await UserService.addAdminApproval(userId);
-    res.json({ success: true, message: "Admin approval added successfully", data: result });
+    res.json({
+      success: true,
+      message: "Admin approval added successfully",
+      data: result,
+    });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -272,5 +237,5 @@ export const user_controllers = {
   createDoctor,
   getAdmin,
   verifyUser,
-  addAdminApproval
+  addAdminApproval,
 };

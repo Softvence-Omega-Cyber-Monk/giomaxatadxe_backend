@@ -417,14 +417,14 @@ export const SoloNurseService = {
     }
 
     const hasExistingMethods =
-      (clinic?.paymentAndEarnings?.withdrawalMethods?.length ?? 0) > 0;
+      clinic?.paymentAndEarnings?.withdrawalMethods?.length === 0;
 
     const newMethod = {
       cardHolderName: payload.cardHolderName,
       cardNumber: payload.cardNumber,
       cvv: payload.cvv,
       expiryDate: payload.expiryDate,
-      isDefault: !hasExistingMethods, // ✅ first one becomes default
+      isDefault: hasExistingMethods, // ✅ first one becomes default
     };
     // push into nested array
     const updatedClinic = await SoloNurse_Model.findOneAndUpdate(
@@ -438,45 +438,40 @@ export const SoloNurseService = {
     return updatedClinic;
   },
 
-  setDefaultPaymentMethod: async (userId: string, methodId: string) => {
-    if (!Types.ObjectId.isValid(methodId)) {
-      throw new Error("Invalid payment method ID");
-    }
+ setDefaultPaymentMethod : async (userId: string, methodId: string) => {
+  if (!Types.ObjectId.isValid(methodId)) {
+    throw new Error("Invalid payment method ID");
+  }
 
-    const SoloNurse = await SoloNurse_Model.findOne({ userId });
+  const soloNurse = await SoloNurse_Model.findOne({ userId });
 
-    if (!SoloNurse) {
-      throw new Error("SoloNurse not found for this user");
-    }
+  if (!soloNurse) {
+    throw new Error("SoloNurse not found for this user");
+  }
 
-    const methodExists = SoloNurse.paymentAndEarnings?.withdrawalMethods?.some(
-      (m: any) => m?._id.toString() === methodId,
-    );
+  const methodExists = soloNurse.paymentAndEarnings?.withdrawalMethods?.some(
+    (m: any) => m?._id.toString() === methodId
+  );
 
-    
+  if (!methodExists) {
+    throw new Error("Payment method not found");
+  }
 
-    if (!methodExists) {
-      throw new Error("Payment method not found");
-    }
+  // 1️⃣ Unset current default (only if exists)
+  await SoloNurse_Model.updateOne(
+    { userId, "paymentAndEarnings.withdrawalMethods.isDefault": true },
+    { $set: { "paymentAndEarnings.withdrawalMethods.$.isDefault": false } }
+  );
 
-    // 1️⃣ unset all defaults
-    // 2️⃣ set selected one as default
-    const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          "paymentAndEarnings.withdrawalMethods.$[].isDefault": false,
-          "paymentAndEarnings.withdrawalMethods.$[elem].isDefault": true,
-        },
-      },
-      {
-        arrayFilters: [{ "elem._id": new Types.ObjectId(methodId) }],
-        new: true,
-      },
-    );
+  // 2️⃣ Set the selected card as default
+  const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
+    { userId, "paymentAndEarnings.withdrawalMethods._id": methodId },
+    { $set: { "paymentAndEarnings.withdrawalMethods.$.isDefault": true } },
+    { new: true }
+  );
 
-    return updatedSoloNurse;
-  },
+  return updatedSoloNurse;
+},
   addReviews: async (userId: string, payload: any) => {
     const soloNurse: any = await SoloNurse_Model.findOne({ userId });
     if (!soloNurse) {
