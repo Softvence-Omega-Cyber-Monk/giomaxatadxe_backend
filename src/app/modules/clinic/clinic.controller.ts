@@ -254,6 +254,28 @@ const addNewPaymentMethod = async (req: Request, res: Response) => {
     });
   }
 };
+const setDefaultPaymentMethod = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const methodId = req.params.methodId;
+
+    const result = await ClinicService.setDefaultPaymentMethod(
+      userId,
+      methodId,
+    );
+
+    res.json({
+      success: true,
+      message: "New Payment Method added successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 const deleteClinic = async (req: Request, res: Response) => {
   try {
@@ -356,6 +378,7 @@ export const ClinicController = {
   availabilitySettings,
   addReviews,
   addNewPaymentMethod,
+  setDefaultPaymentMethod,
   deleteClinic,
   getAppoinmentTimeBasedOnDateForClinic,
   getClinicPaymentData,

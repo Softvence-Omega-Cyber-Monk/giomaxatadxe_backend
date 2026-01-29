@@ -319,11 +319,9 @@ const createDoctor = async (payload: any) => {
         parsedAvailability = payload.availability.map((item: any) =>
           typeof item === "string" ? JSON.parse(item) : item,
         );
-      }
-
-      // Case 2: availability is a single string
-      else if (typeof payload.availability === "string") {
-        parsedAvailability = [JSON.parse(payload.availability)];
+      } else if (typeof payload.availability === "string") {
+        console.log('hit hit hist');
+        parsedAvailability = JSON.parse(payload.availability);
       }
     }
 

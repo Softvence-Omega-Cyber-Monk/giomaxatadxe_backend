@@ -40,6 +40,10 @@ router.put(
   "/addNewPaymentMethod/:userId",
   ClinicController.addNewPaymentMethod,
 );
+router.patch(
+  "/setDefaultPaymentMethod/:userId/:methodId",
+  ClinicController.setDefaultPaymentMethod,
+);
 router.delete("/delete/:userId", ClinicController.deleteClinic);
 router.post(
   "/getAppoinmentTimeBasedOnDateForClinic/:id",
