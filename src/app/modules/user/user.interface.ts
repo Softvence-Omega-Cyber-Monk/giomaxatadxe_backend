@@ -1,5 +1,3 @@
-
-
 export type TUser = {
   fullName: string;
   profileImage?: string;
@@ -7,10 +5,12 @@ export type TUser = {
   password: string;
   comfirmPassword: string;
   role: "patient" | "doctor" | "solo_nurse" | " clinic" | "admin";
-  dateOfBirth?: Date,
-  age?: number,
-  fcmToken?: string,
-  isVerified?: boolean,
-  verificationCode?: string,
-  isAdminVerified?: boolean
+  dateOfBirth?: Date;
+  age?: number;
+  fcmToken?: string;
+  isVerified?: boolean;
+  verificationCode?: string;
+  isAdminVerified?: boolean;
+  latitude?: number;
+  longitude?: number;
 };
