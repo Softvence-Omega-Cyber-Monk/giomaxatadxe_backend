@@ -6,12 +6,36 @@ import { WithdrawRequest_Model } from "../withdrowRequest/withdrowRequest.model"
 import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoinment.model";
 
 export const SoloNurseService = {
-  getAllSoloNurses: async (serviceName?: string, sub_serviceName?: string) => {
+  // getAllSoloNurses: async (serviceName?: string, sub_serviceName?: string , patientUserId?: string) => {
+
+  //   const patientUserData = await User_Model.findById(patientUserId);
+
+  //   const query: any = {};
+
+  //   if (serviceName) {
+  //     query["professionalInformation.services.serviceName"] = serviceName;
+  //   }
+
+  //   if (serviceName && sub_serviceName) {
+  //     query["professionalInformation.services.subServices.name"] = {
+  //       $regex: sub_serviceName.trim(),
+  //       $options: "i",
+  //     };
+  //   }
+
+  //   return SoloNurse_Model.find(query)
+  //     .populate("userId")
+  //     .sort({ createdAt: -1 });
+  // },
+  getAllSoloNurses: async (
+    patientUserId?: string,
+    serviceName?: string,
+    sub_serviceName?: string,
+  ) => {
     const query: any = {};
 
-    if (serviceName) {
+    if (serviceName)
       query["professionalInformation.services.serviceName"] = serviceName;
-    }
 
     if (serviceName && sub_serviceName) {
       query["professionalInformation.services.subServices.name"] = {
@@ -20,6 +44,57 @@ export const SoloNurseService = {
       };
     }
 
+    // If patientUserId is provided, compute distance
+    if (patientUserId) {
+      const patient = await User_Model.findById(patientUserId);
+
+      if (!patient || !patient.latitude || !patient.longitude) {
+        throw new Error("Patient location not found");
+      }
+
+      const nearestNurses = await SoloNurse_Model.aggregate([
+        { $match: query },
+        // Join with User to get latitude & longitude
+        {
+          $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "userData",
+          },
+        },
+        { $unwind: "$userData" },
+        // Compute distance from patient
+        {
+          $addFields: {
+            distance: {
+              $sqrt: {
+                $add: [
+                  {
+                    $pow: [
+                      { $subtract: ["$userData.latitude", patient.latitude] },
+                      2,
+                    ],
+                  },
+                  {
+                    $pow: [
+                      { $subtract: ["$userData.longitude", patient.longitude] },
+                      2,
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
+        { $sort: { distance: 1 } },
+        { $limit: 10 },
+      ]);
+
+      return nearestNurses;
+    }
+
+    // If patientUserId not provided, return all nurses with optional filters
     return SoloNurse_Model.find(query)
       .populate("userId")
       .sort({ createdAt: -1 });
@@ -593,7 +668,6 @@ export const SoloNurseService = {
     });
 
     console.log("totalEarnings", totalEarnings);
-
 
     return {
       allAppoinment: allAppointments.length,
