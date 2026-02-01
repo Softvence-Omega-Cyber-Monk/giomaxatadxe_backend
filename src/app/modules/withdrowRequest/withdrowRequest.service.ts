@@ -27,6 +27,12 @@ const createWithdrawRequest = async (payload: any) => {
     (method: any) => method?.isDefault === true,
   );
 
+  if (!withdrawAddress) {
+    throw new Error(
+      "Withdrawal address not found , please set default one withdrawal method",
+    );
+  }
+
   console.log("withdrawAddress", withdrawAddress);
 
   // console.log("withdraw addrsss ", withdrawAddress?.cardNumber);

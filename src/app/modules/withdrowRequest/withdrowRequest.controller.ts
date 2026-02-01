@@ -13,18 +13,10 @@ const createWithdrawRequest = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    let message = "Something went wrong. Please try again.";
-
-    // Custom messages for known errors
-    if (error.message.includes("Wallet not found")) {
-      message = "Your wallet was not found. Please check your account.";
-    } else if (error.message.includes("Insufficient balance")) {
-      message = "You do not have enough balance to request this withdrawal.";
-    }
 
     res.status(400).json({
       success: false,
-      message,
+      message: error.message,
     });
   }
 };
