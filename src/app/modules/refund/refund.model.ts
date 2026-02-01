@@ -14,7 +14,7 @@ const refundSchema = new Schema(
       required: true,
     },
 
-    userId: {
+    patientId: {
       type: Schema.Types.ObjectId,
       ref: "Patient",
       required: true,
