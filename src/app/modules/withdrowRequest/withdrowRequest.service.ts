@@ -33,7 +33,8 @@ const createWithdrawRequest = async (payload: any) => {
     );
   }
 
-  console.log("withdrawAddress", withdrawAddress);
+
+  // console.log("withdrawAddress", withdrawAddress);
 
   // console.log("withdraw addrsss ", withdrawAddress?.cardNumber);
 
