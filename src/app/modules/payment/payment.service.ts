@@ -69,7 +69,7 @@ const getPaymentIdForRefund = async (
   appointmentId: string,
   appointmentType: "CLINIC" | "SOLO_NURSE",
 ) => {
-  console.log(appointmentId, appointmentType, "----------");
+  // console.log(appointmentId, appointmentType, "----------");
   const payment = await Payment_Model.findOne({
     appointmentId,
     appointmentType,

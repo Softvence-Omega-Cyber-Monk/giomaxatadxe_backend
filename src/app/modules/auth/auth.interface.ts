@@ -13,6 +13,8 @@ export type TLoginPayload = {
   password: string;
   role: "patient" | "doctor" | "solo_nurse" | " clinic" | "admin";
   fcmToken: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 export type TJwtUser = {
