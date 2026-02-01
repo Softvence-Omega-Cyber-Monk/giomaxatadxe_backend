@@ -42,6 +42,14 @@ const paymentSchema = new Schema(
       enum: ["INITIATED", "PAID", "FAILED", "REFUNDED"],
       default: "INITIATED",
     },
+
+    refundStatus: {
+      type: String,
+      enum: ["NONE", "REQUESTED", "APPROVED", "REFUNDED", "REJECTED"],
+      default: "NONE",
+    },
+
+    refundedAt: Date,
   },
   { timestamps: true }
 );

@@ -36,8 +36,6 @@ const createWithdrawRequest = async (payload: any) => {
 
   // console.log("withdrawAddress", withdrawAddress);
 
-  // console.log("withdraw addrsss ", withdrawAddress?.cardNumber);
-
   // Set commission based on owner type
   const commissionRate =
     ownerType === "CLINIC" ? 9 : ownerType === "SOLO_NURSE" ? 12 : 0;

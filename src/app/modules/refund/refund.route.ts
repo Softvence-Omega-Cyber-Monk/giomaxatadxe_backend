@@ -7,9 +7,8 @@ router.post("/create", RefundController.createRefund);
 router.get("/getAll", RefundController.getAllRefunds);
 router.get(
   "/getSingleUser/refund-requests/:userId",
-  RefundController.getRefundByUserId
+  RefundController.getRefundsByUserId
 );
-router.get("/getAll", RefundController.getAllRefunds);
 router.post(
   "/acceptOrReject/refund-requests/:userId",
   RefundController.acceptOrRejectRefund
