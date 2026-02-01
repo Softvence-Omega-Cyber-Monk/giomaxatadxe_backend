@@ -17,6 +17,9 @@ const user_schema = new Schema<TUser>(
     isVerified: { type: Boolean, default: false },
     verificationCode: { type: String, default: null },
     isAdminVerified: { type: Boolean, default: false },
+    latitude: { type: Number, default: null },
+    longitude: { type: Number, default: null },
+
   },
   {
     versionKey: false,

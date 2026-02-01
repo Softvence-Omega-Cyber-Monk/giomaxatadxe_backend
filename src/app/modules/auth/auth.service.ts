@@ -13,23 +13,29 @@ import { de, fa } from "zod/v4/locales";
 
 // login user
 const login_user_from_db = async (payload: TLoginPayload) => {
-  // check account info
-
-
   const isExistAccount: any = await User_Model.findOne({
     email: payload?.email,
   });
 
-  if (isExistAccount.isVerified === false && isExistAccount.role !== 'doctor' && isExistAccount.role !== 'admin') {
+  if (
+    isExistAccount.isVerified === false &&
+    isExistAccount.role !== "doctor" &&
+    isExistAccount.role !== "admin"
+  ) {
     throw new AppError("Account not verified", httpStatus.UNAUTHORIZED);
   }
-  if (isExistAccount.role !== "patient" && isExistAccount.role !== "admin" && isExistAccount.role !== "doctor" && isExistAccount.isAdminVerified === false) {
+  if (
+    isExistAccount.role !== "patient" &&
+    isExistAccount.role !== "admin" &&
+    isExistAccount.role !== "doctor" &&
+    isExistAccount.isAdminVerified === false
+  ) {
     throw new AppError("Require admin approval", httpStatus.UNAUTHORIZED);
   }
 
   const isPasswordMatch = await bcrypt.compare(
     payload.password,
-    isExistAccount?.password
+    isExistAccount?.password,
   );
   if (!isPasswordMatch) {
     throw new AppError("Invalid password", httpStatus.UNAUTHORIZED);
@@ -37,8 +43,13 @@ const login_user_from_db = async (payload: TLoginPayload) => {
 
   await User_Model.findOneAndUpdate(
     { email: payload.email },
-    { fcmToken: payload?.fcmToken },
-    { new: true }
+    {
+      fcmToken: payload?.fcmToken,
+      latitude: payload?.latitude,
+      longitude: payload?.longitude,
+    },
+
+    { new: true },
   );
 
   const accessToken = jwtHelpers.generateToken(
@@ -48,7 +59,7 @@ const login_user_from_db = async (payload: TLoginPayload) => {
       role: isExistAccount.role,
     },
     configs.jwt.accessToken_secret as Secret,
-    configs.jwt.accessToken_expires as string
+    configs.jwt.accessToken_expires as string,
   );
 
   const refreshToken = jwtHelpers.generateToken(
@@ -58,7 +69,7 @@ const login_user_from_db = async (payload: TLoginPayload) => {
       role: isExistAccount.role,
     },
     configs.jwt.refreshToken_secret as Secret,
-    configs.jwt.refreshToken_expires as string
+    configs.jwt.refreshToken_expires as string,
   );
   return {
     accessToken: accessToken,
@@ -73,7 +84,7 @@ const refresh_token_from_db = async (token: string) => {
   try {
     decodedData = jwtHelpers.verifyToken(
       token,
-      configs.jwt.refreshToken_secret as Secret
+      configs.jwt.refreshToken_secret as Secret,
     );
   } catch (err) {
     throw new Error("You are not authorized!");
@@ -86,7 +97,7 @@ const refresh_token_from_db = async (token: string) => {
   const accessToken = jwtHelpers.generateToken(
     { userId: userData?._id, email: userData?.email, role: userData?.role },
     configs?.jwt.accessToken_secret as string,
-    configs.jwt.accessToken_expires as string
+    configs.jwt.accessToken_expires as string,
   );
 
   return { accessToken };
@@ -94,7 +105,7 @@ const refresh_token_from_db = async (token: string) => {
 
 const change_password_from_db = async (
   user: JwtPayload,
-  payload: { oldPassword: string; newPassword: string }
+  payload: { oldPassword: string; newPassword: string },
 ) => {
   const isExistAccount: any = await User_Model.findOne({
     _id: user.userId,
@@ -106,7 +117,7 @@ const change_password_from_db = async (
 
   const isCorrectPassword = await bcrypt.compare(
     payload.oldPassword,
-    isExistAccount?.password as string
+    isExistAccount?.password as string,
   );
 
   // console.log("match pass",isCorrectPassword);
@@ -122,7 +133,7 @@ const change_password_from_db = async (
     {
       password: hashedPassword,
       updatedAt: new Date(),
-    }
+    },
   );
 
   return "Password changed successful.";
@@ -171,7 +182,7 @@ export const verifyResetCode = async (email: string, code: string) => {
 export const resetPassword = async (
   email: string,
   code: any,
-  newPassword: string
+  newPassword: string,
 ) => {
   const entry = await passwordResetModel.findOne({ email });
   console.log("reset password", entry);
