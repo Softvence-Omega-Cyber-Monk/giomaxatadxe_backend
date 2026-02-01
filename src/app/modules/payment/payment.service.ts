@@ -35,7 +35,7 @@ const createBoGOrder = async (payment: any) => {
         "Content-Type": "application/json",
         "Accept-Language": "en",
       },
-    }
+    },
   );
 
   return res.data;
@@ -55,7 +55,7 @@ const handleBoGCallbackService = async (payload: any) => {
     await Wallet_Model.findOneAndUpdate(
       { ownerId: payment.receiverId, ownerType: payment.receiverType },
       { $inc: { pendingBalance: payment.amount } },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
   } else {
     payment.status = "FAILED";
@@ -65,13 +65,40 @@ const handleBoGCallbackService = async (payload: any) => {
   return { message: "Callback processed successfully" };
 };
 
+const getPaymentIdForRefund = async (
+  appointmentId: string,
+  appointmentType: "CLINIC" | "SOLO_NURSE",
+) => {
+  console.log(appointmentId, appointmentType, "----------");
+  const payment = await Payment_Model.findOne({
+    appointmentId,
+    appointmentType,
+    // status: "PAID", // Only allow refund if payment was successful
+    // refundStatus: "NONE", // Not refunded yet
+  });
+
+  // console.log("payment ", payment);
+
+  if (!payment) {
+    throw new Error("No eligible payment found for this appointment");
+  }
+
+  return payment._id.toString();
+};
+
 const adminPaymentData = async () => {
   const allPayment = await Payment_Model.find();
   const paymentsWithoutPaid = await Payment_Model.find({ status: "INITIATED" });
-  const totalPayableAmount = paymentsWithoutPaid.reduce((acc, p) => acc + p.amount, 0);
+  const totalPayableAmount = paymentsWithoutPaid.reduce(
+    (acc, p) => acc + p.amount,
+    0,
+  );
 
   const paymentsWithPaid = await Payment_Model.find({ status: "PAID" });
-  const totalPayoutAmount = paymentsWithPaid.reduce((acc, p) => acc + p.amount, 0);
+  const totalPayoutAmount = paymentsWithPaid.reduce(
+    (acc, p) => acc + p.amount,
+    0,
+  );
 
   return {
     allPaymentTransactions: allPayment.length,
@@ -89,4 +116,5 @@ export const PaymentService = {
   handleBoGCallbackService,
   adminPaymentData,
   getAllTransactions,
+  getPaymentIdForRefund,
 };
