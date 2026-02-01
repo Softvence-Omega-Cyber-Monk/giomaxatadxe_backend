@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { SoloNurseService } from "./soloNurse.service";
-import { de } from "zod/v4/locales";
 
 export const SoloNurseController = {
   getAllSoloNurses: async (req: Request, res: Response) => {
@@ -8,6 +7,7 @@ export const SoloNurseController = {
       const result = await SoloNurseService.getAllSoloNurses(
         req.query.serviceName as string,
         req.query.sub_serviceName as string,
+        req.query.patientUserId as string,
       );
       res.json({ success: true, data: result });
     } catch (error: any) {
