@@ -438,40 +438,40 @@ export const SoloNurseService = {
     return updatedClinic;
   },
 
- setDefaultPaymentMethod : async (userId: string, methodId: string) => {
-  if (!Types.ObjectId.isValid(methodId)) {
-    throw new Error("Invalid payment method ID");
-  }
+  setDefaultPaymentMethod: async (userId: string, methodId: string) => {
+    if (!Types.ObjectId.isValid(methodId)) {
+      throw new Error("Invalid payment method ID");
+    }
 
-  const soloNurse = await SoloNurse_Model.findOne({ userId });
+    const soloNurse = await SoloNurse_Model.findOne({ userId });
 
-  if (!soloNurse) {
-    throw new Error("SoloNurse not found for this user");
-  }
+    if (!soloNurse) {
+      throw new Error("SoloNurse not found for this user");
+    }
 
-  const methodExists = soloNurse.paymentAndEarnings?.withdrawalMethods?.some(
-    (m: any) => m?._id.toString() === methodId
-  );
+    const methodExists = soloNurse.paymentAndEarnings?.withdrawalMethods?.some(
+      (m: any) => m?._id.toString() === methodId,
+    );
 
-  if (!methodExists) {
-    throw new Error("Payment method not found");
-  }
+    if (!methodExists) {
+      throw new Error("Payment method not found");
+    }
 
-  // 1️⃣ Unset current default (only if exists)
-  await SoloNurse_Model.updateOne(
-    { userId, "paymentAndEarnings.withdrawalMethods.isDefault": true },
-    { $set: { "paymentAndEarnings.withdrawalMethods.$.isDefault": false } }
-  );
+    // 1️⃣ Unset current default (only if exists)
+    await SoloNurse_Model.updateOne(
+      { userId, "paymentAndEarnings.withdrawalMethods.isDefault": true },
+      { $set: { "paymentAndEarnings.withdrawalMethods.$.isDefault": false } },
+    );
 
-  // 2️⃣ Set the selected card as default
-  const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
-    { userId, "paymentAndEarnings.withdrawalMethods._id": methodId },
-    { $set: { "paymentAndEarnings.withdrawalMethods.$.isDefault": true } },
-    { new: true }
-  );
+    // 2️⃣ Set the selected card as default
+    const updatedSoloNurse = await SoloNurse_Model.findOneAndUpdate(
+      { userId, "paymentAndEarnings.withdrawalMethods._id": methodId },
+      { $set: { "paymentAndEarnings.withdrawalMethods.$.isDefault": true } },
+      { new: true },
+    );
 
-  return updatedSoloNurse;
-},
+    return updatedSoloNurse;
+  },
   addReviews: async (userId: string, payload: any) => {
     const soloNurse: any = await SoloNurse_Model.findOne({ userId });
     if (!soloNurse) {
@@ -573,16 +573,17 @@ export const SoloNurseService = {
     return subServices;
   },
   getSoloNurseDashboardOverview: async (soloNurseId: string) => {
-    console.log("soloNurseId", soloNurseId);
-    const allAppoinment = await soloNurseAppoinment_Model.find({
-      soloNurseId: soloNurseId,
+    const allAppointments = await soloNurseAppoinment_Model.find({
+      soloNurseId,
     });
+
     const pendingAppointments = await soloNurseAppoinment_Model.find({
-      _id: soloNurseId,
+      soloNurseId,
       status: { $in: ["pending", "confirmed"] },
     });
+
     const completedAppointments = await soloNurseAppoinment_Model.find({
-      _id: soloNurseId,
+      soloNurseId,
       status: "completed",
     });
 
@@ -590,10 +591,12 @@ export const SoloNurseService = {
       ownerId: soloNurseId,
       ownerType: "SOLO_NURSE",
     });
-    // console.log("total earning", totalEarnings);
+
+    console.log("totalEarnings", totalEarnings);
+
 
     return {
-      allAppoinment: allAppoinment.length,
+      allAppoinment: allAppointments.length,
       pendingAppointments: pendingAppointments.length,
       completedAppointments: completedAppointments.length,
       totalEarnings: totalEarnings?.pendingBalance || 0,
