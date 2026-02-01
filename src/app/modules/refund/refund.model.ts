@@ -1,47 +1,45 @@
 import { Schema, model } from "mongoose";
-import { TRefund } from "./refund.interface";
 
-const refundSchema = new Schema<TRefund>(
+const refundSchema = new Schema(
   {
+    paymentId: {
+      type: Schema.Types.ObjectId,
+      ref: "Payment",
+      required: true,
+      unique: true, // one refund per payment
+    },
+
     appointmentId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
     },
+
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "user",
+      ref: "Patient",
       required: true,
     },
+
     appointmentType: {
       type: String,
-      enum: ["doctor", "soloNurse"],
+      enum: ["CLINIC", "SOLO_NURSE"],
       required: true,
     },
+
+    reason: {
+      type: String,
+      required: true,
+    },
+
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
+      enum: ["PENDING", "APPROVED", "REJECTED", "REFUNDED"],
+      default: "PENDING",
     },
-    cardNumber: {
-      type: String,
-      required: true,
-    },
-    cardHolderName: {
-      type: String,
-      required: true,
-    },
-    expiryDate: {
-      type: String,
-      required: true,
-    },
-    cvv: {
-      type: String,
-      required: true,
-    },
+
+    reviewedAt: Date,
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-export const Refund = model<TRefund>("Refund", refundSchema);
+export const Refund_Model = model("Refund", refundSchema);

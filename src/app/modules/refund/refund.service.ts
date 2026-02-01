@@ -1,92 +1,94 @@
-import { is } from "zod/v4/locales";
 import { doctorAppointment_Model } from "../doctorAppointment/doctorAppointment.model";
-import { TRefund } from "./refund.interface";
-import { Refund } from "./refund.model";
 import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoinment.model";
-
 import { Patient_Model } from "../patient/patient.model";
+import { Refund_Model } from "./refund.model";
+import { Payment_Model } from "../payment/payment.model";
 
-const createRefund = async (payload: TRefund) => {
-  // console.log("payload", payload);
-  const user = await Patient_Model.findOne({ _id: payload.userId });
+interface TRefundPayload {
+  paymentId: string;
+  appointmentId: string;
+  userId: string;
+  appointmentType: "CLINIC" | "SOLO_NURSE";
+  reason: string;
+}
 
-  // if (!user?.paymentMethods || user.paymentMethods.length === 0) {
-  //   throw new Error("No payment methods found , Please add payment methods");
-  // }
+// User requests refund
+const createRefund = async (payload: TRefundPayload) => {
+  const user = await Patient_Model.findById(payload.userId);
+  if (!user) throw new Error("User not found");
+
+  const payment = await Payment_Model.findById(payload.paymentId);
+  if (!payment) throw new Error("Payment not found");
+  if (payment.status !== "PAID") throw new Error("Only paid payments can be refunded");
+  if (payment.refundStatus !== "NONE") throw new Error("Refund already requested");
 
   let appointment: any = null;
-
-  if (payload.appointmentType === "doctor") {
-    appointment = await doctorAppointment_Model.findOne({
-      _id: payload.appointmentId,
-      serviceType: "online",
-    });
+  if (payload.appointmentType === "CLINIC") {
+    appointment = await doctorAppointment_Model.findById(payload.appointmentId);
+  } else {
+    appointment = await soloNurseAppoinment_Model.findById(payload.appointmentId);
   }
 
-  if (payload.appointmentType === "soloNurse") {
-    appointment = await soloNurseAppoinment_Model.findOne({
-      _id: payload.appointmentId,
-    });
-  }
+  if (!appointment) throw new Error("Appointment not found");
 
-  console.log('appointment in refund',appointment);
+  const refund = await Refund_Model.create({
+    paymentId: payload.paymentId,
+    appointmentId: payload.appointmentId,
+    userId: payload.userId,
+    appointmentType: payload.appointmentType,
+    reason: payload.reason,
+  });
 
-  if (!appointment) {
-    throw new Error("Appointment not found");
-  }
+  payment.refundStatus = "REQUESTED";
+  await payment.save();
 
-  if (appointment.isRefunded !== "no-refund") {
-    throw new Error("Refund already requested or processed");
-  }
-
-  // Create refund
-  const refund = await Refund.create(payload);
-
-  //  Update appointment refund status
   appointment.isRefunded = "refund-requested";
   await appointment.save();
 
   return refund;
 };
 
+// Get all refunds (admin)
 const getAllRefunds = async () => {
-  return await Refund.find().sort({ createdAt: -1 });
+  return await Refund_Model.find()
+    .populate("paymentId")
+    .populate("userId")
+    .sort({ createdAt: -1 });
 };
 
-const getRefundByUserId = async (userId: string) => {
-  return await Refund.find({ userId });
+// Get refunds by user
+const getRefundsByUserId = async (userId: string) => {
+  return await Refund_Model.find({ userId }).populate("paymentId").sort({ createdAt: -1 });
 };
 
+// Admin approves or rejects refund request
 const acceptOrRejectRefund = async (
   refundId: string,
-  status: "pending" | "approved" | "rejected",
+  status: "APPROVED" | "REJECTED",
 ) => {
-  const refund = await Refund.findById(refundId);
-  if (!refund) {
-    throw new Error("Refund request not found");
-  }
+  const refund = await Refund_Model.findById(refundId);
+  if (!refund) throw new Error("Refund request not found");
+  if (refund.status !== "PENDING") throw new Error("Refund already processed");
 
   refund.status = status;
+  refund.reviewedAt = new Date();
   await refund.save();
 
-  // Update appointment refund status accordingly
+  const payment = await Payment_Model.findById(refund.paymentId);
+  if (!payment) throw new Error("Payment not found");
+
+  payment.refundStatus = status === "APPROVED" ? "APPROVED" : "REJECTED";
+  await payment.save();
+
   let appointment: any = null;
-
-  if (refund.appointmentType === "doctor") {
-    appointment = await doctorAppointment_Model.findOne({
-      _id: refund.appointmentId,
-    });
-  }
-
-  if (refund.appointmentType === "soloNurse") {
-    appointment = await soloNurseAppoinment_Model.findOne({
-      _id: refund.appointmentId,
-    });
+  if (refund.appointmentType === "CLINIC") {
+    appointment = await doctorAppointment_Model.findById(refund.appointmentId);
+  } else if (refund.appointmentType === "SOLO_NURSE") {
+    appointment = await soloNurseAppoinment_Model.findById(refund.appointmentId);
   }
 
   if (appointment) {
-    appointment.isRefunded =
-      status === "approved" ? "refunded" : "refund-rejected";
+    appointment.isRefunded = status === "APPROVED" ? "refund-approved" : "refund-rejected";
     await appointment.save();
   }
 
@@ -96,6 +98,6 @@ const acceptOrRejectRefund = async (
 export const RefundService = {
   createRefund,
   getAllRefunds,
-  getRefundByUserId,
+  getRefundsByUserId,
   acceptOrRejectRefund,
 };
