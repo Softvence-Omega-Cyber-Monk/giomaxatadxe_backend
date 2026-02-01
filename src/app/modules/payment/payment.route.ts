@@ -10,6 +10,8 @@ router.post("/bog/callback", PaymentController.bogCallbackController);
 
 router.get("/success", PaymentController.paymentSuccess);
 router.get("/fail", PaymentController.paymentFail);
+// New route for getting paymentId for refund
+router.get("/get-payment-id", PaymentController.getPaymentIdForRefund);
 
 // admin
 router.get("/admin/payment-data", PaymentController.adminPaymentData);
