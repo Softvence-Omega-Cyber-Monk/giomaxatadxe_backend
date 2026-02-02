@@ -10,7 +10,7 @@ router.get(
   RefundController.getRefundsByUserId
 );
 router.post(
-  "/acceptOrReject/refund-requests/:userId",
+  "/acceptOrReject/refund-requests/:refundId",
   RefundController.acceptOrRejectRefund
 );
 

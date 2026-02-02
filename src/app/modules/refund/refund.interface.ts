@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 
 export type TRefund = {
   appointmentId: string;
-  userId: Types.ObjectId;
+  patientId: Types.ObjectId;
   appointmentType: "doctor" | "soloNurse";
 status: "pending" | "approved" | "rejected";
   cardNumber: string;
