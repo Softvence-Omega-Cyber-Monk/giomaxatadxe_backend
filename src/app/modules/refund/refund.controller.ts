@@ -38,8 +38,8 @@ const getAllRefunds = async (_req: Request, res: Response) => {
 // Get refunds by userId
 const getRefundsByUserId = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
-    const result = await RefundService.getRefundsByUserId(userId);
+    const { patientId } = req.params;
+    const result = await RefundService.getRefundsByUserId(patientId);
     res.status(200).json({
       success: true,
       message: "User refund requests retrieved successfully",

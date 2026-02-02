@@ -6,7 +6,7 @@ const router = Router();
 router.post("/create", RefundController.createRefund);
 router.get("/getAll", RefundController.getAllRefunds);
 router.get(
-  "/getSingleUser/refund-requests/:userId",
+  "/getSingleUser/refund-requests/:patientId",
   RefundController.getRefundsByUserId
 );
 router.post(
