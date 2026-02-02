@@ -74,6 +74,18 @@ const patientSchema = new Schema<TPatient>(
         isDefault: { type: Boolean, default: false },
       },
     ],
+    employer: {
+      type: String,
+      required: false,
+    },
+    nidBackImageUrl: {
+      type: String,
+      required: false,
+    },
+    nidFrontImageUrl: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,
