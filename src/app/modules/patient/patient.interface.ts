@@ -45,4 +45,7 @@ export type TPatient = {
     expiryDate: string;
     isDefault ?: boolean
   }[];
+  employer?: string;
+  nidFrontImageUrl?: string;
+  nidBackImageUrl?: string;
 };

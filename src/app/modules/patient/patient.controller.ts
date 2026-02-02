@@ -30,13 +30,26 @@ export const patientController = {
 
   updatePatientBasic: async (req: Request, res: Response) => {
     try {
-      const profileImageUrl = req.file ? (req.file as any).path : null;
-      console.log("profile image url ", profileImageUrl);
+      // const profileImageUrl = req.file ? (req.file as any).path : null;
+      // console.log("profile image url ", profileImageUrl);
+      const files = req.files as {
+        [fieldname: string]: Express.Multer.File[];
+      };
+
+      const profileImageUrl = files.profileImage?.[0]?.path;
+      const nidFront = files.nidFront?.[0]?.path;
+      const nidBack = files.nidBack?.[0]?.path;
+
+      // console.log("profile image url ", profileImageUrl);
+      // console.log("nid front url ", nidFront);
+      // console.log("nid back url ", nidBack);
 
       const result = await patientService.updatePatientBasic(
         req.params.userId,
         req.body,
         profileImageUrl,
+        nidFront,
+        nidBack
       );
 
       res.json({
