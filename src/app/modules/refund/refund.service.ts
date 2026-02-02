@@ -57,18 +57,34 @@ const createRefund = async (payload: TRefundPayload) => {
   return refund;
 };
 
-// Get all refunds (admin)
 const getAllRefunds = async () => {
   return await Refund_Model.find()
     .populate("paymentId")
-    .populate("userId")
+    .populate({
+      path: "patientId",
+      select:
+        "phoneNumber gender age bloodGroup nidFrontImageUrl nidBackImageUrl", // 👈 Patient fields
+      populate: {
+        path: "userId",
+        select: "fullName email profileImage", // 👈 User fields
+      },
+    })
     .sort({ createdAt: -1 });
 };
 
 // Get refunds by user
-const getRefundsByUserId = async (userId: string) => {
-  return await Refund_Model.find({ userId })
+const getRefundsByUserId = async (patientId: string) => {
+  return await Refund_Model.find({ patientId: patientId })
     .populate("paymentId")
+    .populate({
+      path: "patientId",
+      select:
+        "phoneNumber gender age bloodGroup nidFrontImageUrl nidBackImageUrl", // 👈 Patient fields
+      populate: {
+        path: "userId",
+        select: "fullName email profileImage", // 👈 User fields
+      },
+    })
     .sort({ createdAt: -1 });
 };
 
