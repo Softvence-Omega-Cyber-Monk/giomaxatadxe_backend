@@ -10,9 +10,14 @@ router.get("/getAll", patientController.getAllPatients);
 router.get("/getSinglePatient/:userId", patientController.getPatientById);
 router.put(
   "/update-basic/:userId",
-  patientProfileImage.single("profileImage"),
+  patientProfileImage.fields([
+    { name: "profileImage", maxCount: 1 },
+    { name: "nidFront", maxCount: 1 },
+    { name: "nidBack", maxCount: 1 },
+  ]),
   patientController.updatePatientBasic,
 );
+
 router.patch(
   "/createOrUpdateAddress/:userId",
   patientController.createOrUpdateAddress,

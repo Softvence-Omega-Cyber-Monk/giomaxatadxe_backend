@@ -19,6 +19,8 @@ export const patientService = {
     userId: string,
     payload: any,
     profileImageUrl: string,
+    nidFront?: string,
+    nidBack?: string,
   ) => {
     const {
       fullName,
@@ -28,7 +30,10 @@ export const patientService = {
       bloodGroup,
       nationalIdNumber,
       nationality,
+      employer
     } = payload;
+
+    // console.log("nid", nidFront, nidBack);
 
     if (payload.dateOfBirth) {
       const dob = new Date(payload.dateOfBirth);
@@ -70,6 +75,7 @@ export const patientService = {
         updateData.profileImage = profileImageUrl;
       }
 
+
       // step-1: Update user model
       const updatedUser = await User_Model.findByIdAndUpdate(
         userId,
@@ -81,7 +87,21 @@ export const patientService = {
         throw new Error("User not found!");
       }
 
-      // step-2: Update clinic model
+      let dataToUpdate: any = {};
+
+      if (nidFront) {
+        dataToUpdate.nidFrontImageUrl = nidFront;
+      }
+
+      if (nidBack) {
+        dataToUpdate.nidBackImageUrl = nidBack;
+      }
+
+      if (employer) {
+        dataToUpdate.employer = employer;
+      }
+
+      // step-2: Update patient model
       const updatedPatient = await Patient_Model.findOneAndUpdate(
         { userId },
         {
@@ -92,6 +112,7 @@ export const patientService = {
           bloodGroup,
           age: payload?.age,
           nationality,
+          ...dataToUpdate,
         },
         { new: true, session },
       ).populate("userId");
