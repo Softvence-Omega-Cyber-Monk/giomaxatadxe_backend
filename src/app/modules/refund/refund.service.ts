@@ -79,7 +79,7 @@ const getRefundsByUserId = async (patientId: string) => {
     .populate({
       path: "patientId",
       select:
-        "phoneNumber gender age bloodGroup nidFrontImageUrl nidBackImageUrl", // 👈 Patient fields
+        "phoneNumber gender age bloodGroup nidFrontImageUrl nidBackImageUrl", 
       populate: {
         path: "userId",
         select: "fullName email profileImage", // 👈 User fields
