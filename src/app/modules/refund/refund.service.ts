@@ -79,6 +79,9 @@ const acceptOrRejectRefund = async (
 ) => {
   console.log(refundId, status);
   const refund = await Refund_Model.findById(refundId);
+
+  console.log("refund", refund);
+
   if (!refund) throw new Error("Refund request not found");
   if (refund.status !== "PENDING") throw new Error("Refund already processed");
 
@@ -86,7 +89,10 @@ const acceptOrRejectRefund = async (
   refund.reviewedAt = new Date();
   await refund.save();
 
+  console.log("refund after update", refund);
+
   const payment = await Payment_Model.findById(refund.paymentId);
+  console.log("payment ", payment);
   if (!payment) throw new Error("Payment not found");
 
   payment.refundStatus = status === "APPROVED" ? "APPROVED" : "REJECTED";
@@ -103,7 +109,7 @@ const acceptOrRejectRefund = async (
 
   if (appointment) {
     appointment.isRefunded =
-      status === "APPROVED" ? "refund-approved" : "refund-rejected";
+      status === "APPROVED" ? "refunded" : "refund-rejected";
     await appointment.save();
   }
 
