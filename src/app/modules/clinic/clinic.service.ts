@@ -194,6 +194,7 @@ const updateClinicBasic = async (
     servicesOffered,
     clinicDescription,
     address,
+    bussinessIdentificationNumber
   } = payload;
 
   const servicesOfferedData = servicesOffered
@@ -229,6 +230,7 @@ const updateClinicBasic = async (
         servicesOffered: servicesOfferedData,
         clinicDescription,
         address,
+        bussinessIdentificationNumber
       },
       { new: true, session },
     ).populate("userId");
