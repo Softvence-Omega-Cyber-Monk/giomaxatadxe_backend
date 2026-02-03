@@ -673,7 +673,7 @@ export const SoloNurseService = {
       allAppoinment: allAppointments.length,
       pendingAppointments: pendingAppointments.length,
       completedAppointments: completedAppointments.length,
-      totalEarnings: totalEarnings?.pendingBalance || 0,
+      totalEarnings: totalEarnings?.balance || 0,
     };
   },
 };
