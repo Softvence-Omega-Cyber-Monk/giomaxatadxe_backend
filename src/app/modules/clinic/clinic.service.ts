@@ -71,7 +71,7 @@ const getClinicAppointments = async (
     .find(filter)
     .populate({
       path: "patientId",
-      select: "_id userId phoneNumber nationalIdNumber gender age bloodGroup",
+      select: "_id userId phoneNumber nationalIdNumber gender age bloodGroup nidBackImageUrl nidFrontImageUrl",
       populate: {
         path: "userId",
         model: "user",
