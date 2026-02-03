@@ -203,27 +203,7 @@ export const SoloNurseController = {
       });
     }
   },
-  setDefaultPaymentMethod: async (req: Request, res: Response) => {
-    try {
-      const { methodId, userId } = req.params;
 
-      const result = await SoloNurseService.setDefaultPaymentMethod(
-        userId,
-        methodId,
-      );
-
-      res.status(200).json({
-        success: true,
-        message: "Default payment method updated successfully",
-        data: result,
-      });
-    } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  },
   addReviews: async (req: Request, res: Response) => {
     try {
       const userId = req.params.userId;

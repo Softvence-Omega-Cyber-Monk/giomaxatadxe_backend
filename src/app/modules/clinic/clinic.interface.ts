@@ -27,12 +27,8 @@ export type TClinic = {
       availbleForWithdrawal: number;
     };
     withdrawalMethods: {
-      cardHolderName: string;
-      cardNumber: string;
-      cvv: string;
-      expiryDate: string;
-      isDefault: boolean;
-    }[];
+      IBanNumber: string;
+    };
   };
   reviews?: {
     patientId: Types.ObjectId;

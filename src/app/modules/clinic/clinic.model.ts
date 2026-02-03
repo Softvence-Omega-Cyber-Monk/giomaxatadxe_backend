@@ -54,15 +54,9 @@ const clinicSchema = new Schema<TClinic>(
         pending: { type: Number, default: 0 },
         availbleForWithdrawal: { type: Number, default: 0 },
       },
-      withdrawalMethods: [
-        {
-          cardHolderName: { type: String },
-          cardNumber: { type: String },
-          cvv: { type: String },
-          expiryDate: { type: String },
-          isDefault: { type: Boolean, default: false },
-        },
-      ],
+      withdrawalMethods: {
+        IBanNumber: { type: String , default: null },
+      },
     },
     reviews: [
       {
@@ -78,7 +72,7 @@ const clinicSchema = new Schema<TClinic>(
     },
     bussinessIdentificationNumber: {
       type: String,
-      default: null
+      default: null,
     },
     responsiblePersonInformation: {
       name: { type: String },

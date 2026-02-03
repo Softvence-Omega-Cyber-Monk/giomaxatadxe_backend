@@ -23,16 +23,6 @@ const createWithdrawRequest = async (payload: any) => {
     if (!user) throw new Error("Solo Nurse not found");
   }
 
-  const withdrawAddress = user?.paymentAndEarnings?.withdrawalMethods?.find(
-    (method: any) => method?.isDefault === true,
-  );
-
-  if (!withdrawAddress) {
-    throw new Error(
-      "Withdrawal address not found , please set default one withdrawal method",
-    );
-  }
-
   // console.log("withdrawAddress", withdrawAddress);
 
   // Set commission based on owner type
@@ -57,13 +47,17 @@ const createWithdrawRequest = async (payload: any) => {
 
   await wallet.save();
 
+  console.log('wallet', wallet);
+console.log('user', user);
+  console.log('iban number ', user?.paymentAndEarnings?.withdrawalMethods.IBanNumber);
+
   return await WithdrawRequest_Model.create({
     walletId,
     ownerId,
     ownerUserId: user?.userId,
     ownerType,
     amount,
-    cardNumber: withdrawAddress?.cardNumber,
+    IBanNumber: user?.paymentAndEarnings?.withdrawalMethods?.IBanNumber || null,
   });
 };
 
