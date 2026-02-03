@@ -40,4 +40,12 @@ export type TClinic = {
     comment: string;
   }[];
   avarageRating?: number;
+  bussinessIdentificationNumber?: string;
+  responsiblePersonInformation?: {
+    name: string;
+    position: string;
+    email: string;
+    contactNumber: string;
+    personalIdNumber: string;
+  };
 };

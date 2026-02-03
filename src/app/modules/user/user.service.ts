@@ -309,7 +309,9 @@ const createDoctor = async (payload: any) => {
       availability,
       availableDateRange,
       slotTimeDuration,
+      
       ...doctorPayload
+
     } = payload;
     let parsedAvailability: any[] = [];
 
