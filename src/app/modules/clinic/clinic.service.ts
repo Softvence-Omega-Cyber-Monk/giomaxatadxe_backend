@@ -71,7 +71,8 @@ const getClinicAppointments = async (
     .find(filter)
     .populate({
       path: "patientId",
-      select: "_id userId phoneNumber nationalIdNumber gender age bloodGroup nidBackImageUrl nidFrontImageUrl",
+      select:
+        "_id userId phoneNumber nationalIdNumber gender age bloodGroup nidBackImageUrl nidFrontImageUrl",
       populate: {
         path: "userId",
         model: "user",
@@ -194,7 +195,7 @@ const updateClinicBasic = async (
     servicesOffered,
     clinicDescription,
     address,
-    bussinessIdentificationNumber
+    bussinessIdentificationNumber,
   } = payload;
 
   const servicesOfferedData = servicesOffered
@@ -230,7 +231,7 @@ const updateClinicBasic = async (
         servicesOffered: servicesOfferedData,
         clinicDescription,
         address,
-        bussinessIdentificationNumber
+        bussinessIdentificationNumber,
       },
       { new: true, session },
     ).populate("userId");
@@ -366,69 +367,26 @@ const addReviews = async (userId: string, payload: any) => {
 };
 
 const addNewPaymentMethod = async (userId: string, payload: any) => {
-  console.log("payload from service ", payload);
-
   const clinic = await Clinic_Model.findOne({ userId });
 
   if (!clinic) {
     throw new Error("Clinic not found for this user");
   }
 
-  const hasExistingMethods =
-    clinic?.paymentAndEarnings?.withdrawalMethods?.length === 0;
-
-  const newMethod = {
-    cardHolderName: payload.cardHolderName,
-    cardNumber: payload.cardNumber,
-    cvv: payload.cvv,
-    expiryDate: payload.expiryDate,
-    isDefault: hasExistingMethods,
+  const newPaymentMethod = {
+    IBanNumber: payload.IBanNumber,
   };
 
-  // push into nested array
-  const updatedClinic = await Clinic_Model.findOneAndUpdate(
+  console.log("newPaymentMethod", newPaymentMethod);
+
+  const updatedPaymentMethods = await Clinic_Model.findOneAndUpdate(
     { userId },
     {
-      $push: { "paymentAndEarnings.withdrawalMethods": newMethod },
+      $set: { "paymentAndEarnings.withdrawalMethods": newPaymentMethod },
     },
     { new: true },
   );
-
-  return updatedClinic;
-};
-const setDefaultPaymentMethod = async (userId: string, methodId: string) => {
-  if (!Types.ObjectId.isValid(methodId)) {
-    throw new Error("Invalid payment method ID");
-  }
-
-  const clinic = await Clinic_Model.findOne({ userId });
-
-  if (!clinic) {
-    throw new Error("Clinic not found for this user");
-  }
-
-  const methodExists = clinic.paymentAndEarnings?.withdrawalMethods?.some(
-    (m: any) => m?._id.toString() === methodId,
-  );
-
-  if (!methodExists) {
-    throw new Error("Payment method not found");
-  }
-
-  // 1️⃣ Unset current default (only if exists)
-  await Clinic_Model.updateOne(
-    { userId, "paymentAndEarnings.withdrawalMethods.isDefault": true },
-    { $set: { "paymentAndEarnings.withdrawalMethods.$.isDefault": false } },
-  );
-
-  // 2️⃣ Set the selected card as default
-  const updateClinic = await Clinic_Model.findOneAndUpdate(
-    { userId, "paymentAndEarnings.withdrawalMethods._id": methodId },
-    { $set: { "paymentAndEarnings.withdrawalMethods.$.isDefault": true } },
-    { new: true },
-  );
-
-  return updateClinic;
+  return updatedPaymentMethods;
 };
 
 const deleteClinic = async (userId: string) => {
@@ -577,7 +535,7 @@ export const ClinicService = {
   availabilitySettings,
   addReviews,
   addNewPaymentMethod,
-  setDefaultPaymentMethod,
+
   deleteClinic,
   getAppoinmentTimeBasedOnDateForClinic,
   getClinicPaymentData,

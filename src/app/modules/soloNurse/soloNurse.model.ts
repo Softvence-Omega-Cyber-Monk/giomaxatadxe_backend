@@ -102,16 +102,7 @@ const soloNurseSchema = new Schema<TSoloNurse>(
         availbleForWithdrawal: { type: Number, default: 0 },
       },
       withdrawalMethods: {
-        type: [
-          {
-            cardHolderName: { type: String },
-            cardNumber: { type: String },
-            cvv: { type: String },
-            expiryDate: { type: String },
-            isDefault: { type: Boolean },
-          },
-        ],
-        default: [], // 👈 important
+        IBanNumber: { type: String, default: null },
       },
     },
     reviews: [

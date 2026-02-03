@@ -43,10 +43,7 @@ router.put(
   SoloNurseController.addNewPaymentMethod,
 );
 
-router.patch(
-  "/payment-methods/set-default/:userId/:methodId",
-  SoloNurseController.setDefaultPaymentMethod,
-);
+
 router.put("/addReviews/:userId", SoloNurseController.addReviews);
 
 router.delete(

@@ -65,12 +65,8 @@ export type TSoloNurse = {
       availbleForWithdrawal: number;
     };
     withdrawalMethods: {
-      cardHolderName: string;
-      cardNumber: string;
-      cvv: string;
-      expiryDate: string;
-      isDefault: boolean;
-    }[];
+      IBanNumber: string | null;
+    };
   };
   reviews?: {
     patientId: Types.ObjectId;
