@@ -78,6 +78,7 @@ const clinicSchema = new Schema<TClinic>(
     },
     bussinessIdentificationNumber: {
       type: String,
+      default: null
     },
     responsiblePersonInformation: {
       name: { type: String },
