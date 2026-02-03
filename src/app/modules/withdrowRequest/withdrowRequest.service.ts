@@ -33,7 +33,6 @@ const createWithdrawRequest = async (payload: any) => {
     );
   }
 
-
   // console.log("withdrawAddress", withdrawAddress);
 
   // Set commission based on owner type
@@ -61,6 +60,7 @@ const createWithdrawRequest = async (payload: any) => {
   return await WithdrawRequest_Model.create({
     walletId,
     ownerId,
+    ownerUserId: user?.userId,
     ownerType,
     amount,
     cardNumber: withdrawAddress?.cardNumber,
@@ -82,6 +82,7 @@ const getWithdrawRequestsByOwner = async (ownerId: string) => {
 const getAllWithdrawRequests = async () => {
   return await WithdrawRequest_Model.find()
     .populate("walletId")
+    .populate("ownerUserId", "fullName email")
     .sort({ createdAt: -1 });
 };
 

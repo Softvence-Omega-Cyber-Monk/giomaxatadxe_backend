@@ -13,6 +13,10 @@ const withdrawRequestSchema = new Schema(
       required: true,
       index: true,
     },
+    ownerUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+    },
 
     ownerType: {
       type: String,
@@ -38,19 +42,10 @@ const withdrawRequestSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const WithdrawRequest_Model = model(
   "WithdrawRequest",
-  withdrawRequestSchema
+  withdrawRequestSchema,
 );
-
-
-
-
-
-
-
-
-
