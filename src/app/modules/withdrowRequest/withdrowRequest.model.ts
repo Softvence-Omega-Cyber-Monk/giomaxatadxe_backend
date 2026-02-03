@@ -35,9 +35,9 @@ const withdrawRequestSchema = new Schema(
       enum: ["PENDING", "REJECTED", "PAID"],
       default: "PENDING",
     },
-    cardNumber: {
+    IBanNumber: {
       type: String,
-      required: true,
+      default: null,
     },
   },
   {
