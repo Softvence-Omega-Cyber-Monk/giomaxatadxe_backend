@@ -151,6 +151,26 @@ const updateClinicBasic = async (req: Request, res: Response) => {
     });
   }
 };
+const updateClinicResponsiblePersonInfo = async (req: Request, res: Response) => {
+  try {
+
+    const result = await ClinicService.updateClinicResponsiblePersonInfo(
+      req.params.userId,
+      req.body,
+    );
+
+    res.json({
+      success: true,
+      message: "Clinic responsible person information updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 const uploadCertificate = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -373,6 +393,7 @@ export const ClinicController = {
   getClinicDoctors,
   getClinicPatients,
   updateClinicBasic,
+  updateClinicResponsiblePersonInfo,
   uploadCertificate,
   deleteCertificate,
   availabilitySettings,

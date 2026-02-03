@@ -13,11 +13,9 @@ const clinicSchema = new Schema<TClinic>(
     },
     nationality: {
       type: String,
-   
     },
     nationalIdNumber: {
       type: String,
-    
     },
     address: {
       type: String,
@@ -78,10 +76,20 @@ const clinicSchema = new Schema<TClinic>(
       type: Number,
       default: 0,
     },
+    bussinessIdentificationNumber: {
+      type: String,
+    },
+    responsiblePersonInformation: {
+      name: { type: String },
+      position: { type: String },
+      email: { type: String },
+      contactNumber: { type: String },
+      personalIdNumber: { type: String },
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const Clinic_Model = model<TClinic>("Clinic", clinicSchema);

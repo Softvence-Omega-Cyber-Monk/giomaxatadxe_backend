@@ -1,4 +1,3 @@
-
 import { TClinic } from "./clinic.interface";
 import mongoose, { Types } from "mongoose";
 import { User_Model } from "../user/user.schema";
@@ -249,6 +248,28 @@ const updateClinicBasic = async (
 
     console.log(error);
   }
+};
+const updateClinicResponsiblePersonInfo = async (
+  userId: string,
+  payload: any,
+) => {
+  const { name, position, email, contactNumber, personalIdNumber } = payload;
+
+  const clinic = await Clinic_Model.findOneAndUpdate(
+    { userId },
+    {
+      responsiblePersonInformation: {
+        name,
+        position,
+        email,
+        contactNumber,
+        personalIdNumber,
+      },
+    },
+    { new: true },
+  );
+
+  return clinic;
 };
 const uploadCertificate = async (userId: string, payload: any) => {
   // console.log("payload from service ", payload);
@@ -548,6 +569,7 @@ export const ClinicService = {
   getClinicDoctors,
   getClinicPatients,
   updateClinicBasic,
+  updateClinicResponsiblePersonInfo,
   uploadCertificate,
   deleteCertificate,
   availabilitySettings,

@@ -25,6 +25,10 @@ router.put(
   ClinicController.updateClinicBasic,
 );
 router.put(
+  "/update-responsible-person-info/:userId",
+  ClinicController.updateClinicResponsiblePersonInfo,
+);
+router.put(
   "/upload-certificate/:userId",
   clinicCertificate.single("uploadCertificates"),
   ClinicController.uploadCertificate,
