@@ -225,21 +225,23 @@ export const soloNurseAppointmentService = {
       throw new Error("Appointment not found");
     }
 
-    // Only apply rule when cancelling
+    // Apply rule only when cancelling
     if (data.status === "cancelled") {
       const appointmentDateTime = getAppointmentDateTime(
         appointment.prefarenceDate,
         appointment.prefarenceTime,
       );
 
-      const oneHourBefore = new Date(
-        appointmentDateTime.getTime() - 60 * 60 * 1000,
+      // 24 hours before appointment
+      const twentyFourHoursBefore = new Date(
+        appointmentDateTime.getTime() - 24 * 60 * 60 * 1000,
       );
+
       const now = new Date();
 
-      if (now >= oneHourBefore) {
+      if (now >= twentyFourHoursBefore) {
         throw new Error(
-          "You cannot cancel the appointment within 1 hour of the scheduled time",
+          "You cannot cancel the appointment within 24 hours of the scheduled time",
         );
       }
     }
@@ -250,6 +252,7 @@ export const soloNurseAppointmentService = {
       { new: true },
     );
   },
+
   getSelectedDateAndTime: async (id: string, date?: string) => {
     const soloNurse = await SoloNurse_Model.findById(id);
     if (!soloNurse) throw new Error("Solo nurse not found");
