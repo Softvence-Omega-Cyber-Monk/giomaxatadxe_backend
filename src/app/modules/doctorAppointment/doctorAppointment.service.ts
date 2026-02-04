@@ -5,11 +5,29 @@ import { Doctor_Model } from "../doctor/doctor.model";
 import { Patient_Model } from "../patient/patient.model";
 import { doctorAppointment_Model } from "./doctorAppointment.model";
 import { ChatModel } from "../chat/chat.model";
+import { getAppointmentDateTime } from "../../utils/getAppoinmentTimeAndDate";
 
 export const doctorAppointmentService = {
   // Create Appointment
+
   createAppointment: async (payload: any) => {
+    console.log("payload", payload);
     const { doctorId, prefarenceDate, prefarenceTime, serviceType } = payload;
+
+    const patient = await Patient_Model.findOne({ _id: payload.patientId });
+    if (!patient) {
+      throw new Error("Patient not found");
+    }
+    if (
+      !patient?.nidBackImageUrl ||
+      !patient?.nidFrontImageUrl ||
+      !patient?.nationalIdNumber ||
+      patient?.address?.length === 0
+    ) {
+      throw new Error(
+        "Please complete your NID verification to book an appointment.",
+      );
+    }
 
     let appointmentFee = 0;
     // Normalize date (only YYYY-MM-DD)
@@ -457,14 +475,39 @@ export const doctorAppointmentService = {
     return clinics;
   },
 
-  // Update status (approve/reject)
   updateStatus: async (id: string, status: string) => {
+    const appointment = await doctorAppointment_Model.findById(id);
+
+    if (!appointment) {
+      throw new Error("Appointment not found");
+    }
+
+    // Only apply rule when cancelling
+    if (status === "cancelled") {
+      const appointmentDateTime = getAppointmentDateTime(
+        appointment.prefarenceDate,
+        appointment.prefarenceTime,
+      );
+
+      const oneHourBefore = new Date(
+        appointmentDateTime.getTime() - 60 * 60 * 1000,
+      );
+      const now = new Date();
+
+      if (now >= oneHourBefore) {
+        throw new Error(
+          "You cannot cancel the appointment within 1 hour of the scheduled time",
+        );
+      }
+    }
+
     return await doctorAppointment_Model.findByIdAndUpdate(
       id,
       { status },
       { new: true },
     );
   },
+
   getSelectedDateAndTime: async (id: string, date?: string) => {
     const doctor = await Doctor_Model.findById(id);
     console.log("doctro ", doctor?.availability);
