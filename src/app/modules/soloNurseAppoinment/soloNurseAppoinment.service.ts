@@ -5,10 +5,26 @@ import { SoloNurse_Model } from "../soloNurse/soloNurse.model";
 import { soloNurseAppoinment_Model } from "./soloNurseAppoinment.model";
 import mongoose from "mongoose";
 import { ChatModel } from "../chat/chat.model";
+import { getAppointmentDateTime } from "../../utils/getAppoinmentTimeAndDate";
 
 export const soloNurseAppointmentService = {
   createAppointment: async (data: any) => {
     const { soloNurseId, prefarenceDate, prefarenceTime } = data;
+
+    const patient = await Patient_Model.findOne({ _id: data.patientId });
+    if (!patient) {
+      throw new Error("Patient not found");
+    }
+    if (
+      !patient?.nidBackImageUrl ||
+      !patient?.nidFrontImageUrl ||
+      !patient?.nationalIdNumber ||
+      patient?.address?.length === 0
+    ) {
+      throw new Error(
+        "Please complete your NID verification to book an appointment.",
+      );
+    }
 
     // Check if patient exists
     const soloNurse: any = await SoloNurse_Model.findById(soloNurseId);
@@ -203,14 +219,35 @@ export const soloNurseAppointmentService = {
   },
 
   updateAppointment: async (id: string, data: any) => {
+    const appointment = await soloNurseAppoinment_Model.findById(id);
+
+    if (!appointment) {
+      throw new Error("Appointment not found");
+    }
+
+    // Only apply rule when cancelling
+    if (data.status === "cancelled") {
+      const appointmentDateTime = getAppointmentDateTime(
+        appointment.prefarenceDate,
+        appointment.prefarenceTime,
+      );
+
+      const oneHourBefore = new Date(
+        appointmentDateTime.getTime() - 60 * 60 * 1000,
+      );
+      const now = new Date();
+
+      if (now >= oneHourBefore) {
+        throw new Error(
+          "You cannot cancel the appointment within 1 hour of the scheduled time",
+        );
+      }
+    }
+
     return await soloNurseAppoinment_Model.findByIdAndUpdate(
       id,
-      {
-        status: data.status,
-      },
-      {
-        new: true,
-      },
+      { status: data.status },
+      { new: true },
     );
   },
   getSelectedDateAndTime: async (id: string, date?: string) => {
