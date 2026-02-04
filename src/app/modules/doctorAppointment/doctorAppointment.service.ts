@@ -25,7 +25,7 @@ export const doctorAppointmentService = {
       patient?.address?.length === 0
     ) {
       throw new Error(
-        "Please complete your NID verification to book an appointment.",
+        "Please complete your profile with NID Card inofrmation and address before booking an appointment.",
       );
     }
 
