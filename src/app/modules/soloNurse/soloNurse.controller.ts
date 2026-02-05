@@ -4,6 +4,7 @@ import { SoloNurseService } from "./soloNurse.service";
 export const SoloNurseController = {
   getAllSoloNurses: async (req: Request, res: Response) => {
     try {
+      console.log("query", req.query.serviceName);
       const result = await SoloNurseService.getAllSoloNurses(
         req.query.serviceName as string,
         req.query.sub_serviceName as string,
