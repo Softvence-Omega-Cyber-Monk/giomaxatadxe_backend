@@ -28,11 +28,12 @@ export const SoloNurseService = {
   //     .sort({ createdAt: -1 });
   // },
   getAllSoloNurses: async (
-    patientUserId?: string,
     serviceName?: string,
     sub_serviceName?: string,
+    patientUserId?: string,
   ) => {
     const query: any = {};
+    console.log("service name ", serviceName);
 
     if (serviceName)
       query["professionalInformation.services.serviceName"] = serviceName;
