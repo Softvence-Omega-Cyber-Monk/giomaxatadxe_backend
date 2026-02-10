@@ -8,24 +8,33 @@ const nurseCertificate = createUploader("nurseCertificates");
 const clinicCertificate = createUploader("clinicCertificates");
 const doctorCertificate = createUploader("doctorCertificates");
 
+const patientNationalId = createUploader("patientNationalId");
+
 const router = Router();
 
 // CREATE paitent
-router.post("/create-paient", user_controllers.createPatient);
+router.post(
+  "/create-paient",
+  patientNationalId.fields([
+    { name: "nidFront", maxCount: 1 },
+    { name: "nidBack", maxCount: 1 },
+  ]),
+  user_controllers.createPatient,
+);
 router.post(
   "/create-solo-nurse",
   nurseCertificate.single("uploadCertificates"),
-  user_controllers.createSoloNurse
+  user_controllers.createSoloNurse,
 );
 router.post(
   "/create-clinic",
   clinicCertificate.single("uploadCertificates"),
-  user_controllers.createClinic
+  user_controllers.createClinic,
 );
 router.post(
   "/create-doctor",
   doctorCertificate.single("uploadCertificates"),
-  user_controllers.createDoctor
+  user_controllers.createDoctor,
 );
 router.get("/get-admin", user_controllers.getAdmin);
 router.put("/verify-user/:userId/:code", user_controllers.verifyUser);

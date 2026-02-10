@@ -26,7 +26,12 @@ const generateRandomPassword = () => {
   return Array.from({ length: 8 }, () => crypto.randomInt(0, 10)).join("");
 };
 
-export const createPatient = async (payload: any) => {
+export const createPatient = async (
+  payload: any,
+  nidFront: any,
+  nidBack: any,
+) => {
+  console.log("paylaod", payload, nidFront, nidBack);
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -109,6 +114,17 @@ export const createPatient = async (payload: any) => {
       verificationCode,
     };
 
+    const address = {
+      addressLabel: payload.addressLabel,
+      streetNumber: payload.streetNumber,
+      apartmentNumber: payload.apartmentNumber,
+      city: payload.city,
+      state: payload.state,
+      zipCode: payload.zipCode,
+    };
+
+    patientPayload.address = address;
+
     // 5. Create User with session
     const newUser = await User_Model.create([newUserData], { session });
     const createdUser = newUser[0];
@@ -116,7 +132,15 @@ export const createPatient = async (payload: any) => {
 
     // 6. Create Patient using new userId
     const newPatient = await Patient_Model.create(
-      [{ ...patientPayload, age: payload.age, userId: createdUser._id }],
+      [
+        {
+          ...patientPayload,
+          nidFrontImageUrl: nidFront,
+          nidBackImageUrl: nidBack,
+          age: payload.age,
+          userId: createdUser._id,
+        },
+      ],
       { session },
     );
 
@@ -233,6 +257,14 @@ const createClinic = async (payload: any) => {
     const { fullName, email, password, comfirmPassword, ...clinicpayload } =
       payload;
 
+    if (payload.IBanNumber) {
+      clinicpayload.paymentAndEarnings = {
+        withdrawalMethods: {
+          IBanNumber: payload.IBanNumber,
+        },
+      };
+    }
+
     // Check email
     const existingEmail = await User_Model.findOne({ email }, null, {
       session,
@@ -309,9 +341,8 @@ const createDoctor = async (payload: any) => {
       availability,
       availableDateRange,
       slotTimeDuration,
-      
-      ...doctorPayload
 
+      ...doctorPayload
     } = payload;
     let parsedAvailability: any[] = [];
 
@@ -322,7 +353,7 @@ const createDoctor = async (payload: any) => {
           typeof item === "string" ? JSON.parse(item) : item,
         );
       } else if (typeof payload.availability === "string") {
-        console.log('hit hit hist');
+        console.log("hit hit hist");
         parsedAvailability = JSON.parse(payload.availability);
       }
     }

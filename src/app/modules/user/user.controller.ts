@@ -4,7 +4,14 @@ import { UserService } from "./user.service";
 const createPatient = async (req: Request, res: Response) => {
   try {
     console.log("controlller hit");
-    const result = await UserService.createPatient(req.body);
+    const files = req.files as {
+      [fieldname: string]: Express.Multer.File[];
+    };
+
+    const nidFront = files.nidFront?.[0]?.path;
+    const nidBack = files.nidBack?.[0]?.path;
+
+    const result = await UserService.createPatient(req.body, nidFront, nidBack);
 
     res.status(201).json({
       success: true,
@@ -102,7 +109,6 @@ const createClinic = async (req: Request, res: Response) => {
       pending,
       availbleForWithdrawal,
 
-
       servicesOffered,
 
       ...data
@@ -136,7 +142,6 @@ const createClinic = async (req: Request, res: Response) => {
       clinicCertificates,
       availability,
       servicesOffered: servicesOfferedData,
-      
     });
 
     console.log("clinic create", result);
