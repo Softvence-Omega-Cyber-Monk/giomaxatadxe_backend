@@ -13,9 +13,10 @@ import { PaymentRoutes } from "./app/modules/payment/payment.route";
 import { ChatRoutes } from "./app/modules/chat/chat.route";
 import { notificationRoutes } from "./app/modules/notifications/notification.route";
 import { WithdrawRequestRoutes } from "./app/modules/withdrowRequest/withdrowRequest.route";
-import { AdminRoutes } from "./app/modules/admin /admin.route";
+
 import { WalletRoutes } from "./app/modules/wallet/wallet.route";
 import { RefundRoutes } from "./app/modules/refund/refund.route";
+import { AdminRoutes } from "./app/modules/admin/admin.route";
 
 const appRouter = Router();
 
