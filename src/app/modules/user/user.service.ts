@@ -153,7 +153,7 @@ export const createPatient = async (
       subject: "Your Patient Account Verification Code",
       html: `
         <h2>Welcome, ${fullName}</h2>
-        <p>Your account has been Register successfully.</p>
+        <p>Your account has been created successfully.</p>
         <p><strong>Verification Code:</strong> ${verificationCode}</p>
         <p>Please use this code to verify your account.</p>
       `,
