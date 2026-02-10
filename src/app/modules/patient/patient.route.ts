@@ -4,13 +4,13 @@ import { createUploader } from "../../utils/cloudinary";
 
 const router = Router();
 
-const patientProfileImage = createUploader("patientProfileImage");
+const patientNationalId = createUploader("patientNationalId");
 
 router.get("/getAll", patientController.getAllPatients);
 router.get("/getSinglePatient/:userId", patientController.getPatientById);
 router.put(
   "/update-basic/:userId",
-  patientProfileImage.fields([
+  patientNationalId.fields([
     { name: "profileImage", maxCount: 1 },
     { name: "nidFront", maxCount: 1 },
     { name: "nidBack", maxCount: 1 },
