@@ -13,4 +13,5 @@ export type TUser = {
   isAdminVerified?: boolean;
   latitude?: number;
   longitude?: number;
+  ipAddress?: string;
 };
