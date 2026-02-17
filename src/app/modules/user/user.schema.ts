@@ -19,12 +19,12 @@ const user_schema = new Schema<TUser>(
     isAdminVerified: { type: Boolean, default: false },
     latitude: { type: Number, default: null },
     longitude: { type: Number, default: null },
-
+    ipAddress: { type: String, default: null },
   },
   {
     versionKey: false,
     timestamps: true,
-  }
+  },
 );
 
 export const User_Model = model("user", user_schema);

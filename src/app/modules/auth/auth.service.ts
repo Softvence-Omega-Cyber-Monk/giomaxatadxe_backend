@@ -12,10 +12,21 @@ import { sendEmail } from "../../utils/sendEmail";
 import { de, fa } from "zod/v4/locales";
 
 // login user
-const login_user_from_db = async (payload: TLoginPayload) => {
+const login_user_from_db = async (
+  payload: TLoginPayload,
+  ipAddress: string,
+) => {
   const isExistAccount: any = await User_Model.findOne({
     email: payload?.email,
   });
+
+  if (isExistAccount) {
+    await User_Model.findOneAndUpdate(
+      { email: payload?.email },
+      { ipAddress: ipAddress },
+      { new: true },
+    );
+  }
 
   if (
     isExistAccount.isVerified === false &&
