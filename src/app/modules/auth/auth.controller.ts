@@ -8,8 +8,17 @@ import { Request, Response } from "express";
 
 const login_user = catchAsync(async (req, res) => {
   // console.log(' req body form controller ',req.body)
+  const ipAddress =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
+    req.socket.remoteAddress ||
+    req.ip;
 
-  const result = await auth_services.login_user_from_db(req.body);
+  // console.log("ip address", ipAddress);
+
+  const result = await auth_services.login_user_from_db(
+    req.body,
+    ipAddress as string,
+  );
 
   // console.log(' login result from controller ',result)
 
@@ -78,7 +87,7 @@ export const verifyResetCode = async (req: Request, res: Response) => {
 export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { email, code, newPassword } = req.body;
-    await auth_services.resetPassword(email, code , newPassword);
+    await auth_services.resetPassword(email, code, newPassword);
     res.status(200).json({ message: "Password reset successful" });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
