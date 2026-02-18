@@ -27,6 +27,9 @@ const startClinicPayment = async (req: Request, res: Response) => {
     const hiddenChecked = dataVisibility === "დაფარული" ? "☑" : "☐";
     const fullyHiddenChecked = dataVisibility === "სრულიად დაფარული" ? "☑" : "☐";
 
+
+    
+
     console.log("req.body", req.body);
     const appointment = await doctorAppointment_Model.findById(
       req.body.appointmentId,
