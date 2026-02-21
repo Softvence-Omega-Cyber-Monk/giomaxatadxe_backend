@@ -30,11 +30,11 @@ const soloNurseAppoinmentSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "completed", "rejected",'cancelled'],
+      enum: ["pending", "confirmed", "completed", "rejected", "cancelled"],
       default: "pending",
     },
     prefarenceDate: {
-      type: Date,
+      type: [Date],
       required: true,
     },
     prefarenceTime: {
@@ -51,20 +51,22 @@ const soloNurseAppoinmentSchema = new Schema(
     },
     isRefunded: {
       type: String,
-      enum: ['refund-requested', 'refunded', 'no-refund', 'refund-rejected'],
-      default: 'no-refund',
+      enum: ["refund-requested", "refunded", "no-refund", "refund-rejected"],
+      default: "no-refund",
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-// Format date in response
+// ✅ ADD IT HERE (after schema definition)
 soloNurseAppoinmentSchema.set("toJSON", {
   transform: function (doc, ret: any) {
-    if (ret.prefarenceDate) {
-      ret.prefarenceDate = ret.prefarenceDate.toISOString().split("T")[0];
+    if (ret.prefarenceDate && Array.isArray(ret.prefarenceDate)) {
+      ret.prefarenceDate = ret.prefarenceDate.map(
+        (date: any) => new Date(date).toISOString().split("T")[0],
+      );
     }
     return ret;
   },
@@ -72,5 +74,5 @@ soloNurseAppoinmentSchema.set("toJSON", {
 
 export const soloNurseAppoinment_Model = model(
   "soloNurseAppoinment",
-  soloNurseAppoinmentSchema
+  soloNurseAppoinmentSchema,
 );

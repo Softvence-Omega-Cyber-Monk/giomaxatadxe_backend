@@ -6,6 +6,7 @@ import { PaymentService } from "./payment.service";
 import { sendEmail } from "../../utils/sendEmail";
 import { Patient_Model } from "../patient/patient.model";
 import { Clinic_Model } from "../clinic/clinic.model";
+import { sendEmailWithSES } from "../../utils/sendEmailWithSES";
 
 // Start payment for clinic appointment
 const startClinicPayment = async (req: Request, res: Response) => {
@@ -25,10 +26,8 @@ const startClinicPayment = async (req: Request, res: Response) => {
 
     const visibleChecked = dataVisibility === "ხილული" ? "☑" : "☐";
     const hiddenChecked = dataVisibility === "დაფარული" ? "☑" : "☐";
-    const fullyHiddenChecked = dataVisibility === "სრულიად დაფარული" ? "☑" : "☐";
-
-
-    
+    const fullyHiddenChecked =
+      dataVisibility === "სრულიად დაფარული" ? "☑" : "☐";
 
     console.log("req.body", req.body);
     const appointment = await doctorAppointment_Model.findById(
@@ -43,18 +42,18 @@ const startClinicPayment = async (req: Request, res: Response) => {
       });
     }
 
-    const payment = await Payment_Model.create({
-      appointmentId: appointment._id,
-      appointmentType: "CLINIC",
-      patientId: appointment.patientId,
-      receiverId: appointment.clinicId,
-      receiverType: "CLINIC",
-      amount: appointment.appoinmentFee,
-    });
+    // const payment = await Payment_Model.create({
+    //   appointmentId: appointment._id,
+    //   appointmentType: "CLINIC",
+    //   patientId: appointment.patientId,
+    //   receiverId: appointment.clinicId,
+    //   receiverType: "CLINIC",
+    //   amount: appointment.appoinmentFee,
+    // });
 
-    const bogOrder = await PaymentService.createBoGOrder(payment);
-    payment.bogOrderId = bogOrder.id;
-    await payment.save();
+    // const bogOrder = await PaymentService.createBoGOrder(payment);
+    // payment.bogOrderId = bogOrder.id;
+    // await payment.save();
 
     // const patient: any = await Patient_Model.findById(
     //   appointment.patientId,
@@ -65,7 +64,7 @@ const startClinicPayment = async (req: Request, res: Response) => {
 
     // console.log("data", patient?.userId?.email, clinic?.userId?.email);
 
-    await sendEmail({
+    await sendEmailWithSES({
       to: patientEmail,
       subject: `Form N IV-200-8/ა`,
       html: `
@@ -209,7 +208,7 @@ const startClinicPayment = async (req: Request, res: Response) => {
   `,
     });
 
-    await sendEmail({
+    await sendEmailWithSES({
       to: cliniEmail,
       subject: `Form N IV-200-8/ა`,
       html: `
@@ -352,7 +351,7 @@ const startClinicPayment = async (req: Request, res: Response) => {
   </html>
   `,
     });
-    res.json({ redirectUrl: bogOrder._links.redirect.href });
+    // res.json({ redirectUrl: bogOrder._links.redirect.href });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
