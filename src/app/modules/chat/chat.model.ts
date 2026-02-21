@@ -19,7 +19,7 @@ const customOfferSchema = new mongoose.Schema(
     },
 
     preferenceDate: {
-      type: Date,
+      type: [Date],
       required: true,
     },
 
@@ -42,7 +42,7 @@ const customOfferSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { _id: false } // prevents extra _id inside chat
+  { _id: false }, // prevents extra _id inside chat
 );
 
 const chatSchema = new mongoose.Schema(
@@ -82,9 +82,8 @@ const chatSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-  
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const ChatModel = mongoose.model("Chat", chatSchema);
