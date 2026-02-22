@@ -5,8 +5,8 @@ const sesClient = new SESv2Client({
   region: process.env.SMTP_AWS_REGION,
 });
 
-console.log("AWS KEY:", process.env.AWS_ACCESS_KEY_ID);
-console.log("AWS SECRET:", process.env.AWS_SECRET_ACCESS_KEY);
+// console.log("AWS KEY:", process.env.AWS_ACCESS_KEY_ID);
+// console.log("AWS SECRET:", process.env.AWS_SECRET_ACCESS_KEY);
 
 export const sendEmailWithSES = async ({
   to,
