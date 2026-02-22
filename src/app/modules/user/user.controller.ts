@@ -210,7 +210,7 @@ const verifyUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
   const code = req.params.code;
   try {
-    const result = await UserService.verifyUser(userId, code);
+    const result = await UserService.verifyUser(userId as string, code as any);
     res.json({
       success: true,
       message: "User verified successfully",
@@ -224,7 +224,7 @@ const addAdminApproval = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
   try {
-    const result = await UserService.addAdminApproval(userId);
+    const result = await UserService.addAdminApproval(userId as string);
     res.json({
       success: true,
       message: "Admin approval added successfully",

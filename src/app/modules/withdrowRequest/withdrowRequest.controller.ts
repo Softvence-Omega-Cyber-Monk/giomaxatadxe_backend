@@ -45,7 +45,7 @@ const getAllWithdrawRequests = async (_req: Request, res: Response) => {
  const getSingleWithdrawRequest = async (req: Request, res: Response) => {
   try {
     const result = await WithdrowRequestService.getSingleWithdrawRequest(
-      req.params.withdrawId
+      req.params.withdrawId as string
     );
     res.json({ success: true, data: result });
   } catch (error: any) {
@@ -56,7 +56,7 @@ const getAllWithdrawRequests = async (_req: Request, res: Response) => {
 const markWithdrawAsPaid = async (req: Request, res: Response) => {
   try {
     const result = await WithdrowRequestService.markAsPaid(
-      req.params.withdrawId
+      req.params.withdrawId as string
     );
     res.json({
       success: true,
@@ -70,7 +70,7 @@ const markWithdrawAsPaid = async (req: Request, res: Response) => {
 
 const rejectWithdrawRequest = async (req: Request, res: Response) => {
   try {
-    const result = await WithdrowRequestService.rejectWithdraw(req.params.id);
+    const result = await WithdrowRequestService.rejectWithdraw(req.params.id as string);
     res.json({
       success: true,
       message: "Withdraw request rejected",

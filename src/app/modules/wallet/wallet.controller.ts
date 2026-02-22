@@ -5,7 +5,7 @@ const getSingleWallet = async (req: Request, res: Response) => {
   try {
     const { ownerId } = req.params;
 
-    const wallet = await WalletService.getWalletByIdFromDB(ownerId);
+    const wallet = await WalletService.getWalletByIdFromDB(ownerId as string);
 
     res.status(200).json({
       success: true,

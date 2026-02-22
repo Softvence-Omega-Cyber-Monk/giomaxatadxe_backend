@@ -13,7 +13,7 @@ export const chatController = {
     const userId = req.user.userId as string;
     const otherUserId = req.params.id;
 
-    const messages = await chatService.getConversation(userId, otherUserId);
+    const messages = await chatService.getConversation(userId, otherUserId as string);
     res.json(messages);
   },
 
@@ -42,7 +42,7 @@ export const chatController = {
 
     const messages = await chatService.getAdminUserConversation(
       adminId,
-      userId
+      userId as string
     );
 
     res.json(messages);

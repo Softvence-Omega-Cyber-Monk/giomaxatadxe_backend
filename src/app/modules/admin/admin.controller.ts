@@ -22,7 +22,7 @@ const udpateAdmin = async (req: Request, res: Response) => {
     console.log("profile image url ", profileImageUrl);
 
     const data = await DashboardService.udpateAdmin(
-      req.params.adminId,
+      req.params.adminId as string,
       req.body,
       profileImageUrl
     );
