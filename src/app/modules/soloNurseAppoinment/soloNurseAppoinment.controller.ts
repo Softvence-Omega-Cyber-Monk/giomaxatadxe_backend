@@ -49,7 +49,7 @@ export const soloNurseAppointmentController = {
   getById: async (req: Request, res: Response) => {
     try {
       const appointment = await soloNurseAppointmentService.getAppointmentById(
-        req.params.id
+        req.params.id as string
       );
       if (!appointment)
         return res
@@ -69,7 +69,7 @@ export const soloNurseAppointmentController = {
     try {
       const updatedAppointment =
         await soloNurseAppointmentService.updateAppointment(
-          req.params.id,
+          req.params.id as string,
           req.body
         );
       if (!updatedAppointment)
@@ -88,7 +88,7 @@ export const soloNurseAppointmentController = {
   getSelectedDateAndTime: async (req: Request, res: Response) => {
     try {
       const result = await soloNurseAppointmentService.getSelectedDateAndTime(
-        req.params.id,
+        req.params.id as string,
         req.query.date as string
       );
       res.json({
@@ -104,7 +104,7 @@ export const soloNurseAppointmentController = {
     try {
       const result = await soloNurseAppointmentService.getAppoinmentTimeBasedOnDate(
         req.body.Date,
-        req.params.id
+        req.params.id as string,
       );
       res.json({
         success: true,
@@ -120,7 +120,7 @@ export const soloNurseAppointmentController = {
     try {
       const result =
         await soloNurseAppointmentService.getSinglePaintentAppointmentForNurse(
-          req.params.patientId
+          req.params.patientId as string,
         );
       res.json({
         success: true,
@@ -135,7 +135,7 @@ export const soloNurseAppointmentController = {
   getSingleNurseAppointment: async (req: Request, res: Response) => {
     try {
       const result = await soloNurseAppointmentService.getSingleNurseAppointment(
-        req.params.soloNurseId
+        req.params.soloNurseId as string,
       );
       res.json({
         success: true,
@@ -150,7 +150,7 @@ export const soloNurseAppointmentController = {
     getSinlgePatientChatsForNurse: async (req: Request, res: Response) => {
       try {
         const result = await soloNurseAppointmentService.getSinlgePatientChatsForNurse(
-          req.params.soloNurseUserId
+          req.params.soloNurseUserId as string,  
         );
         res.json({
           success: true,
@@ -165,7 +165,7 @@ export const soloNurseAppointmentController = {
       getSinlgePatientChatsWithNurse: async (req: Request, res: Response) => {
         try {
           const result = await soloNurseAppointmentService.getSinlgePatientChatsWithNurse(
-            req.params.patientUserId
+            req.params.patientUserId as string,
           );
           res.json({
             success: true,
@@ -180,7 +180,7 @@ export const soloNurseAppointmentController = {
       deleteAppointment: async (req: Request, res: Response) => {
         try {
           const result = await soloNurseAppointmentService.deleteAppointment(
-            req.params.appoinmentId
+            req.params.appoinmentId as string
           );
           res.json({
             success: true,

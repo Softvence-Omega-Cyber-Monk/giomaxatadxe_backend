@@ -49,7 +49,7 @@ export const doctorAppointmentController = {
   getOne: async (req: Request, res: Response) => {
     try {
       const result = await doctorAppointmentService.getAppointmentById(
-        req.params.id
+        req.params.id as string
       );
       res.json({
         success: true,
@@ -79,7 +79,7 @@ export const doctorAppointmentController = {
     try {
       const result =
         await doctorAppointmentService.getSinglePaintentAppointment(
-          req.params.patientId
+          req.params.patientId as string
         );
       res.json({
         success: true,
@@ -95,7 +95,7 @@ export const doctorAppointmentController = {
   getSingleDoctorAppointment: async (req: Request, res: Response) => {
     try {
       const result = await doctorAppointmentService.getSingleDoctorAppointment(
-        req.params.doctorId
+        req.params.doctorId as string
       );
       res.json({
         success: true,
@@ -111,7 +111,7 @@ export const doctorAppointmentController = {
   getSinglePaitentChats: async (req: Request, res: Response) => {
     try {
       const result = await doctorAppointmentService.getSinglePaitentChats(
-        req.params.patientId
+        req.params.patientId as string
       );
       res.json({
         success: true,
@@ -126,7 +126,7 @@ export const doctorAppointmentController = {
   getSingleDoctorChats: async (req: Request, res: Response) => {
     try {
       const result = await doctorAppointmentService.getSingleDoctorChats(
-        req.params.doctorId
+        req.params.doctorId as string
       );
       res.json({
         success: true,
@@ -141,7 +141,7 @@ export const doctorAppointmentController = {
   getSinlgeClinicChats: async (req: Request, res: Response) => {
     try {
       const result = await doctorAppointmentService.getSinlgeClinicChats(
-        req.params.clinicUserId
+        req.params.clinicUserId as string
       );
       res.json({
         success: true,
@@ -158,7 +158,7 @@ export const doctorAppointmentController = {
       const patientUserId = req.params.patientUserId;
       const result =
         await doctorAppointmentService.getSinglePatientChatsWithClinic(
-          patientUserId
+          patientUserId as string   
         );
       res.json({
         success: true,
@@ -175,7 +175,7 @@ export const doctorAppointmentController = {
     try {
       const { status } = req.body;
       const result = await doctorAppointmentService.updateStatus(
-        req.params.id,
+        req.params.id as string,
         status
       );
       res.json({
@@ -190,7 +190,7 @@ export const doctorAppointmentController = {
   getSelectedDateAndTime: async (req: Request, res: Response) => {
     try {
       const result = await doctorAppointmentService.getSelectedDateAndTime(
-        req.params.id,
+        req.params.id as string,
         req.query.date as string
       );
       res.json({
@@ -208,7 +208,7 @@ export const doctorAppointmentController = {
       const result =
         await doctorAppointmentService.getAppoinmentTimeBasedOnDate(
           req.body.Date,
-          req.params.id
+          req.params.id as string
         );
       res.json({
         success: true,
@@ -222,7 +222,7 @@ export const doctorAppointmentController = {
 
   delete: async (req: Request, res: Response) => {
     try {
-      await doctorAppointmentService.deleteAppointment(req.params.appoinmentId);
+      await doctorAppointmentService.deleteAppointment(req.params.appoinmentId as string);
       res.json({
         success: true,
         message: "Appointment deleted",

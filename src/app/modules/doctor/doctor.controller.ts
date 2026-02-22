@@ -9,7 +9,7 @@ export const DoctorController = {
 
       // console.log('controller payload ,', payload);
 
-      const updatedDoctor = await DoctorService.updateDoctor(doctorId, payload);
+      const updatedDoctor = await DoctorService.updateDoctor(doctorId as string, payload);
 
       res.json({
         success: true,
@@ -35,7 +35,7 @@ export const DoctorController = {
 
   getDoctorById: async (req: Request, res: Response) => {
     try {
-      const doctor = await DoctorService.getDoctorById(req.params.userId);
+      const doctor = await DoctorService.getDoctorById(req.params.userId as string);
       if (!doctor) {
         return res
           .status(404)
@@ -49,7 +49,7 @@ export const DoctorController = {
   getSingleDoctorPatientList: async (req: Request, res: Response) => {
     try {
       const patientList = await DoctorService.getSingleDoctorPatientList(
-        req.params.doctorId
+        req.params.doctorId as string
       );
       if (!patientList) {
         return res
@@ -72,7 +72,7 @@ export const DoctorController = {
       console.log("profile image url ", profileImageUrl);
 
       const result = await DoctorService.updateDoctorBasic(
-        req.params.userId,
+        req.params.userId as string,
         req.body,
         profileImageUrl
       );
@@ -94,7 +94,7 @@ export const DoctorController = {
     console.log("from controller ", req.body);
     try {
       const result = await DoctorService.professionalUpdate(
-        req.params.userId,
+        req.params.userId as string,
         req.body
       );
 
@@ -119,7 +119,7 @@ export const DoctorController = {
       const certificateUrl = req.file ? (req.file as any).path : null;
       console.log("certificateUrl", certificateUrl);
 
-      const result = await DoctorService.uploadCertificate(userId, {
+      const result = await DoctorService.uploadCertificate(userId as string, {
         data,
         certificateUrl,
       });
@@ -143,8 +143,8 @@ export const DoctorController = {
       const certificateId = req.params.certificateId;
 
       const result = await DoctorService.deleteCertificate(
-        userId,
-        certificateId
+        userId as string,
+        certificateId as string
       );
 
       res.json({
@@ -172,10 +172,10 @@ export const DoctorController = {
   getDoctorDashboardOverview: async (req: Request, res: Response) => {
     try {
       const { doctorId } = req.params;
-      const result = await DoctorService.getDoctorDashboardOverview(doctorId);
+      const result = await DoctorService.getDoctorDashboardOverview(doctorId as string);
       res.json({
         success: true,
-        message: "clinic data fetched successfully",
+        message: "Doctor dashboard overview fetched successfully",
         data: result,
       });
     } catch (error: any) {
@@ -188,7 +188,7 @@ export const DoctorController = {
       const userId = req.params.userId;
       const data = req.body;
 
-      const result = await DoctorService.addReviews(userId, data);
+      const result = await DoctorService.addReviews(userId as string, data);
 
       res.json({
         success: true,

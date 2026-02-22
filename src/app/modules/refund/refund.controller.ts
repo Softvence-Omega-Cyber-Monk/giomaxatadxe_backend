@@ -39,7 +39,7 @@ const getAllRefunds = async (_req: Request, res: Response) => {
 const getRefundsByUserId = async (req: Request, res: Response) => {
   try {
     const { patientId } = req.params;
-    const result = await RefundService.getRefundsByUserId(patientId);
+    const result = await RefundService.getRefundsByUserId(patientId as string);
     res.status(200).json({
       success: true,
       message: "User refund requests retrieved successfully",
@@ -59,7 +59,7 @@ const acceptOrRejectRefund = async (req: Request, res: Response) => {
     const { refundId } = req.params; // Correct param
     const { status } = req.body;     // "APPROVED" or "REJECTED"
 
-    const result = await RefundService.acceptOrRejectRefund(refundId, status);
+    const result = await RefundService.acceptOrRejectRefund(refundId as string, status);
 
     res.status(200).json({
       success: true,
