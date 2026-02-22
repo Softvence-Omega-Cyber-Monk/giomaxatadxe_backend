@@ -1,4 +1,3 @@
-import { populate } from "dotenv";
 import { sendNotification } from "../../utils/notificationHelper";
 import { Patient_Model } from "../patient/patient.model";
 import { SoloNurse_Model } from "../soloNurse/soloNurse.model";
@@ -11,88 +10,94 @@ export const soloNurseAppointmentService = {
   createAppointment: async (data: any) => {
     const { soloNurseId, prefarenceDate, prefarenceTime } = data;
 
-    const patient = await Patient_Model.findOne({ _id: data.patientId });
+    const patient = await Patient_Model.findById(data.patientId);
     if (!patient) {
       throw new Error("Patient not found");
     }
-    if (
-      !patient?.nidBackImageUrl ||
-      !patient?.nidFrontImageUrl ||
-      !patient?.nationalIdNumber ||
-      patient?.address?.length === 0
-    ) {
-      throw new Error(
-        "Please complete your profile with NID Card inofrmation and address before booking an appointment.",
-      );
-    }
 
-    // Check if patient exists
     const soloNurse: any = await SoloNurse_Model.findById(soloNurseId);
+    console.log("nurse ", soloNurse);
     if (!soloNurse) {
-      throw new Error("solo nurse  not found");
+      throw new Error("Solo nurse not found");
     }
 
-    // Normalize date (only YYYY-MM-DD)
-    const formattedDate = new Date(prefarenceDate).toISOString().split("T")[0];
-
-    const isBlocked = soloNurse.blockedDates.some(
-      (d: any) =>
-        new Date(d.date).toISOString().split("T")[0] === formattedDate,
-    );
-    if (isBlocked) {
-      throw new Error(
-        `The nurse has not been available on ${formattedDate}. Please choose another date.`,
-      );
+    if (!Array.isArray(prefarenceDate) || prefarenceDate.length === 0) {
+      throw new Error("Please provide at least one preferred date.");
     }
 
-    // 2️⃣ Check if the nurse has disabled availability on this day
-    const dayOfWeek = new Date(prefarenceDate)
-      .toLocaleDateString("en-US", { weekday: "long" })
-      .trim();
-    const availabilityForDay = soloNurse.availability.find(
-      (a: any) => a.day?.trim().toLowerCase() === dayOfWeek.toLowerCase(),
+    // Normalize all dates to YYYY-MM-DD
+    const formattedDates = prefarenceDate.map(
+      (date: string) => new Date(date).toISOString().split("T")[0],
     );
 
-    if (!availabilityForDay || !availabilityForDay.isEnabled) {
-      throw new Error(
-        `The nurse is not available on ${dayOfWeek}. Please choose another date.`,
+    console.log("fromate dates", formattedDates);
+
+    // 🔹 Check blocked dates
+    for (const formattedDate of formattedDates) {
+      const isBlocked = soloNurse.blockedDates.some(
+        (d: any) =>
+          new Date(d.date).toISOString().split("T")[0] === formattedDate,
       );
-    }
 
-    // Check if same date + same time already exists
-    const booked = await soloNurseAppoinment_Model.findOne({
-      soloNurseId,
-      prefarenceTime,
-      prefarenceDate,
-    });
+      console.log("blocked date", isBlocked);
 
-    if (booked) {
-      const bookedDate = booked.prefarenceDate.toISOString().split("T")[0];
-
-      if (bookedDate === formattedDate) {
+      if (isBlocked) {
         throw new Error(
-          "This date and time are already booked. Please choose another slot.",
+          `The nurse is not available on ${formattedDate}. Please choose another date.`,
+        );
+      }
+
+      // 🔹 Check day availability
+      const dayOfWeek = new Date(formattedDate).toLocaleDateString("en-US", {
+        weekday: "long",
+      });
+
+      console.log("day of week", dayOfWeek);
+
+      const availabilityForDay = soloNurse.availability.find(
+        (a: any) => a.day?.trim().toLowerCase() === dayOfWeek.toLowerCase(),
+      );
+
+      console.log("avaible days", availabilityForDay);
+
+      if (!availabilityForDay || !availabilityForDay.isEnabled) {
+        throw new Error(
+          `The nurse is not available on ${dayOfWeek}. Please choose another date.`,
+        );
+      }
+
+      // 🔹 Check if already booked
+      const alreadyBooked = await soloNurseAppoinment_Model.findOne({
+        soloNurseId,
+        prefarenceTime,
+        prefarenceDate: {
+          $elemMatch: {
+            $eq: new Date(formattedDate),
+          },
+        },
+        status: { $in: ["pending", "confirmed"] },
+      });
+
+      if (alreadyBooked) {
+        throw new Error(
+          `The date ${formattedDate} at ${prefarenceTime} is already booked.`,
         );
       }
     }
-    // Create new appointment
+
+    // ✅ Create appointment
     const appointment = await soloNurseAppoinment_Model.create({
       ...data,
-      prefarenceDate: new Date(prefarenceDate),
+      prefarenceDate: formattedDates.map((d) => new Date(d)),
     });
 
-    const solo_nurse: any = await SoloNurse_Model.findById(
-      appointment.soloNurseId,
-    );
-    // console.log("clinic", clinic);
-    if (!solo_nurse) {
-      throw new Error("solo nurse  not found");
-    }
-
+    // 🔔 Send notification
     await sendNotification(
-      solo_nurse.userId.toString(),
-      "New Appointment Added ",
-      ` You have a new appointment on ${formattedDate} at ${prefarenceTime}. Please check your calendar for more details.`,
+      soloNurse.userId.toString(),
+      "New Appointment Added",
+      `You have a new appointment request for ${formattedDates.join(
+        ", ",
+      )} at ${prefarenceTime}.`,
       "notification",
     );
 
@@ -101,41 +106,51 @@ export const soloNurseAppointmentService = {
   Reschedule: async (payload: any) => {
     const { appointmentId, soloNurseId, prefarenceDate, prefarenceTime } =
       payload;
-    console.log("resedule data ", payload);
 
-    // Normalize new date
-    const formattedDate = new Date(prefarenceDate).toISOString().split("T")[0];
+    if (!Array.isArray(prefarenceDate) || prefarenceDate.length === 0) {
+      throw new Error("Please provide at least one preferred date.");
+    }
 
-    // Check if another appointment has same date + time
-    const booked = await soloNurseAppoinment_Model.findOne({
-      soloNurseId,
-      prefarenceTime,
-    });
+    // Normalize dates
+    const formattedDates = prefarenceDate.map(
+      (date: string) => new Date(date).toISOString().split("T")[0],
+    );
 
-    if (booked) {
-      const bookedDate = booked.prefarenceDate.toISOString().split("T")[0];
+    // 🔹 Check conflicts for each selected date
+    for (const formattedDate of formattedDates) {
+      const conflict = await soloNurseAppoinment_Model.findOne({
+        _id: { $ne: appointmentId }, // exclude current appointment
+        soloNurseId,
+        prefarenceTime,
+        status: { $in: ["pending", "confirmed"] },
+        prefarenceDate: {
+          $elemMatch: {
+            $eq: new Date(formattedDate),
+          },
+        },
+      });
 
-      // If it's not the SAME appointment, then it's a conflict
-      if (
-        bookedDate === formattedDate &&
-        booked._id.toString() === appointmentId
-      ) {
+      if (conflict) {
         throw new Error(
-          "This date and time are already booked. Please choose another slot.",
+          `The date ${formattedDate} at ${prefarenceTime} is already booked. Please choose another slot.`,
         );
       }
     }
 
-    // Update the appointment (RESCHEDULE)
+    // 🔹 Update appointment
     const updatedAppointment =
       await soloNurseAppoinment_Model.findByIdAndUpdate(
         appointmentId,
         {
-          prefarenceDate: new Date(prefarenceDate),
+          prefarenceDate: formattedDates.map((d) => new Date(d)),
           prefarenceTime,
         },
         { new: true },
       );
+
+    if (!updatedAppointment) {
+      throw new Error("Appointment not found.");
+    }
 
     return updatedAppointment;
   },
@@ -225,10 +240,20 @@ export const soloNurseAppointmentService = {
       throw new Error("Appointment not found");
     }
 
-    // Apply rule only when cancelling
+    // ✅ Apply rule only when cancelling
     if (data.status === "cancelled") {
+      if (
+        !appointment.prefarenceDate ||
+        appointment.prefarenceDate.length === 0
+      ) {
+        throw new Error("No appointment date found.");
+      }
+
+      // 🔹 Use first date (or you can define confirmedDate later)
+      const selectedDate = new Date(appointment.prefarenceDate[0].toString());
+
       const appointmentDateTime = getAppointmentDateTime(
-        appointment.prefarenceDate,
+        selectedDate,
         appointment.prefarenceTime,
       );
 
@@ -264,22 +289,28 @@ export const soloNurseAppointmentService = {
 
     // 1️⃣ If a specific date is provided
     if (date) {
-      const selectedDateStr = new Date(date).toISOString().split("T")[0];
+      const selectedDateStr = new Date(date + "T00:00:00")
+        .toISOString()
+        .split("T")[0];
 
-      const day = new Date(date).toLocaleDateString("en-US", {
+      const day = new Date(date + "T00:00:00").toLocaleDateString("en-US", {
         weekday: "long",
       });
+
       const availabilityForDay = soloNurse.availability?.find(
-        (availability) => availability.day === day,
+        (availability) =>
+          availability.day?.trim().toLowerCase() === day.toLowerCase(),
       );
+
       const startTimeSlot = availabilityForDay?.startTime;
       const endTimeSlot = availabilityForDay?.endTime;
 
       const appointmentsForDate = allAppointments
-        .filter(
-          (appointment) =>
-            new Date(appointment.prefarenceDate).toISOString().split("T")[0] ===
-            selectedDateStr,
+        .filter((appointment) =>
+          appointment.prefarenceDate?.some(
+            (d: any) =>
+              new Date(d).toISOString().split("T")[0] === selectedDateStr,
+          ),
         )
         .map((appointment) => ({
           date: selectedDateStr,
@@ -295,25 +326,28 @@ export const soloNurseAppointmentService = {
         availability: soloNurse?.availability,
         availableDateRange: soloNurse?.availableDateRange,
         slotTimeDuration: soloNurse?.slotTimeDuration,
-      }; // only appointments for that date
+      };
     }
 
     // 2️⃣ If no date is provided, return all appointments grouped
     const grouped: any = {};
 
     allAppointments.forEach((appointment) => {
-      const dateObj = appointment.prefarenceDate;
-      const formattedDate = dateObj.toISOString().split("T")[0];
+      if (!appointment.prefarenceDate?.length) return;
 
-      const year = dateObj.getFullYear();
-      const month = (dateObj.getMonth() + 1).toString().padStart(2, "0");
+      appointment.prefarenceDate.forEach((dateObj: any) => {
+        const formattedDate = new Date(dateObj).toISOString().split("T")[0];
 
-      if (!grouped[year]) grouped[year] = {};
-      if (!grouped[year][month]) grouped[year][month] = [];
+        const year = dateObj.getFullYear();
+        const month = (dateObj.getMonth() + 1).toString().padStart(2, "0");
 
-      grouped[year][month].push({
-        date: formattedDate,
-        time: appointment.prefarenceTime,
+        if (!grouped[year]) grouped[year] = {};
+        if (!grouped[year][month]) grouped[year][month] = [];
+
+        grouped[year][month].push({
+          date: formattedDate,
+          time: appointment.prefarenceTime,
+        });
       });
     });
 
