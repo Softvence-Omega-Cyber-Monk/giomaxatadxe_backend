@@ -17,7 +17,7 @@ export const patientController = {
 
   getPatientById: async (req: Request, res: Response) => {
     try {
-      const patient = await patientService.getPatientById(req.params.userId);
+      const patient = await patientService.getPatientById(req.params.userId as string);
 
       res.status(200).json({
         success: true,
@@ -45,7 +45,7 @@ export const patientController = {
       // console.log("nid back url ", nidBack);
 
       const result = await patientService.updatePatientBasic(
-        req.params.userId,
+        req.params.userId as string,
         req.body,
         profileImageUrl,
         nidFront,
@@ -69,7 +69,7 @@ export const patientController = {
       const addressId = req.query?.addressId as string;
 
       const result = await patientService.createOrUpdateAddress(
-        req.params.userId,
+        req.params.userId as string,
         addressId,
         req.body,
       );
@@ -92,8 +92,8 @@ export const patientController = {
       const { patientId, addressId } = req.params;
 
       const result = await patientService.setDefaultAddress(
-        patientId,
-        addressId,
+        patientId as string,
+        addressId as string,
       );
 
       res.status(200).json({
@@ -113,7 +113,7 @@ export const patientController = {
     try {
       const { patientId, addressId } = req.params;
 
-      const result = await patientService.deleteAddress(patientId, addressId);
+      const result = await patientService.deleteAddress(patientId as string, addressId as string);
 
       res.status(200).json({
         success: true,
@@ -141,7 +141,7 @@ export const patientController = {
       }
 
       const result = await patientService.addMedicalHistoryService(
-        userId,
+        userId as string,
         medicalConditions,
         medicalMedications,
         allergies,
@@ -172,7 +172,7 @@ export const patientController = {
       }
 
       const result = await patientService.updateMedicalHistoryService(
-        userId,
+        userId as string,
         medicalConditions,
         medicalMedications,
         allergies,
@@ -203,7 +203,7 @@ export const patientController = {
       }
 
       const result = await patientService.deleteMedicalHistoryService(
-        userId,
+        userId as string,
         medicalConditions,
         medicalMedications,
         allergies,
@@ -227,7 +227,7 @@ export const patientController = {
       const userId = req.params.userId;
       const data = req.body;
 
-      const result = await patientService.addNewPaymentMethod(userId, data);
+      const result = await patientService.addNewPaymentMethod(userId as string, data);
 
       res.json({
         success: true,
@@ -247,8 +247,8 @@ export const patientController = {
       const { patientId, paymentMethodId } = req.params;
 
       const result = await patientService.setDefaultPaymentMethod(
-        patientId,
-        paymentMethodId,
+        patientId as string,
+        paymentMethodId as string,
       );
 
       res.status(200).json({
@@ -266,7 +266,7 @@ export const patientController = {
 
   deletePatient: async (req: Request, res: Response) => {
     try {
-      const deleted = await patientService.deletePatient(req.params.patientId);
+      const deleted = await patientService.deletePatient(req.params.patientId as string);
 
       res.status(200).json({
         success: true,

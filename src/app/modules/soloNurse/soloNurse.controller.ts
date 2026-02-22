@@ -18,7 +18,7 @@ export const SoloNurseController = {
 
   getSoloNurseById: async (req: Request, res: Response) => {
     try {
-      const result = await SoloNurseService.getSoloNurseById(req.params.userId);
+      const result = await SoloNurseService.getSoloNurseById(req.params.userId as string);
       res.json({ success: true, data: result });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
@@ -31,7 +31,7 @@ export const SoloNurseController = {
       console.log("profile image url ", profileImageUrl);
 
       const result = await SoloNurseService.updateSoloNurseBasic(
-        req.params.userId,
+        req.params.userId as string,
         req.body,
         profileImageUrl,
       );
@@ -53,7 +53,7 @@ export const SoloNurseController = {
       const { userId } = req.params;
 
       const result = await SoloNurseService.professionalUpdate(
-        userId,
+        userId as string,
         req.body,
       );
 
@@ -73,8 +73,8 @@ export const SoloNurseController = {
   addSubServiceWithAutoMainService: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.addSubServiceWithAutoMainService(
-        req.params.userId,
-        req.params.serviceId,
+        req.params.userId as string,
+        req.params.serviceId as string,
         req.params.serviceName as
           | "Blood test & Sample collection"
           | "Nurse care and infusion therapy"
@@ -98,9 +98,9 @@ export const SoloNurseController = {
   deleteSingleSubService: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.deleteSingleSubService(
-        req.params.userId,
-        req.params.serviceId,
-        req.params.subServiceId,
+        req.params.userId as string,
+        req.params.serviceId as string,
+        req.params.subServiceId as string,
       );
 
       res.json({
@@ -124,7 +124,7 @@ export const SoloNurseController = {
       const certificateUrl = req.file ? (req.file as any).path : null;
       console.log("certificateUrl", certificateUrl);
 
-      const result = await SoloNurseService.uploadCertificate(userId, {
+      const result = await SoloNurseService.uploadCertificate(userId as string, {
         data,
         certificateUrl,
       });
@@ -148,8 +148,8 @@ export const SoloNurseController = {
       const certificateId = req.params.certificateId;
 
       const result = await SoloNurseService.deleteCertificate(
-        userId,
-        certificateId,
+        userId as string,
+        certificateId as string,
       );
 
       res.json({
@@ -170,7 +170,7 @@ export const SoloNurseController = {
       const userId = req.params.userId;
       const data = req.body;
 
-      const result = await SoloNurseService.availabilitySettings(userId, data);
+      const result = await SoloNurseService.availabilitySettings(userId as string, data);
 
       res.json({
         success: true,
@@ -190,7 +190,7 @@ export const SoloNurseController = {
       const userId = req.params.userId;
       const data = req.body;
 
-      const result = await SoloNurseService.addNewPaymentMethod(userId, data);
+      const result = await SoloNurseService.addNewPaymentMethod(userId  as string, data);
 
       res.json({
         success: true,
@@ -210,7 +210,7 @@ export const SoloNurseController = {
       const userId = req.params.userId;
       const data = req.body;
 
-      const result = await SoloNurseService.addReviews(userId, data);
+      const result = await SoloNurseService.addReviews(userId as string, data);
 
       res.json({
         success: true,
@@ -227,7 +227,7 @@ export const SoloNurseController = {
   deleteSoloNurse: async (req: Request, res: Response) => {
     try {
       const { soloNurseId, soloNurseUserId } = req.params;
-      await SoloNurseService.deleteSoloNurse(soloNurseId, soloNurseUserId);
+      await SoloNurseService.deleteSoloNurse(soloNurseId as string, soloNurseUserId as string);
       res.json({
         success: true,
         message: "Solo Nurse deleted successfully",
@@ -239,7 +239,7 @@ export const SoloNurseController = {
   getSoloNursePaymentData: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.getSoloNursePaymentData(
-        req.params.soloNurseUserId,
+        req.params.soloNurseUserId as string,
       );
 
       res.json({

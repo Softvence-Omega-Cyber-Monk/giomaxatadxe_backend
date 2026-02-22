@@ -19,7 +19,7 @@ const getAllClinics = async (_req: Request, res: Response) => {
 
 const getClinicById = async (req: Request, res: Response) => {
   try {
-    const result = await ClinicService.getClinicById(req.params.userId);
+    const result = await ClinicService.getClinicById(req.params.userId as any);
 
     if (!result) {
       return res.status(404).json({
@@ -42,7 +42,7 @@ const getClinicById = async (req: Request, res: Response) => {
 const getClinicAppointments = async (req: Request, res: Response) => {
   try {
     const result = await ClinicService.getClinicAppointments(
-      req.params.clinicId,
+      req.params.clinicId as string,
       req.query.status as any,
       req.query.doctorId as any,
       req.query.prefarenceDate as any,
@@ -71,7 +71,7 @@ const getClinicAppointments = async (req: Request, res: Response) => {
 const getAllAppoinmentsPrefarenceDate = async (req: Request, res: Response) => {
   try {
     const result = await ClinicService.getAllAppoinmentsPrefarenceDate(
-      req.params.clinicId,
+      req.params.clinicId as string,
     );
     res.json({
       success: true,
@@ -88,7 +88,7 @@ const getAllAppoinmentsPrefarenceDate = async (req: Request, res: Response) => {
 const getClinicDoctors = async (req: Request, res: Response) => {
   try {
     const result = await ClinicService.getClinicDoctors(
-      req.params.clinicId,
+      req.params.clinicId as string,
       req.query.appointmentType as any,
     );
 
@@ -113,7 +113,7 @@ const getClinicDoctors = async (req: Request, res: Response) => {
 };
 const getClinicPatients = async (req: Request, res: Response) => {
   try {
-    const result = await ClinicService.getClinicPatients(req.params.clinicId);
+    const result = await ClinicService.getClinicPatients(req.params.clinicId as string);
 
     res.json({
       success: true,
@@ -134,7 +134,7 @@ const updateClinicBasic = async (req: Request, res: Response) => {
     console.log("profile image url ", profileImageUrl);
 
     const result = await ClinicService.updateClinicBasic(
-      req.params.userId,
+      req.params.userId as string,
       req.body,
       profileImageUrl,
     );
@@ -155,7 +155,7 @@ const updateClinicResponsiblePersonInfo = async (req: Request, res: Response) =>
   try {
 
     const result = await ClinicService.updateClinicResponsiblePersonInfo(
-      req.params.userId,
+      req.params.userId as string,
       req.body,
     );
 
@@ -179,7 +179,7 @@ const uploadCertificate = async (req: Request, res: Response) => {
     const certificateUrl = req.file ? (req.file as any).path : null;
     console.log("certificateUrl", certificateUrl);
 
-    const result = await ClinicService.uploadCertificate(userId, {
+    const result = await ClinicService.uploadCertificate(userId as string, {
       data,
       certificateUrl,
     });
@@ -202,7 +202,7 @@ const deleteCertificate = async (req: Request, res: Response) => {
     const userId = req.params.userId;
     const certificateId = req.params.certificateId;
 
-    const result = await ClinicService.deleteCertificate(userId, certificateId);
+    const result = await ClinicService.deleteCertificate(userId as string, certificateId as string);
 
     res.json({
       success: true,
@@ -222,7 +222,7 @@ const availabilitySettings = async (req: Request, res: Response) => {
     const userId = req.params.userId;
     const data = req.body;
 
-    const result = await ClinicService.availabilitySettings(userId, data);
+    const result = await ClinicService.availabilitySettings(userId as string, data);
 
     res.json({
       success: true,
@@ -241,7 +241,7 @@ const addReviews = async (req: Request, res: Response) => {
     const userId = req.params.userId;
     const data = req.body;
 
-    const result = await ClinicService.addReviews(userId, data);
+    const result = await ClinicService.addReviews(userId as string, data);
 
     res.json({
       success: true,
@@ -260,7 +260,7 @@ const addNewPaymentMethod = async (req: Request, res: Response) => {
     const userId = req.params.userId;
     const data = req.body;
 
-    const result = await ClinicService.addNewPaymentMethod(userId, data);
+    const result = await ClinicService.addNewPaymentMethod(userId as string, data);
 
     res.json({
       success: true,
@@ -278,7 +278,7 @@ const addNewPaymentMethod = async (req: Request, res: Response) => {
 
 const deleteClinic = async (req: Request, res: Response) => {
   try {
-    const result = await ClinicService.deleteClinic(req.params.userId);
+    const result = await ClinicService.deleteClinic(req.params.userId as any);
 
     res.json({
       success: true,
@@ -299,7 +299,7 @@ const getAppoinmentTimeBasedOnDateForClinic = async (
   try {
     const result = await ClinicService.getAppoinmentTimeBasedOnDateForClinic(
       req.body.Date,
-      req.params.id,
+      req.params.id as string,
     );
     res.json({
       success: true,
@@ -314,7 +314,7 @@ const getAppoinmentTimeBasedOnDateForClinic = async (
 const getClinicPaymentData = async (req: Request, res: Response) => {
   try {
     const result = await ClinicService.getClinicPaymentData(
-      req.params.clinicUserId,
+      req.params.clinicUserId as string,
     );
 
     res.json({
@@ -332,12 +332,12 @@ const getClinicPaymentData = async (req: Request, res: Response) => {
 const getClinicDashboardOverview = async (req: Request, res: Response) => {
   try {
     const result = await ClinicService.getClinicDashboardOverview(
-      req.params.clinicId,
+      req.params.clinicId as string,
     );
 
     res.json({
       success: true,
-      message: "Clinic payment data fetched successfully",
+      message: "Clinic dashboard overview  fetched successfully",
       data: result,
     });
   } catch (error: any) {
