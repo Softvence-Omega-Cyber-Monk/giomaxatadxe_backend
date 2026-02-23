@@ -27,7 +27,7 @@ const createWithdrawRequest = async (payload: any) => {
 
   // Set commission based on owner type
   const commissionRate =
-    ownerType === "CLINIC" ? 9 : ownerType === "SOLO_NURSE" ? 12 : 0;
+    ownerType === "CLINIC" ? 9 : ownerType === "SOLO_NURSE" ? 15 : 0;
   const commission = (amount * commissionRate) / 100;
 
   const wallet = await Wallet_Model.findOne({
