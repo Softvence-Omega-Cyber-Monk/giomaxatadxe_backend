@@ -9,6 +9,7 @@ import { Clinic_Model } from "../clinic/clinic.model";
 import crypto from "crypto";
 import { Doctor_Model } from "../doctor/doctor.model";
 import { sendEmail } from "../../utils/sendEmail";
+import { sendEmailWithSES } from "../../utils/sendEmailWithSES";
 
 const generateRandomCodeForPatient = () => {
   return Array.from({ length: 6 }, () => crypto.randomInt(0, 10)).join("");
@@ -158,6 +159,16 @@ export const createPatient = async (
         <p>Please use this code to verify your account.</p>
       `,
     });
+    // await sendEmailWithSES({
+    //   to: email,
+    //   subject: "Your Patient Account Verification Code",
+    //   html: `
+    //     <h2>Welcome, ${fullName}</h2>
+    //     <p>Your account has been created successfully.</p>
+    //     <p><strong>Verification Code:</strong> ${verificationCode}</p>
+    //     <p>Please use this code to verify your account.</p>
+    //   `,
+    // });
 
     return newPatient[0];
   } catch (error) {
