@@ -239,7 +239,7 @@ export const SoloNurseController = {
   getSoloNursePaymentData: async (req: Request, res: Response) => {
     try {
       const result = await SoloNurseService.getSoloNursePaymentData(
-        req.params.soloNurseUserId as string,
+        req.params.soloNurseId as string,
       );
 
       res.json({

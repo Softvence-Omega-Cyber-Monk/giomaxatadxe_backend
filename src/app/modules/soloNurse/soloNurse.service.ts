@@ -557,17 +557,18 @@ export const SoloNurseService = {
     }
   },
 
-  getSoloNursePaymentData: async (soloNurseUserId: string) => {
+  getSoloNursePaymentData: async (soloNurseId: string) => {
     const soloNurseMoney = await Wallet_Model.findOne({
-      ownerId: soloNurseUserId,
+      ownerId: soloNurseId,
       ownerType: "SOLO_NURSE",
     });
+    console.log("soloNurseMoney", soloNurseMoney);
     const soloNursePendingMoney = soloNurseMoney?.pendingBalance || 0;
     const commission = soloNursePendingMoney * 0.15;
     const nurseReceives = soloNursePendingMoney - commission;
 
     const soloNurseWithdrawRequests = await WithdrawRequest_Model.find({
-      ownerId: soloNurseUserId,
+      ownerId: soloNurseId,
       ownerType: "SOLO_NURSE",
       status: "PAID",
     });

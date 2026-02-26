@@ -51,7 +51,7 @@ router.delete(
   SoloNurseController.deleteSoloNurse,
 );
 router.get(
-  "/getSoloNursePaymentData/:soloNurseUserId",
+  "/getSoloNursePaymentData/:soloNurseId",
   SoloNurseController.getSoloNursePaymentData,
 );
 
