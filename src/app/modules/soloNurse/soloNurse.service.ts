@@ -49,9 +49,9 @@ export const SoloNurseService = {
     if (patientUserId) {
       const patient = await User_Model.findById(patientUserId);
 
-      if (!patient || !patient.latitude || !patient.longitude) {
-        throw new Error("Patient location not found");
-      }
+      // if (!patient || !patient.latitude || !patient.longitude) {
+      //   throw new Error("Patient location not found");
+      // }
 
       const nearestNurses = await SoloNurse_Model.aggregate([
         { $match: query },
@@ -73,13 +73,13 @@ export const SoloNurseService = {
                 $add: [
                   {
                     $pow: [
-                      { $subtract: ["$userData.latitude", patient.latitude] },
+                      { $subtract: ["$userData.latitude", patient?.latitude] },
                       2,
                     ],
                   },
                   {
                     $pow: [
-                      { $subtract: ["$userData.longitude", patient.longitude] },
+                      { $subtract: ["$userData.longitude", patient?.longitude] },
                       2,
                     ],
                   },

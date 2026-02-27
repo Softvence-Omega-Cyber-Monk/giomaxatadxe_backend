@@ -510,6 +510,7 @@ const verifyUser = async (userId: string, code: string , codeForNumber: string) 
   }
 
   user.isVerified = true;
+  user.isMobileVerified = true;
   user.verificationCode = undefined; // Clear the code after verification
   user.verificationCodeForNumber = undefined; // Clear the code after verification
   await user.save();
