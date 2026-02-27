@@ -10,8 +10,13 @@ import crypto from "crypto";
 import { Doctor_Model } from "../doctor/doctor.model";
 import { sendEmail } from "../../utils/sendEmail";
 import { sendEmailWithSES } from "../../utils/sendEmailWithSES";
+import { sendSMS } from "../../utils/sendSMS";
 
 const generateRandomCodeForPatient = () => {
+  return Array.from({ length: 6 }, () => crypto.randomInt(0, 10)).join("");
+};
+
+const generateRandomCodeForPatientForNumber = () => {
   return Array.from({ length: 6 }, () => crypto.randomInt(0, 10)).join("");
 };
 
@@ -37,6 +42,7 @@ export const createPatient = async (
   session.startTransaction();
 
   const verificationCode = generateRandomCodeForPatient();
+  const verificationCodeForNumber = generateRandomCodeForPatientForNumber();
   // console.log("from service", payload);
   if (payload.dateOfBirth) {
     const dob = new Date(payload.dateOfBirth);
@@ -113,6 +119,7 @@ export const createPatient = async (
       comfirmPassword: hashedPassword,
       role: "patient",
       verificationCode,
+      verificationCodeForNumber,
     };
 
     const address = {
@@ -149,16 +156,27 @@ export const createPatient = async (
     await session.commitTransaction();
     session.endSession();
 
-    await sendEmail({
-      to: email,
-      subject: "Your Patient Account Verification Code",
-      html: `
-        <h2>Welcome, ${fullName}</h2>
-        <p>Your account has been created successfully.</p>
-        <p><strong>Verification Code:</strong> ${verificationCode}</p>
-        <p>Please use this code to verify your account.</p>
-      `,
-    });
+    // await sendEmail({
+    //   to: email,
+    //   subject: "Your Patient Account Verification Code",
+    //   html: `
+    //     <h2>Welcome, ${fullName}</h2>
+    //     <p>Your account has been created successfully.</p>
+    //     <p><strong>Verification Code:</strong> ${verificationCode}</p>
+    //     <p>Please use this code to verify your account.</p>
+    //   `,
+    // });
+
+    try {
+      const result = await sendSMS({
+        phone: payload.phoneNumber,
+        message: `Your account verification code is: ${verificationCode}`,
+      });
+
+      console.log(result);
+    } catch (err: any) {
+      console.error("SMS failed:", err);
+    }
     // await sendEmailWithSES({
     //   to: email,
     //   subject: "Your Patient Account Verification Code",
@@ -478,7 +496,7 @@ const getAdmin = async () => {
   return admin;
 };
 
-const verifyUser = async (userId: string, code: string) => {
+const verifyUser = async (userId: string, code: string , codeForNumber: string) => {
   const user = await User_Model.findById(userId);
   if (!user) {
     throw new Error("User not found");
@@ -487,9 +505,13 @@ const verifyUser = async (userId: string, code: string) => {
   if (user.verificationCode !== code) {
     throw new Error("Invalid verification code");
   }
+  if (user.verificationCodeForNumber !== codeForNumber) {
+    throw new Error("Invalid verification code for number");
+  }
 
   user.isVerified = true;
   user.verificationCode = undefined; // Clear the code after verification
+  user.verificationCodeForNumber = undefined; // Clear the code after verification
   await user.save();
 
   if (user.role !== "patient") {
@@ -526,5 +548,3 @@ export const UserService = {
   verifyUser,
   addAdminApproval,
 };
-
-
