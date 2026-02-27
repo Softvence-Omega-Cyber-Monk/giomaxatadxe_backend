@@ -15,6 +15,7 @@ const user_schema = new Schema<TUser>(
     },
     fcmToken: { type: String, default: null },
     isVerified: { type: Boolean, default: false },
+    isMobileVerified: { type: Boolean, default: false },
     verificationCode: { type: String, default: null },
     verificationCodeForNumber: { type: String, default: null },
     isAdminVerified: { type: Boolean, default: false },

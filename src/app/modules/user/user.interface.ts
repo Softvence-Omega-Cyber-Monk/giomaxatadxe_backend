@@ -9,6 +9,7 @@ export type TUser = {
   age?: number;
   fcmToken?: string;
   isVerified?: boolean;
+  isMobileVerified?: boolean;
   verificationCode?: string;
   verificationCodeForNumber?: string;
   isAdminVerified?: boolean;
