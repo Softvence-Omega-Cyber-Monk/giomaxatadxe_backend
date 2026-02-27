@@ -10,6 +10,7 @@ export type TUser = {
   fcmToken?: string;
   isVerified?: boolean;
   verificationCode?: string;
+  verificationCodeForNumber?: string;
   isAdminVerified?: boolean;
   latitude?: number;
   longitude?: number;
