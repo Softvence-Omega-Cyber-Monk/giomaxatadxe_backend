@@ -209,8 +209,9 @@ const getAdmin = async (req: Request, res: Response) => {
 const verifyUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
   const code = req.params.code;
+  const codeForNumber = req.query.codeForNumber;
   try {
-    const result = await UserService.verifyUser(userId as string, code as any);
+    const result = await UserService.verifyUser(userId as string, code as any, codeForNumber as any);
     res.json({
       success: true,
       message: "User verified successfully",
