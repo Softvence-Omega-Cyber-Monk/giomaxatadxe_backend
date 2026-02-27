@@ -6,6 +6,8 @@ import { Patient_Model } from "../patient/patient.model";
 import { doctorAppointment_Model } from "./doctorAppointment.model";
 import { ChatModel } from "../chat/chat.model";
 import { getAppointmentDateTime } from "../../utils/getAppoinmentTimeAndDate";
+import { User_Model } from "../user/user.schema";
+import { sendEmail } from "../../utils/sendEmail";
 
 export const doctorAppointmentService = {
   // Create Appointment
@@ -503,11 +505,59 @@ export const doctorAppointmentService = {
       }
     }
 
-    return await doctorAppointment_Model.findByIdAndUpdate(
+    const res = await doctorAppointment_Model.findByIdAndUpdate(
       id,
       { status },
       { new: true },
     );
+
+    if (res?.status === "confirmed") {
+      const patient = await Patient_Model.findById(res?.patientId);
+      const PatientUser = await User_Model.findById(patient?.userId);
+
+      await sendEmail({
+        to: PatientUser?.email || "",
+        subject: "Your Appointment Has Been Confirmed",
+        html: `
+             <h2>Welcome, ${PatientUser?.fullName}</h2>
+             <p>Your appointment has been confirmed.</p>
+             <p><strong>Date:</strong> ${res?.prefarenceDate}</p>
+             <p><strong>Time:</strong> ${res?.prefarenceTime}</p>
+           `,
+      });
+    }
+    if (res?.status === "rejected") {
+      const patient = await Patient_Model.findById(res?.patientId);
+      const PatientUser = await User_Model.findById(patient?.userId);
+
+      await sendEmail({
+        to: PatientUser?.email || "",
+        subject: "Your Appointment Has Been Rejected",
+        html: `
+             <h2>Welcome, ${PatientUser?.fullName}</h2>
+             <p>Your appointment has been rejected.</p>
+             <p><strong>Date:</strong> ${res?.prefarenceDate}</p>
+             <p><strong>Time:</strong> ${res?.prefarenceTime}</p>
+           `,
+      });
+    }
+    if (res?.status === "cancelled") {
+      const patient = await Patient_Model.findById(res?.patientId);
+      const PatientUser = await User_Model.findById(patient?.userId);
+
+      await sendEmail({
+        to: PatientUser?.email || "",
+        subject: "Your Appointment Has Been Cancelled",
+        html: `
+             <h2>Welcome, ${PatientUser?.fullName}</h2>
+             <p>Your appointment has been cancelled.</p>
+             <p><strong>Date:</strong> ${res?.prefarenceDate}</p>
+             <p><strong>Time:</strong> ${res?.prefarenceTime}</p>
+           `,
+      });
+    }
+
+    return res;
   },
 
   getSelectedDateAndTime: async (id: string, date?: string) => {

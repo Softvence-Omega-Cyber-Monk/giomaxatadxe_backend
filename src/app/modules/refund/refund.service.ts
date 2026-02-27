@@ -3,6 +3,8 @@ import { soloNurseAppoinment_Model } from "../soloNurseAppoinment/soloNurseAppoi
 import { Patient_Model } from "../patient/patient.model";
 import { Refund_Model } from "./refund.model";
 import { Payment_Model } from "../payment/payment.model";
+import { sendNotification } from "../../utils/notificationHelper";
+import { sendEmail } from "../../utils/sendEmail";
 
 interface TRefundPayload {
   paymentId: string;
@@ -79,7 +81,7 @@ const getRefundsByUserId = async (patientId: string) => {
     .populate({
       path: "patientId",
       select:
-        "phoneNumber gender age bloodGroup nidFrontImageUrl nidBackImageUrl", 
+        "phoneNumber gender age bloodGroup nidFrontImageUrl nidBackImageUrl",
       populate: {
         path: "userId",
         select: "fullName email profileImage", // 👈 User fields
@@ -127,6 +129,27 @@ const acceptOrRejectRefund = async (
     appointment.isRefunded =
       status === "APPROVED" ? "refunded" : "refund-rejected";
     await appointment.save();
+  }
+
+  if (refund.status === "APPROVED") {
+    const patient = await Patient_Model.findById(refund.patientId);
+    if (!patient?.userId) return;
+
+    await sendEmail({
+      to: patient.userId.toString(), // ideally use patient email, not userId
+      subject: "Refund Approved",
+      text: `Your refund request for payment ${payment._id} has been approved.`,
+    });
+  }
+  if (refund.status === "REJECTED") {
+    const patient = await Patient_Model.findById(refund.patientId);
+    if (!patient?.userId) return;
+
+    await sendEmail({
+      to: patient.userId.toString(), // ideally use patient email, not userId
+      subject: "Refund Rejected",
+      text: `Your refund request for payment ${payment._id} has been rejected.`,
+    });
   }
 
   return refund;
