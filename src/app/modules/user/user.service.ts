@@ -156,16 +156,16 @@ export const createPatient = async (
     await session.commitTransaction();
     session.endSession();
 
-    // await sendEmail({
-    //   to: email,
-    //   subject: "Your Patient Account Verification Code",
-    //   html: `
-    //     <h2>Welcome, ${fullName}</h2>
-    //     <p>Your account has been created successfully.</p>
-    //     <p><strong>Verification Code:</strong> ${verificationCode}</p>
-    //     <p>Please use this code to verify your account.</p>
-    //   `,
-    // });
+    await sendEmail({
+      to: email,
+      subject: "Your Patient Account Verification Code",
+      html: `
+        <h2>Welcome, ${fullName}</h2>
+        <p>Your account has been created successfully.</p>
+        <p><strong>Verification Code:</strong> ${verificationCode}</p>
+        <p>Please use this code to verify your account.</p>
+      `,
+    });
 
     try {
       const result = await sendSMS({
