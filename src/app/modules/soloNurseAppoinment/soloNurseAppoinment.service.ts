@@ -603,7 +603,7 @@ export const soloNurseAppointmentService = {
           name: "$user.fullName",
           IBAN_number:
             "$soloNurse.paymentAndEarnings.withdrawalMethods.IBanNumber",
-          totalAmount: 1,
+          totalAmount: { $multiply: ["$totalAmount", 0.85] }, // ✅ 15% deducted
           completedAppointments: 1, // ✅ return it
         },
       },
