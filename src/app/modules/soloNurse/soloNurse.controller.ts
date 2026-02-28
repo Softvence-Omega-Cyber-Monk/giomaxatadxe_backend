@@ -76,10 +76,10 @@ export const SoloNurseController = {
         req.params.userId as string,
         req.params.serviceId as string,
         req.params.serviceName as
-          | "Blood test & Sample collection"
-          | "Nurse care and infusion therapy"
-          | "Nurse Care & Elderly Support"
-          | "Medical massage & Physio therapy",
+          | "General nurse care"
+          | "Physio therapy"
+          | "Pregnancy care"
+          | "Other",
         req.body,
       );
 

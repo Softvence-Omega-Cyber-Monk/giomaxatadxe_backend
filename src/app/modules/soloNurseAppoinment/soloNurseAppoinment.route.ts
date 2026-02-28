@@ -37,5 +37,9 @@ router.delete(
   "/deleteAppointment/:appoinmentId",
   soloNurseAppointmentController.deleteAppointment,
 );
+router.get(
+  "/getAllSoloNurseCompletedAppoinmentAndAmount",
+  soloNurseAppointmentController.getAllSoloNurseCompletedAppoinmentAndAmount,
+);
 
 export const soloNurseAppoinmentRoutes = router;

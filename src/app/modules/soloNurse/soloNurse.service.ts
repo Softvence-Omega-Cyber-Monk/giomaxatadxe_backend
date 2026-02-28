@@ -241,10 +241,10 @@ export const SoloNurseService = {
     userId: string,
     serviceId: string,
     serviceName:
-      | "Blood test & Sample collection"
-      | "Nurse care and infusion therapy"
-      | "Nurse Care & Elderly Support"
-      | "Medical massage & Physio therapy",
+      | "General nurse care"
+      | "Physio therapy"
+      | "Pregnancy care"
+      | "Other",
     payload: { name: string; price: number },
   ) => {
     const { name, price } = payload;
@@ -562,10 +562,10 @@ export const SoloNurseService = {
       ownerId: soloNurseId,
       ownerType: "SOLO_NURSE",
     });
-    console.log("soloNurseMoney", soloNurseMoney);
-    const soloNursePendingMoney = soloNurseMoney?.pendingBalance || 0;
-    const commission = soloNursePendingMoney * 0.15;
-    const nurseReceives = soloNursePendingMoney - commission;
+
+    const soloNurseWithdrawAbleMoney = soloNurseMoney?.withdrawAbleBalance || 0;
+    const commission = soloNurseWithdrawAbleMoney * 0.15;
+    const nurseReceives = soloNurseWithdrawAbleMoney - commission;
 
     const soloNurseWithdrawRequests = await WithdrawRequest_Model.find({
       ownerId: soloNurseId,
