@@ -18,10 +18,10 @@ export type TSoloNurse = {
     services: {
       serviceId: string;
       serviceName:
-        | "Blood test & Sample collection"
-        | "Nurse care and infusion therapy"
-        | "Nurse Care & Elderly Support"
-        | "Medical massage & Physio therapy";
+        | "General nurse care"
+        | "Physio therapy"
+        | "Pregnancy care"
+        | "Other";
 
       subServices: {
         name: string;
