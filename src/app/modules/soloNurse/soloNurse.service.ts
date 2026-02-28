@@ -241,10 +241,10 @@ export const SoloNurseService = {
     userId: string,
     serviceId: string,
     serviceName:
-      | "Blood test & Sample collection"
-      | "Nurse care and infusion therapy"
-      | "Nurse Care & Elderly Support"
-      | "Medical massage & Physio therapy",
+      | "General nurse care"
+      | "Physio therapy"
+      | "Pregnancy care"
+      | "Other",
     payload: { name: string; price: number },
   ) => {
     const { name, price } = payload;

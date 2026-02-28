@@ -5,10 +5,10 @@ const mainServiceSchema = new Schema(
     name: {
       type: String,
       enum: [
-        "Blood test & Sample collection",
-        "Nurse care and infusion therapy",
-        "Nurse Care & Elderly Support",
-        "Medical massage & Physio therapy",
+        "General nurse care",
+        "Physio therapy",
+        "Pregnancy care",
+        "Other",
       ],
       required: true,
     },
