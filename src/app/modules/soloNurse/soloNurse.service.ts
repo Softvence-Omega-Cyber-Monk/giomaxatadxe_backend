@@ -562,10 +562,10 @@ export const SoloNurseService = {
       ownerId: soloNurseId,
       ownerType: "SOLO_NURSE",
     });
-    console.log("soloNurseMoney", soloNurseMoney);
-    const soloNursePendingMoney = soloNurseMoney?.pendingBalance || 0;
-    const commission = soloNursePendingMoney * 0.15;
-    const nurseReceives = soloNursePendingMoney - commission;
+
+    const soloNurseWithdrawAbleMoney = soloNurseMoney?.withdrawAbleBalance || 0;
+    const commission = soloNurseWithdrawAbleMoney * 0.15;
+    const nurseReceives = soloNurseWithdrawAbleMoney - commission;
 
     const soloNurseWithdrawRequests = await WithdrawRequest_Model.find({
       ownerId: soloNurseId,

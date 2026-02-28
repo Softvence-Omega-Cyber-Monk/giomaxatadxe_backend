@@ -156,7 +156,18 @@ export const createPatient = async (
     await session.commitTransaction();
     session.endSession();
 
-    await sendEmail({
+    // await sendEmail({
+    //   to: email,
+    //   subject: "Your Patient Account Verification Code",
+    //   html: `
+    //     <h2>Welcome, ${fullName}</h2>
+    //     <p>Your account has been created successfully.</p>
+    //     <p><strong>Verification Code:</strong> ${verificationCode}</p>
+    //     <p>Please use this code to verify your account.</p>
+    //   `,
+    // });
+
+    await sendEmailWithSES({
       to: email,
       subject: "Your Patient Account Verification Code",
       html: `
@@ -177,16 +188,6 @@ export const createPatient = async (
     } catch (err: any) {
       console.error("SMS failed:", err);
     }
-    // await sendEmailWithSES({
-    //   to: email,
-    //   subject: "Your Patient Account Verification Code",
-    //   html: `
-    //     <h2>Welcome, ${fullName}</h2>
-    //     <p>Your account has been created successfully.</p>
-    //     <p><strong>Verification Code:</strong> ${verificationCode}</p>
-    //     <p>Please use this code to verify your account.</p>
-    //   `,
-    // });
 
     return newPatient[0];
   } catch (error) {
@@ -496,7 +497,11 @@ const getAdmin = async () => {
   return admin;
 };
 
-const verifyUser = async (userId: string, code: string , codeForNumber: string) => {
+const verifyUser = async (
+  userId: string,
+  code: string,
+  codeForNumber: string,
+) => {
   const user = await User_Model.findById(userId);
   if (!user) {
     throw new Error("User not found");

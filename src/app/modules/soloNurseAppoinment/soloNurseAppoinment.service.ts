@@ -5,6 +5,7 @@ import { soloNurseAppoinment_Model } from "./soloNurseAppoinment.model";
 import mongoose from "mongoose";
 import { ChatModel } from "../chat/chat.model";
 import { getAppointmentDateTime } from "../../utils/getAppoinmentTimeAndDate";
+import { Wallet_Model } from "../wallet/wallet.model";
 
 export const soloNurseAppointmentService = {
   createAppointment: async (data: any) => {
@@ -271,11 +272,20 @@ export const soloNurseAppointmentService = {
       }
     }
 
-    return await soloNurseAppoinment_Model.findByIdAndUpdate(
+    const res = await soloNurseAppoinment_Model.findByIdAndUpdate(
       id,
       { status: data.status },
       { new: true },
     );
+
+    if (res?.status === "completed") {
+      await Wallet_Model.findOneAndUpdate(
+        { ownerId: res.soloNurseId, ownerType: "SOLO_NURSE" },
+        { $inc: { withdrawAbleBalance: res.appointmentFee } },
+      );
+    }
+
+    return res;
   },
 
   getSelectedDateAndTime: async (id: string, date?: string) => {
@@ -552,5 +562,53 @@ export const soloNurseAppointmentService = {
 
   deleteAppointment: async (id: string) => {
     return await soloNurseAppoinment_Model.findByIdAndDelete(id);
+  },
+
+  getAllSoloNurseCompletedAppoinmentAndAmount: async () => {
+    const res = await soloNurseAppoinment_Model.aggregate([
+      {
+        $match: {
+          status: "completed",
+        },
+      },
+      {
+        $group: {
+          _id: "$soloNurseId",
+          totalAmount: { $sum: "$appointmentFee" },
+          completedAppointments: { $sum: 1 }, // ✅ appointment quantity
+        },
+      },
+      {
+        $lookup: {
+          from: "solonurses",
+          localField: "_id",
+          foreignField: "_id",
+          as: "soloNurse",
+        },
+      },
+      { $unwind: "$soloNurse" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "soloNurse.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $project: {
+          _id: 0,
+          soloNurseId: "$soloNurse._id",
+          name: "$user.fullName",
+          IBAN_number:
+            "$soloNurse.paymentAndEarnings.withdrawalMethods.IBanNumber",
+          totalAmount: 1,
+          completedAppointments: 1, // ✅ return it
+        },
+      },
+    ]);
+
+    return res;
   },
 };
