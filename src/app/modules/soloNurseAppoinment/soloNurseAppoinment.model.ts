@@ -54,6 +54,7 @@ const soloNurseAppoinmentSchema = new Schema(
       enum: ["refund-requested", "refunded", "no-refund", "refund-rejected"],
       default: "no-refund",
     },
+    completedAt: { type: Date, default: null }
   },
   {
     timestamps: true,
