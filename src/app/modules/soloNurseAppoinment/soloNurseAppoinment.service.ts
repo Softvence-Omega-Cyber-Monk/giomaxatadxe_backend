@@ -279,6 +279,9 @@ export const soloNurseAppointmentService = {
     );
 
     if (res?.status === "completed") {
+      appointment.completedAt = new Date();
+      await appointment.save();
+
       await Wallet_Model.findOneAndUpdate(
         { ownerId: res.soloNurseId, ownerType: "SOLO_NURSE" },
         { $inc: { withdrawAbleBalance: res.appointmentFee } },
@@ -565,19 +568,42 @@ export const soloNurseAppointmentService = {
   },
 
   getAllSoloNurseCompletedAppoinmentAndAmount: async () => {
+    const now = new Date();
+
+    // 🔹 Determine which 8-day block of the month we are in
+    const dayOfMonth = now.getDate();
+    const blockIndex = Math.floor((dayOfMonth - 1) / 8);
+    const startDay = blockIndex * 8 + 1;
+
+    // 🔹 Start and end of the current 8-day block
+    const startDate = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      startDay,
+      0,
+      0,
+      0,
+    );
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 8); // 8 days
+
     const res = await soloNurseAppoinment_Model.aggregate([
+      // 🔹 Filter completed appointments in the current 8-day block
       {
         $match: {
           status: "completed",
+          completedAt: { $gte: startDate, $lt: endDate },
         },
       },
+      // 🔹 Group by solo nurse
       {
         $group: {
           _id: "$soloNurseId",
           totalAmount: { $sum: "$appointmentFee" },
-          completedAppointments: { $sum: 1 }, // ✅ appointment quantity
+          completedAppointments: { $sum: 1 },
         },
       },
+      // 🔹 Lookup solo nurse details
       {
         $lookup: {
           from: "solonurses",
@@ -587,6 +613,7 @@ export const soloNurseAppointmentService = {
         },
       },
       { $unwind: "$soloNurse" },
+      // 🔹 Lookup user details
       {
         $lookup: {
           from: "users",
@@ -596,6 +623,7 @@ export const soloNurseAppointmentService = {
         },
       },
       { $unwind: "$user" },
+      // 🔹 Project final fields with 15% deduction
       {
         $project: {
           _id: 0,
@@ -603,12 +631,14 @@ export const soloNurseAppointmentService = {
           name: "$user.fullName",
           IBAN_number:
             "$soloNurse.paymentAndEarnings.withdrawalMethods.IBanNumber",
-          totalAmount: { $multiply: ["$totalAmount", 0.85] }, // ✅ 15% deducted
-          completedAppointments: 1, // ✅ return it
+          totalAmount: { $multiply: ["$totalAmount", 0.85] }, // 15% deduction
+          completedAppointments: 1,
         },
       },
     ]);
 
     return res;
   },
+
+
 };
