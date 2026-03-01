@@ -215,4 +215,5 @@ export const soloNurseAppointmentController = {
       res.status(500).json({ success: false, message: err.message });
     }
   },
+
 };

@@ -42,4 +42,5 @@ router.get(
   soloNurseAppointmentController.getAllSoloNurseCompletedAppoinmentAndAmount,
 );
 
+
 export const soloNurseAppoinmentRoutes = router;
