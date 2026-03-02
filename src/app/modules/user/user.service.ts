@@ -499,40 +499,49 @@ const getAdmin = async () => {
 
 const verifyUser = async (
   userId: string,
-  code: string,
+  code?: string,
   codeForNumber?: string,
 ) => {
+  console.log("data", userId, code, codeForNumber);
+
   const user = await User_Model.findById(userId);
   if (!user) {
     throw new Error("User not found");
   }
 
+
+  // Verify Email Code
   if (code) {
     if (user.verificationCode !== code) {
       throw new Error("Invalid verification code");
     }
+
+    user.isVerified = true;
+    user.verificationCode = undefined; // Clear after success
   }
+
+  // Verify Mobile Code (optional)
   if (codeForNumber) {
     if (user.verificationCodeForNumber !== codeForNumber) {
       throw new Error("Invalid verification code for number");
     }
+
+    user.isMobileVerified = true;
+    user.verificationCodeForNumber = undefined; // Clear after success
   }
 
-  user.isVerified = true;
-  user.isMobileVerified = true;
-  user.verificationCode = undefined; // Clear the code after verification
-  user.verificationCodeForNumber = undefined; // Clear the code after verification
   await user.save();
 
-  if (user.role !== "patient") {
+  // Send email only when email verification is successful
+  if (code && user.role !== "patient") {
     await sendEmail({
       to: user.email,
       subject: "Your Account Has Been Verified, Now wait for admin approval",
       html: `
-      <h2>Hello, ${user.fullName}</h2>
-      <p>Your account has been verified successfully.</p>
-      <p>Please wait for admin approval to access all features.</p>
-    `,
+        <h2>Hello, ${user.fullName}</h2>
+        <p>Your account has been verified successfully.</p>
+        <p>Please wait for admin approval to access all features.</p>
+      `,
     });
   }
 
