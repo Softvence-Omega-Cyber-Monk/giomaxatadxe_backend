@@ -15,124 +15,130 @@ export const patientService = {
     return await Patient_Model.findOne({ userId }).populate("userId");
   },
 
-  updatePatientBasic: async (
-    userId: string,
-    payload: any,
-    profileImageUrl: string,
-    nidFront?: string,
-    nidBack?: string,
-  ) => {
-    const {
-      fullName,
-      phoneNumber,
-      dateOfBirth,
-      gender,
-      bloodGroup,
-      nationalIdNumber,
-      nationality,
-      employer
-    } = payload;
 
-    // console.log("nid", nidFront, nidBack);
+updatePatientBasic: async (
+  userId: string,
+  payload: any,
+  profileImageUrl: string,
+  nidFront?: string,
+  nidBack?: string,
+) => {
 
-    if (payload.dateOfBirth) {
-      const dob = new Date(payload.dateOfBirth);
-      const today = new Date();
+  const {
+    fullName,
+    phoneNumber,
+    dateOfBirth,
+    gender,
+    bloodGroup,
+    nationalIdNumber,
+    nationality,
+    employer
+  } = payload;
 
-      if (isNaN(dob.getTime())) {
-        throw new Error("Invalid date of birth");
-      }
+  if (payload.dateOfBirth) {
+    const dob = new Date(payload.dateOfBirth);
+    const today = new Date();
 
-      if (dob > today) {
-        throw new Error("Date of birth cannot be in the future.");
-      }
-
-      let age = today.getFullYear() - dob.getFullYear();
-
-      const monthDiff = today.getMonth() - dob.getMonth();
-      const dayDiff = today.getDate() - dob.getDate();
-
-      // If birthday has not occurred yet this year
-      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-        age--;
-      }
-
-      // Optional: validate minimum age
-      if (age < 0) {
-        throw new Error("Invalid age calculated");
-      }
-
-      payload.age = age; // store or use age
+    if (isNaN(dob.getTime())) {
+      throw new Error("Invalid date of birth");
     }
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-      const updateData: any = { fullName };
-
-      if (profileImageUrl) {
-        updateData.profileImage = profileImageUrl;
-      }
-
-
-      // step-1: Update user model
-      const updatedUser = await User_Model.findByIdAndUpdate(
-        userId,
-        updateData,
-        { new: true, session },
-      );
-
-      if (!updatedUser) {
-        throw new Error("User not found!");
-      }
-
-      let dataToUpdate: any = {};
-
-      if (nidFront) {
-        dataToUpdate.nidFrontImageUrl = nidFront;
-      }
-
-      if (nidBack) {
-        dataToUpdate.nidBackImageUrl = nidBack;
-      }
-
-      if (employer) {
-        dataToUpdate.employer = employer;
-      }
-
-      // step-2: Update patient model
-      const updatedPatient = await Patient_Model.findOneAndUpdate(
-        { userId },
-        {
-          phoneNumber,
-          nationalIdNumber,
-          dateOfBirth,
-          gender,
-          bloodGroup,
-          age: payload?.age,
-          nationality,
-          ...dataToUpdate,
-        },
-        { new: true, session },
-      ).populate("userId");
-
-      if (!updatedPatient) {
-        throw new Error("Patient profile not found!");
-      }
-
-      // commit both updates
-      await session.commitTransaction();
-      session.endSession();
-
-      return updatedPatient;
-    } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-
-      console.log(error);
+    if (dob > today) {
+      throw new Error("Date of birth cannot be in the future.");
     }
-  },
+
+    let age = today.getFullYear() - dob.getFullYear();
+
+    const monthDiff = today.getMonth() - dob.getMonth();
+    const dayDiff = today.getDate() - dob.getDate();
+
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--;
+    }
+
+    if (age < 0) {
+      throw new Error("Invalid age calculated");
+    }
+
+    payload.age = age;
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+
+    /* ---------------- USER UPDATE ---------------- */
+
+    const updateData: any = {};
+
+    if (fullName !== undefined) {
+      updateData.fullName = fullName;
+    }
+
+    if (profileImageUrl) {
+      updateData.profileImage = profileImageUrl;
+    }
+
+    const updatedUser = await User_Model.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true, session },
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found!");
+    }
+
+    /* ---------------- PATIENT UPDATE ---------------- */
+
+    let dataToUpdate: any = {};
+
+    if (nidFront) {
+      dataToUpdate.nidFrontImageUrl = nidFront;
+    }
+
+    if (nidBack) {
+      dataToUpdate.nidBackImageUrl = nidBack;
+    }
+
+    if (employer) {
+      dataToUpdate.employer = employer;
+    }
+
+    const updatedPatient = await Patient_Model.findOneAndUpdate(
+      { userId },
+      {
+        phoneNumber,
+        nationalIdNumber,
+        dateOfBirth,
+        gender,
+        bloodGroup,
+        age: payload?.age,
+        nationality,
+        ...dataToUpdate,
+      },
+      { new: true, session },
+    ).populate("userId");
+
+    if (!updatedPatient) {
+      throw new Error("Patient profile not found!");
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return updatedPatient;
+
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error; // ✅ important fix
+  }
+},
+
+
+
   createOrUpdateAddress: async (
     userId: string,
     addressId: string,
