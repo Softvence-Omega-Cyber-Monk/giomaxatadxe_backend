@@ -507,8 +507,10 @@ const verifyUser = async (
     throw new Error("User not found");
   }
 
-  if (user.verificationCode !== code) {
-    throw new Error("Invalid verification code");
+  if (code) {
+    if (user.verificationCode !== code) {
+      throw new Error("Invalid verification code");
+    }
   }
   if (codeForNumber) {
     if (user.verificationCodeForNumber !== codeForNumber) {
