@@ -30,10 +30,8 @@ export const patientService = {
       bloodGroup,
       nationalIdNumber,
       nationality,
-      employer
+      employer,
     } = payload;
-
-    // console.log("nid", nidFront, nidBack);
 
     if (payload.dateOfBirth) {
       const dob = new Date(payload.dateOfBirth);
@@ -52,31 +50,33 @@ export const patientService = {
       const monthDiff = today.getMonth() - dob.getMonth();
       const dayDiff = today.getDate() - dob.getDate();
 
-      // If birthday has not occurred yet this year
       if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
         age--;
       }
 
-      // Optional: validate minimum age
       if (age < 0) {
         throw new Error("Invalid age calculated");
       }
 
-      payload.age = age; // store or use age
+      payload.age = age;
     }
 
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-      const updateData: any = { fullName };
+      /* ---------------- USER UPDATE ---------------- */
+
+      const updateData: any = {};
+
+      if (fullName !== undefined) {
+        updateData.fullName = fullName;
+      }
 
       if (profileImageUrl) {
         updateData.profileImage = profileImageUrl;
       }
 
-
-      // step-1: Update user model
       const updatedUser = await User_Model.findByIdAndUpdate(
         userId,
         updateData,
@@ -86,6 +86,8 @@ export const patientService = {
       if (!updatedUser) {
         throw new Error("User not found!");
       }
+
+      /* ---------------- PATIENT UPDATE ---------------- */
 
       let dataToUpdate: any = {};
 
@@ -101,7 +103,6 @@ export const patientService = {
         dataToUpdate.employer = employer;
       }
 
-      // step-2: Update patient model
       const updatedPatient = await Patient_Model.findOneAndUpdate(
         { userId },
         {
@@ -121,18 +122,22 @@ export const patientService = {
         throw new Error("Patient profile not found!");
       }
 
-      // commit both updates
       await session.commitTransaction();
-      session.endSession();
 
       return updatedPatient;
     } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
+      // ✅ Prevent abort-after-commit error
+      if (session.inTransaction()) {
+        await session.abortTransaction();
+      }
 
-      console.log(error);
+      throw error;
+    } finally {
+      // ✅ Always close session safely
+      session.endSession();
     }
   },
+
   createOrUpdateAddress: async (
     userId: string,
     addressId: string,

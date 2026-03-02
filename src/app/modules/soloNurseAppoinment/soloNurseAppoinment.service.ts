@@ -235,60 +235,57 @@ export const soloNurseAppointmentService = {
   },
 
   updateAppointment: async (id: string, data: any) => {
-    const appointment = await soloNurseAppoinment_Model.findById(id);
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    if (!appointment) {
-      throw new Error("Appointment not found");
-    }
+    try {
+      const appointment = await soloNurseAppoinment_Model
+        .findById(id)
+        .session(session);
+      if (!appointment) throw new Error("Appointment not found");
 
-    // ✅ Apply rule only when cancelling
-    if (data.status === "cancelled") {
-      if (
-        !appointment.prefarenceDate ||
-        appointment.prefarenceDate.length === 0
-      ) {
-        throw new Error("No appointment date found.");
+      if (data.status === "cancelled") {
+        if (!appointment.prefarenceDate?.length)
+          throw new Error("No appointment date found.");
+        const appointmentDateTime = getAppointmentDateTime(
+          new Date(appointment.prefarenceDate[0].toString()),
+          appointment.prefarenceTime,
+        );
+        if (
+          new Date() >=
+          new Date(appointmentDateTime.getTime() - 24 * 60 * 60 * 1000)
+        ) {
+          throw new Error(
+            "Cannot cancel within 24 hours of the scheduled time",
+          );
+        }
       }
 
-      // 🔹 Use first date (or you can define confirmedDate later)
-      const selectedDate = new Date(appointment.prefarenceDate[0].toString());
+      const updateData: any = { status: data.status };
+      if (data.status === "completed") updateData.completedAt = new Date();
 
-      const appointmentDateTime = getAppointmentDateTime(
-        selectedDate,
-        appointment.prefarenceTime,
+      const res = await soloNurseAppoinment_Model.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true, session },
       );
 
-      // 24 hours before appointment
-      const twentyFourHoursBefore = new Date(
-        appointmentDateTime.getTime() - 24 * 60 * 60 * 1000,
-      );
-
-      const now = new Date();
-
-      if (now >= twentyFourHoursBefore) {
-        throw new Error(
-          "You cannot cancel the appointment within 24 hours of the scheduled time",
+      if (res?.status === "completed") {
+        await Wallet_Model.findOneAndUpdate(
+          { ownerId: res.soloNurseId, ownerType: "SOLO_NURSE" },
+          { $inc: { withdrawAbleBalance: res.appointmentFee } },
+          { session },
         );
       }
+
+      await session.commitTransaction();
+      return res;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-
-    const res = await soloNurseAppoinment_Model.findByIdAndUpdate(
-      id,
-      { status: data.status },
-      { new: true },
-    );
-
-    if (res?.status === "completed") {
-      appointment.completedAt = new Date();
-      await appointment.save();
-
-      await Wallet_Model.findOneAndUpdate(
-        { ownerId: res.soloNurseId, ownerType: "SOLO_NURSE" },
-        { $inc: { withdrawAbleBalance: res.appointmentFee } },
-      );
-    }
-
-    return res;
   },
 
   getSelectedDateAndTime: async (id: string, date?: string) => {
@@ -568,34 +565,34 @@ export const soloNurseAppointmentService = {
   },
 
   getAllSoloNurseCompletedAppoinmentAndAmount: async () => {
-    const now = new Date();
-
-    // 🔹 Determine which 8-day block of the month we are in
-    const dayOfMonth = now.getDate();
-    const blockIndex = Math.floor((dayOfMonth - 1) / 8);
-    const startDay = blockIndex * 8 + 1;
-
-    // 🔹 Start and end of the current 8-day block
-    const startDate = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      startDay,
-      0,
-      0,
-      0,
+    // const now = new Date();
+    const now = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "Asia/Tbilisi" }),
     );
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 8); // 8 days
+    // 🔹 Current day (0 = Sunday)
+    const currentDay = now.getDay();
 
+    // 🔹 Find this Sunday (start of current week)
+    const thisSunday = new Date(now);
+    thisSunday.setDate(now.getDate() - currentDay);
+    thisSunday.setHours(0, 0, 0, 0);
+
+    // 🔹 Find last Sunday (start of last week)
+    const lastSunday = new Date(thisSunday);
+    lastSunday.setDate(thisSunday.getDate() - 7);
+
+    // 🔹 End of last week (Saturday 23:59:59)
+    const lastWeekEnd = new Date(thisSunday);
+    lastWeekEnd.setMilliseconds(-1); // 1ms before this Sunday
+
+    // 🔹 Aggregate completed appointments from last week
     const res = await soloNurseAppoinment_Model.aggregate([
-      // 🔹 Filter completed appointments in the current 8-day block
       {
         $match: {
           status: "completed",
-          completedAt: { $gte: startDate, $lt: endDate },
+          completedAt: { $gte: lastSunday, $lte: lastWeekEnd }, // full last week
         },
       },
-      // 🔹 Group by solo nurse
       {
         $group: {
           _id: "$soloNurseId",
@@ -603,7 +600,6 @@ export const soloNurseAppointmentService = {
           completedAppointments: { $sum: 1 },
         },
       },
-      // 🔹 Lookup solo nurse details
       {
         $lookup: {
           from: "solonurses",
@@ -613,7 +609,6 @@ export const soloNurseAppointmentService = {
         },
       },
       { $unwind: "$soloNurse" },
-      // 🔹 Lookup user details
       {
         $lookup: {
           from: "users",
@@ -623,7 +618,6 @@ export const soloNurseAppointmentService = {
         },
       },
       { $unwind: "$user" },
-      // 🔹 Project final fields with 15% deduction
       {
         $project: {
           _id: 0,
@@ -631,14 +625,26 @@ export const soloNurseAppointmentService = {
           name: "$user.fullName",
           IBAN_number:
             "$soloNurse.paymentAndEarnings.withdrawalMethods.IBanNumber",
-          totalAmount: { $multiply: ["$totalAmount", 0.85] }, // 15% deduction
+          totalAmount: { $multiply: ["$totalAmount", 0.85] },
           completedAppointments: 1,
         },
       },
     ]);
 
+    console.log("res data ", res);
+
+    // 🔹 Move withdrawAbleBalance → balance for each nurse
+    for (const nurse of res) {
+      await Wallet_Model.findOneAndUpdate(
+        { ownerId: nurse.soloNurseId, ownerType: "SOLO_NURSE" },
+        {
+          $inc: { balance: nurse.totalAmount }, // move totalAmount to balance
+          $set: { withdrawAbleBalance: 0 }, // reset withdrawAbleBalance
+        },
+        { upsert: true },
+      );
+    }
+
     return res;
   },
-
-
 };
