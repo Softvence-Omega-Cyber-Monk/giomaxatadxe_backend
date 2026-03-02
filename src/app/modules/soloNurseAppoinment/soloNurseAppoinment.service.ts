@@ -235,60 +235,57 @@ export const soloNurseAppointmentService = {
   },
 
   updateAppointment: async (id: string, data: any) => {
-    const appointment = await soloNurseAppoinment_Model.findById(id);
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    if (!appointment) {
-      throw new Error("Appointment not found");
-    }
+    try {
+      const appointment = await soloNurseAppoinment_Model
+        .findById(id)
+        .session(session);
+      if (!appointment) throw new Error("Appointment not found");
 
-    // ✅ Apply rule only when cancelling
-    if (data.status === "cancelled") {
-      if (
-        !appointment.prefarenceDate ||
-        appointment.prefarenceDate.length === 0
-      ) {
-        throw new Error("No appointment date found.");
+      if (data.status === "cancelled") {
+        if (!appointment.prefarenceDate?.length)
+          throw new Error("No appointment date found.");
+        const appointmentDateTime = getAppointmentDateTime(
+          new Date(appointment.prefarenceDate[0].toString()),
+          appointment.prefarenceTime,
+        );
+        if (
+          new Date() >=
+          new Date(appointmentDateTime.getTime() - 24 * 60 * 60 * 1000)
+        ) {
+          throw new Error(
+            "Cannot cancel within 24 hours of the scheduled time",
+          );
+        }
       }
 
-      // 🔹 Use first date (or you can define confirmedDate later)
-      const selectedDate = new Date(appointment.prefarenceDate[0].toString());
+      const updateData: any = { status: data.status };
+      if (data.status === "completed") updateData.completedAt = new Date();
 
-      const appointmentDateTime = getAppointmentDateTime(
-        selectedDate,
-        appointment.prefarenceTime,
+      const res = await soloNurseAppoinment_Model.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true, session },
       );
 
-      // 24 hours before appointment
-      const twentyFourHoursBefore = new Date(
-        appointmentDateTime.getTime() - 24 * 60 * 60 * 1000,
-      );
-
-      const now = new Date();
-
-      if (now >= twentyFourHoursBefore) {
-        throw new Error(
-          "You cannot cancel the appointment within 24 hours of the scheduled time",
+      if (res?.status === "completed") {
+        await Wallet_Model.findOneAndUpdate(
+          { ownerId: res.soloNurseId, ownerType: "SOLO_NURSE" },
+          { $inc: { withdrawAbleBalance: res.appointmentFee } },
+          { session },
         );
       }
+
+      await session.commitTransaction();
+      return res;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-
-    const res = await soloNurseAppoinment_Model.findByIdAndUpdate(
-      id,
-      { status: data.status },
-      { new: true },
-    );
-
-    if (res?.status === "completed") {
-      appointment.completedAt = new Date();
-      await appointment.save();
-
-      await Wallet_Model.findOneAndUpdate(
-        { ownerId: res.soloNurseId, ownerType: "SOLO_NURSE" },
-        { $inc: { withdrawAbleBalance: res.appointmentFee } },
-      );
-    }
-
-    return res;
   },
 
   getSelectedDateAndTime: async (id: string, date?: string) => {
@@ -587,7 +584,7 @@ export const soloNurseAppointmentService = {
       {
         $match: {
           status: "completed",
-          completedAt: { $gte: lastSunday, $lt: thisSunday },
+        completedAt: { $gte: lastSunday, $lte: now }
         },
       },
       {
@@ -627,6 +624,8 @@ export const soloNurseAppointmentService = {
         },
       },
     ]);
+
+    console.log("res data ", res);
 
     // 🔹 Move withdrawAbleBalance → balance for each nurse
     for (const nurse of res) {
