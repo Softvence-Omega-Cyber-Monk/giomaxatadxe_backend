@@ -570,32 +570,26 @@ export const soloNurseAppointmentService = {
   getAllSoloNurseCompletedAppoinmentAndAmount: async () => {
     const now = new Date();
 
-    // 🔹 Determine which 8-day block of the month we are in
-    const dayOfMonth = now.getDate();
-    const blockIndex = Math.floor((dayOfMonth - 1) / 8);
-    const startDay = blockIndex * 8 + 1;
+    // 🔹 Current day (0 = Sunday)
+    const currentDay = now.getDay();
 
-    // 🔹 Start and end of the current 8-day block
-    const startDate = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      startDay,
-      0,
-      0,
-      0,
-    );
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 8); // 8 days
+    // 🔹 Find this Sunday (start of current week)
+    const thisSunday = new Date(now);
+    thisSunday.setDate(now.getDate() - currentDay);
+    thisSunday.setHours(0, 0, 0, 0);
 
+    // 🔹 Find last Sunday (start of last week)
+    const lastSunday = new Date(thisSunday);
+    lastSunday.setDate(thisSunday.getDate() - 7);
+
+    // 🔹 Aggregate completed appointments from last week only
     const res = await soloNurseAppoinment_Model.aggregate([
-      // 🔹 Filter completed appointments in the current 8-day block
       {
         $match: {
           status: "completed",
-          completedAt: { $gte: startDate, $lt: endDate },
+          completedAt: { $gte: lastSunday, $lt: thisSunday },
         },
       },
-      // 🔹 Group by solo nurse
       {
         $group: {
           _id: "$soloNurseId",
@@ -603,7 +597,6 @@ export const soloNurseAppointmentService = {
           completedAppointments: { $sum: 1 },
         },
       },
-      // 🔹 Lookup solo nurse details
       {
         $lookup: {
           from: "solonurses",
@@ -613,7 +606,6 @@ export const soloNurseAppointmentService = {
         },
       },
       { $unwind: "$soloNurse" },
-      // 🔹 Lookup user details
       {
         $lookup: {
           from: "users",
@@ -623,7 +615,6 @@ export const soloNurseAppointmentService = {
         },
       },
       { $unwind: "$user" },
-      // 🔹 Project final fields with 15% deduction
       {
         $project: {
           _id: 0,
@@ -637,8 +628,18 @@ export const soloNurseAppointmentService = {
       },
     ]);
 
+    // 🔹 Move withdrawAbleBalance → balance for each nurse
+    for (const nurse of res) {
+      await Wallet_Model.findOneAndUpdate(
+        { ownerId: nurse.soloNurseId, ownerType: "SOLO_NURSE" },
+        {
+          $inc: { balance: nurse.totalAmount }, // move totalAmount to balance
+          $set: { withdrawAbleBalance: 0 }, // reset withdrawAbleBalance
+        },
+        { upsert: true },
+      );
+    }
+
     return res;
   },
-
-
 };
