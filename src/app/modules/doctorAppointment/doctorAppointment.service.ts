@@ -338,26 +338,58 @@ export const doctorAppointmentService = {
       });
   },
 
-  getSinglePaitentChats: async (patientId: string) => {
-    // Step 1: Get unique doctor IDs for this patient
+  // getSinglePaitentChats: async (patientId: string) => {
+  //   // Step 1: Get unique doctor IDs for this patient
+  //   const doctorIds = await doctorAppointment_Model.distinct("doctorId", {
+  //     patientId: patientId,
+  //     status: { $in: ["confirmed", "completed"] },
+  //   });
+  //   // Step 2: Fetch doctor details using the IDs
+  //   return await Doctor_Model.find({ _id: { $in: doctorIds } })
+  //     .select(" userId professionalInformation.speciality")
+  //     .populate({
+  //       path: "userId",
+  //       model: "user",
+  //       select: "fullName role profileImage",
+  //     });
+  // },
+  getSinglePaitentChats: async (patientId: string, date: string) => {
+    // Convert the input date string to start and end of the day
+    const start = new Date(date); // e.g., "2026-03-02"
+    start.setHours(0, 0, 0, 0); // start of day
+
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999); // end of day
+
+    // Step 1: Get unique doctor IDs for this patient on that date
     const doctorIds = await doctorAppointment_Model.distinct("doctorId", {
       patientId: patientId,
       status: { $in: ["confirmed", "completed"] },
+      prefarenceDate: { $gte: start, $lte: end },
     });
+
     // Step 2: Fetch doctor details using the IDs
     return await Doctor_Model.find({ _id: { $in: doctorIds } })
-      .select(" userId professionalInformation.speciality")
+      .select("userId professionalInformation.speciality")
       .populate({
         path: "userId",
         model: "user",
         select: "fullName role profileImage",
       });
   },
-  getSingleDoctorChats: async (doctorId: string) => {
-    // Step 1: Get unique patient IDs for this doctor
+  getSingleDoctorChats: async (doctorId: string, date: string) => {
+    // Convert input date to start and end of the day
+    const start = new Date(date); // e.g., "2026-03-02"
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+    // Step 1: Get unique patient IDs for this doctor on that date
     const patientIds = await doctorAppointment_Model.distinct("patientId", {
       doctorId: doctorId,
       status: { $in: ["confirmed", "completed"] },
+      prefarenceDate: { $gte: start, $lte: end },
     });
 
     // Step 2: Fetch patient details using the IDs

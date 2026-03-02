@@ -21,11 +21,11 @@ router.get(
 );
 
 router.get(
-  "/getSinglePaitentChats/:patientId",
+  "/getSinglePaitentChats/:patientId/:date",
   doctorAppointmentController.getSinglePaitentChats
 );
 router.get(
-  "/getSingleDoctorChats/:doctorId",
+  "/getSingleDoctorChats/:doctorId/:date",
   doctorAppointmentController.getSingleDoctorChats
 );
 router.get(
