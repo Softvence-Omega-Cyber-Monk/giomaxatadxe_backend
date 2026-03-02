@@ -111,7 +111,9 @@ export const doctorAppointmentController = {
   getSinglePaitentChats: async (req: Request, res: Response) => {
     try {
       const result = await doctorAppointmentService.getSinglePaitentChats(
-        req.params.patientId as string
+        req.params.patientId as string,
+        req.params.date as string
+
       );
       res.json({
         success: true,
@@ -127,6 +129,8 @@ export const doctorAppointmentController = {
     try {
       const result = await doctorAppointmentService.getSingleDoctorChats(
         req.params.doctorId as string
+        ,
+        req.params.date as string
       );
       res.json({
         success: true,
