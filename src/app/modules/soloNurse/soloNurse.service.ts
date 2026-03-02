@@ -629,11 +629,15 @@ export const SoloNurseService = {
 
     console.log("totalEarnings", totalEarnings);
 
+     const soloNurseWithdrawAbleMoney = totalEarnings?.withdrawAbleBalance || 0;
+    const commission = soloNurseWithdrawAbleMoney * 0.15;
+    const nurseReceives = soloNurseWithdrawAbleMoney - commission;
+
     return {
       allAppoinment: allAppointments.length,
       pendingAppointments: pendingAppointments.length,
       completedAppointments: completedAppointments.length,
-      totalEarnings: totalEarnings?.balance || 0,
+      WithdrawAbleAmount: nurseReceives || 0,
     };
   },
 };
