@@ -500,7 +500,7 @@ const getAdmin = async () => {
 const verifyUser = async (
   userId: string,
   code: string,
-  codeForNumber?: string,
+  codeForNumber: string,
 ) => {
   const user = await User_Model.findById(userId);
   if (!user) {
@@ -510,10 +510,8 @@ const verifyUser = async (
   if (user.verificationCode !== code) {
     throw new Error("Invalid verification code");
   }
-  if (codeForNumber) {
-    if (user.verificationCodeForNumber !== codeForNumber) {
-      throw new Error("Invalid verification code for number");
-    }
+  if (user.verificationCodeForNumber !== codeForNumber) {
+    throw new Error("Invalid verification code for number");
   }
 
   user.isVerified = true;
