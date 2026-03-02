@@ -565,8 +565,10 @@ export const soloNurseAppointmentService = {
   },
 
   getAllSoloNurseCompletedAppoinmentAndAmount: async () => {
-    const now = new Date();
-
+    // const now = new Date();
+    const now = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "Asia/Tbilisi" }),
+    );
     // 🔹 Current day (0 = Sunday)
     const currentDay = now.getDay();
 
@@ -579,12 +581,16 @@ export const soloNurseAppointmentService = {
     const lastSunday = new Date(thisSunday);
     lastSunday.setDate(thisSunday.getDate() - 7);
 
-    // 🔹 Aggregate completed appointments from last week only
+    // 🔹 End of last week (Saturday 23:59:59)
+    const lastWeekEnd = new Date(thisSunday);
+    lastWeekEnd.setMilliseconds(-1); // 1ms before this Sunday
+
+    // 🔹 Aggregate completed appointments from last week
     const res = await soloNurseAppoinment_Model.aggregate([
       {
         $match: {
           status: "completed",
-        completedAt: { $gte: lastSunday, $lte: now }
+          completedAt: { $gte: lastSunday, $lte: lastWeekEnd }, // full last week
         },
       },
       {
@@ -619,7 +625,7 @@ export const soloNurseAppointmentService = {
           name: "$user.fullName",
           IBAN_number:
             "$soloNurse.paymentAndEarnings.withdrawalMethods.IBanNumber",
-          totalAmount: { $multiply: ["$totalAmount", 0.85] }, // 15% deduction
+          totalAmount: { $multiply: ["$totalAmount", 0.85] },
           completedAppointments: 1,
         },
       },
