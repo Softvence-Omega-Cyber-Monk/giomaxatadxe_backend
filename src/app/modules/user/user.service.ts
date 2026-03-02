@@ -181,7 +181,7 @@ export const createPatient = async (
     try {
       const result = await sendSMS({
         phone: payload.phoneNumber,
-        message: `Your account verification code is: ${verificationCode}`,
+        message: `Your account verification code is: ${verificationCodeForNumber}`,
       });
 
       console.log(result);
