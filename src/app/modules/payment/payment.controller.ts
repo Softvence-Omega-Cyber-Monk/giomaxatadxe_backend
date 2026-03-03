@@ -22,6 +22,8 @@ const startClinicPayment = async (req: Request, res: Response) => {
       patientPhone,
       patientDateOfBirth,
       dataVisibility,
+      method,
+      token,
     } = req.body;
 
     const visibleChecked = dataVisibility === "ხილული" ? "☑" : "☐";
@@ -51,10 +53,13 @@ const startClinicPayment = async (req: Request, res: Response) => {
       amount: appointment.appoinmentFee,
     });
 
-    const bogOrder = await PaymentService.createBoGOrder(payment);
+    const bogOrder = await PaymentService.createBoGOrder(
+      payment,
+      method,
+      token,
+    );
     payment.bogOrderId = bogOrder.id;
     await payment.save();
-
 
     //     await sendEmailWithSES({
     //       to: patientEmail,
@@ -653,7 +658,11 @@ const startSoloNursePayment = async (req: Request, res: Response) => {
       amount: appointment.appointmentFee,
     });
 
-    const bogOrder = await PaymentService.createBoGOrder(payment);
+    const bogOrder = await PaymentService.createBoGOrder(
+      payment,
+      req.body.method,
+      req.body.token,
+    );
     payment.bogOrderId = bogOrder.id;
     await payment.save();
 
